@@ -30,7 +30,7 @@ test('a target with parentheses, a title, angle brackets and a malformed percent
 });
 
 test('a README that links every course, with the right count, is fine', (t) => {
-  const root = tree(t, { 'README.md': front(1, '[c](./01-a/first/)'), '01-a/first/README.md': '# c' });
+  const root = tree(t, { 'README.md': front(1, '[c](./01-a/first/)'), '01-a/first/README.md': '# C' });
   assert.deepEqual(findProblems(root), []);
 });
 
@@ -43,43 +43,43 @@ test('a broken link inside a course page is reported, resolved from that page', 
   const root = tree(t, {
     'README.md': front(1, '[c](01-a/first/)'),
     '01-a/first/README.md': '[ok](quiz.md) [gone](materials/old.docx)',
-    '01-a/first/quiz.md': '# quiz',
+    '01-a/first/quiz.md': '# Quiz',
   });
   assert.deepEqual(findProblems(root), ['01-a/first/README.md links to materials/old.docx, which does not exist']);
 });
 
 test('a link with the wrong letter case is reported, because GitHub is case-sensitive', (t) => {
-  const root = tree(t, { 'README.md': front(0, '[x](Notes.md)'), 'notes.md': '# n' });
+  const root = tree(t, { 'README.md': front(0, '[x](Notes.md)'), 'notes.md': '# N' });
   assert.deepEqual(findProblems(root), ['README.md links to Notes.md, which does not exist']);
 });
 
 test('a course folder the README does not mention is reported (the break: add a course, forget the link)', (t) => {
-  const root = tree(t, { 'README.md': front(1), '01-a/new/README.md': '# c' });
+  const root = tree(t, { 'README.md': front(1), '01-a/new/README.md': '# C' });
   assert.deepEqual(findProblems(root), ['01-a/new exists but the front README does not link to it']);
 });
 
 test('a course folder with no README of its own still has to be linked', (t) => {
-  const root = tree(t, { 'README.md': front(1), '01-a/new/lesson-plan.md': '# l' });
+  const root = tree(t, { 'README.md': front(1), '01-a/new/lesson-plan.md': '# L' });
   assert.deepEqual(findProblems(root), ['01-a/new exists but the front README does not link to it']);
 });
 
 test('a stale course count is reported (the break: add a course, forget the number)', (t) => {
-  const root = tree(t, { 'README.md': front(1, '[a](01-a/one/) [b](01-a/two/)'), '01-a/one/README.md': '#', '01-a/two/README.md': '#' });
+  const root = tree(t, { 'README.md': front(1, '[a](01-a/one/) [b](01-a/two/)'), '01-a/one/README.md': '# H', '01-a/two/README.md': '# H' });
   assert.deepEqual(findProblems(root), ['the front README says 1 courses so far, but there are 2 course folders']);
 });
 
 test('a section page alone is not a course', (t) => {
-  const root = tree(t, { 'README.md': front(0), '01-a/README.md': '# section' });
+  const root = tree(t, { 'README.md': front(0), '01-a/README.md': '# Section' });
   assert.deepEqual(findProblems(root), []);
 });
 
 test('a link to a heading that exists passes, in the same file and in another file', (t) => {
-  const root = tree(t, { 'README.md': front(0, '[a](#find-what-fits-you) [b](other.md#words-used-here)') + '\n## Find what fits you\n', 'other.md': '# Other\n## Words used here\n' });
+  const root = tree(t, { 'README.md': front(0, '[a](#find-what-fits-you) [b](other.md#words-used-here)') + '\n## Find What Fits You\n', 'other.md': '# Other\n## Words Used Here\n' });
   assert.deepEqual(findProblems(root), []);
 });
 
 test('a link to a heading that is not there is reported (the break: rename a heading, keep the old link)', (t) => {
-  const root = tree(t, { 'README.md': front(0, '[a](#coming-next)') + '\n## Related work\n' });
+  const root = tree(t, { 'README.md': front(0, '[a](#coming-next)') + '\n## Related Work\n' });
   assert.deepEqual(findProblems(root), ['README.md links to #coming-next, but README.md has no such heading']);
 });
 
@@ -99,6 +99,32 @@ test('the real repository passes its own check (also proves the script finds the
 });
 
 test('a top-level folder that is not a numbered section is reported, because courses in it would escape the check', (t) => {
-  const root = tree(t, { 'README.md': front(0), 'courses/new/README.md': '# c' });
+  const root = tree(t, { 'README.md': front(0), 'courses/new/README.md': '# C' });
   assert.deepEqual(findProblems(root), ['courses/ is not a numbered section folder (01-name), docs or .github, so courses in it would not be checked']);
+});
+
+test('headings in title case pass, including small words in the middle and hyphenated words', (t) => {
+  const root = tree(t, { 'README.md': front(0) + '\n## Find What Fits You\n## Quiz and Answer Key\n## Is 7.4% a Good Result?\n### 1. Prioritizing a Backlog of 570 Ideas\n# Plan: A Two-Week Course\n' });
+  assert.deepEqual(findProblems(root), []);
+});
+
+test('a heading that is not in title case is reported (the break: write a heading in sentence case)', (t) => {
+  const root = tree(t, { 'README.md': front(0) + '\n## Find what fits you\n' });
+  assert.deepEqual(findProblems(root), ['README.md: the heading "Find what fits you" is not in title case ("what")']);
+});
+
+test('the word after a colon, the first word and the last word must be capitalized', (t) => {
+  const root = tree(t, { 'README.md': front(0) + '\n## Plan: a Course\n## the Start\n## Where It Goes to\n' });
+  assert.deepEqual(findProblems(root), [
+    'README.md: the heading "Plan: a Course" is not in title case ("a")',
+    'README.md: the heading "the Start" is not in title case ("the")',
+    'README.md: the heading "Where It Goes to" is not in title case ("to")',
+  ]);
+});
+
+test('the banned phrase is reported anywhere in the text, but not inside code', (t) => {
+  const bad = tree(t, { 'README.md': front(0) + '\nAn In Plain English section.\n' });
+  assert.deepEqual(findProblems(bad), ['README.md uses a banned phrase (plain[- ]english); say Overview or describe it differently']);
+  const ok = tree(t, { 'README.md': front(0) + '\nThe phrase `plain English` in code is an example.\n' });
+  assert.deepEqual(findProblems(ok), []);
 });

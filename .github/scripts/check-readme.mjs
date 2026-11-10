@@ -6,6 +6,7 @@
 //   - a course folder (NN-section/course-name/) is not linked from the front README;
 //   - a top-level folder is neither a numbered section (NN-name), docs nor .github (a course placed elsewhere would escape the check);
 //   - the front README says "N courses so far" and N is not the number of course folders.
+// Written style: headings are in title case, and the phrase "plain English" is not used anywhere.
 // Web links are not checked: third-party sites block bots and would make the build flaky.
 import fs from 'fs';
 import path from 'path';
@@ -98,11 +99,39 @@ export function courseFolders(root) {
   return found;
 }
 
+const SMALL_WORDS = new Set(['a', 'an', 'and', 'as', 'at', 'but', 'by', 'for', 'in', 'of', 'on', 'or', 'the', 'to', 'vs', 'via', 'with', 'from', 'into', 'than', 'nor', 'per']);
+
+/** Headings that are not in title case: a word starts in lower case, unless it is a small word in the middle (a, of, to, with...). The first word, the last word and the word after a colon are always capitalized. */
+export function headingProblems(markdown) {
+  const out = [];
+  for (const m of withoutCode(markdown).matchAll(/^#{1,6}\s+(.+?)\s*#*\s*$/gm)) {
+    const words = m[1].split(' ');
+    words.some((w, i) => {
+      if (/^(`|\[|http)/.test(w)) return false;
+      const core = (w.match(/^[^A-Za-z0-9]*([A-Za-z0-9'’-]+)/) ?? [])[1];
+      if (!core) return false;
+      const forced = i === 0 || i === words.length - 1 || words[i - 1].endsWith(':');
+      const parts = core.split('-');
+      const bad = parts.find((p) => /^[a-z]/.test(p) && (forced || parts.length > 1 || !SMALL_WORDS.has(p)));
+      if (bad) out.push(`the heading "${m[1]}" is not in title case ("${bad}")`);
+      return Boolean(bad); // one report per heading
+    });
+  }
+  return out;
+}
+
+/** Phrases that must not appear in the written text. */
+export const BANNED_PHRASES = [/plain[- ]english/i];
+
 /** @returns {string[]} one line per problem; empty when the README is in step with the folders */
 export function findProblems(root) {
   const problems = [];
   for (const file of markdownFiles(root)) {
     const text = fs.readFileSync(path.join(root, file), 'utf8');
+    for (const problem of headingProblems(text)) problems.push(`${file}: ${problem}`);
+    for (const phrase of BANNED_PHRASES) {
+      if (phrase.test(withoutCode(text))) problems.push(`${file} uses a banned phrase (${phrase.source}); say Overview or describe it differently`);
+    }
     for (const { target, anchor } of links(text)) {
       const resolved = target ? fromRoot(file, target) : file;
       if (target && !existsExact(root, resolved)) {

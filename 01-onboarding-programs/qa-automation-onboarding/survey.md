@@ -1,4 +1,4 @@
-# Learner survey
+# Learner Survey
 
 Give it on Day 10, and again one month later. Anonymous. Use a scale of 1 (strongly disagree) to 5 (strongly agree) for the first six.
 
@@ -14,6 +14,6 @@ Open questions:
 7. Which day was hardest, and what would have made it easier?
 8. What would you cut, and what would you add?
 
-**For the trainer, one month later:** ask one more question, "Have you written or changed an automated test since the course?" The answer tells you whether the course changed the work, which the Day 10 score cannot.
+**For the trainer, one month later:** Ask one more question, "Have you written or changed an automated test since the course?" The answer tells you whether the course changed the work, which the Day 10 score cannot.
 
-**What to do with the answers:** list the three most common comments, decide one change for the next run, and write that change at the top of the course page under "What I would improve next time".
+**What to do with the answers:** List the three most common comments, decide one change for the next run, and write that change at the top of the course page under "What I would improve next time".

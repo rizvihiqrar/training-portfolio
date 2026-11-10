@@ -1,4 +1,4 @@
-# Quiz and answer key
+# Quiz and Answer Key
 
 Ten questions, given after Day 9. One point each. Give feedback with every answer, right or wrong. Eight or more means ready for the final practice; fewer than eight means review the days named in the key before Day 10.
 
@@ -17,7 +17,7 @@ Ten questions, given after Day 9. One point each. Give feedback with every answe
 9. In an automated test, what is the difference between a selector and an assertion?
 10. Which tool records your clicks in a browser and turns them into a starting test?
 
-## Answer key
+## Answer Key
 
 | # | Answer | Feedback and where to review |
 |---|---|---|

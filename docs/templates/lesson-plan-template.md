@@ -1,4 +1,4 @@
-# Lesson plan template (one page)
+# Lesson Plan Template (One Page)
 
 **Course:** ____  **Session:** ____  **Length:** ____ minutes  **Group size:** ____
 
@@ -12,8 +12,8 @@
 | 0:40 | Practise | Circulate and note mistakes | Do the task on sample data | A marked exercise |
 | 0:55 | Close | Recap, set the assignment | Write one thing they will do next | A short quiz question |
 
-**Prepare:** files, sample data, room or screen setup.
+**Prepare:** Files, sample data, room or screen setup.
 
-**If time runs short:** what to cut first and what never to cut.
+**If time runs short:** What to cut first and what never to cut.
 
-**Afterwards:** what to record (scores, common mistakes) and what to change in the next session.
+**Afterwards:** What to record (scores, common mistakes) and what to change in the next session.
