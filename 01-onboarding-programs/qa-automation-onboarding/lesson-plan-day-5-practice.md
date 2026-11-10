@@ -19,6 +19,8 @@
 
 **Prepare:** each learner has VS Code and Copilot signed in, and Node.js installed (needed from Day 7). Have the three prompts on a slide or a printed card.
 
+**If a learner has no Copilot:** pair them with someone who does for Prompts 1 to 3 and have them review and run the code, or let them use any free AI chat assistant in a browser and paste its code into VS Code. The Week 1 benchmark is the same either way: a snippet from a plain-English prompt, reviewed and run.
+
 **If time runs short:** drop Prompt 2. Never drop the review step: it is the habit the whole programme depends on.
 
 **Afterwards:** note who did not reach the benchmark and check in with them before Day 6. Record the common mistakes (usually "accepted without reading") and add them to next run's opening.

@@ -61,5 +61,5 @@ No learner data is published in this repository. The numbers a trainer would col
 ## What I would improve next time
 
 - Add a short checkpoint quiz after Day 5, so someone who is lost is found before Week 2 starts.
-- Offer a free alternative for each of the two paid course days, so cost never blocks a learner.
+- Offer a free alternative for each of the two paid course days, so cost never blocks a learner. Day 5 already has a no-Copilot fallback in the lesson plan.
 - Pair learners on the two practice days. Explaining what the AI wrote to another person catches more misunderstandings than reading it alone.

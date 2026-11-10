@@ -1,4 +1,4 @@
-[![Training Portfolio: courses people can follow, and proof that they learned](docs/assets/banner.svg)](01-onboarding-programs/qa-automation-onboarding/)
+![Training Portfolio: courses people can follow, and proof that they learned](docs/assets/banner.svg)
 
 # Training portfolio
 

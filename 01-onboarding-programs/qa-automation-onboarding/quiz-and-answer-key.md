@@ -25,8 +25,8 @@ Ten questions, given after Day 9. One point each. Give feedback with every answe
 | 2 | Runs any VS Code action by typing its name | Useful when you forget where a menu item is. Day 1. |
 | 3 | The folder you are in now (the current directory path) | "Where am I?" Check before running any command. Day 2. |
 | 4 | Installs the packages a project lists in its package.json | Run it once after getting a project, before running tests. Day 2. |
-| 5 | Tab accepts it; Esc dismisses it | The grey text is only a suggestion until you accept it. Day 3. |
-| 6 | It is a suggestion, not guaranteed correct | It can miss cases or invent things. Read it, then run it. Days 3 and 5. |
+| 5 | Tab accepts it; Esc dismisses it | The grey text is only a suggestion until you accept it. Day 3 notes in the cheat sheet; practised on Days 4 and 5. |
+| 6 | It is a suggestion, not guaranteed correct | It can miss cases or invent things. Read it, then run it. Day 3 notes; practised on Day 5. |
 | 7 | `npx playwright test` | Day 7. |
 | 8 | B | It names the page, the action and the expected result. Vague prompts get vague tests. Day 9. |
 | 9 | A selector finds the element on the page; an assertion checks that something is true and fails the test if it is not | Both are needed: find it, then check it. Day 8. |
