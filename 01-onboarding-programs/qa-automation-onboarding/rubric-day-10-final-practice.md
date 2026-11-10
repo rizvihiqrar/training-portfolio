@@ -1,4 +1,4 @@
-# Rubric: Day 10 Final Practice
+# Rubric: Day 10 Practical Round
 
 The task: pick one real user flow in an app you know, then use Playwright's recorder and Copilot to write a test and run it. About 60 minutes. The trainer watches and scores, then gives feedback in the same conversation.
 

@@ -1,6 +1,6 @@
 # Quiz and Answer Key
 
-Ten questions, given after Day 9. One point each. Give feedback with every answer, right or wrong. Eight or more means ready for the final practice; fewer than eight means review the days named in the key before Day 10.
+Ten questions, given after Day 9. One point each. Give feedback with every answer, right or wrong. Eight or more means ready for the practical round; fewer than eight means review the days named in the key before Day 10.
 
 ## Questions
 

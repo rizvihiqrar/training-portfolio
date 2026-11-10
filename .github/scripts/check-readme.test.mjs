@@ -15,6 +15,7 @@ function tree(t, files) {
   }
   return root;
 }
+const caseProblem = (heading, word) => `README.md: the heading "${heading}" is not in title case ("${word}"): capitalize it, or add it to LOWERCASE_NAMES if it is a name written in lower case`;
 const front = (courses, links = '') => `${courses} courses so far ${links}`;
 
 test('web links, anchors and web images are not checked', () => {
@@ -110,21 +111,41 @@ test('headings in title case pass, including small words in the middle and hyphe
 
 test('a heading that is not in title case is reported (the break: write a heading in sentence case)', (t) => {
   const root = tree(t, { 'README.md': front(0) + '\n## Find what fits you\n' });
-  assert.deepEqual(findProblems(root), ['README.md: the heading "Find what fits you" is not in title case ("what")']);
+  assert.deepEqual(findProblems(root), [caseProblem('Find what fits you', 'what')]);
 });
 
 test('the word after a colon, the first word and the last word must be capitalized', (t) => {
   const root = tree(t, { 'README.md': front(0) + '\n## Plan: a Course\n## the Start\n## Where It Goes to\n' });
   assert.deepEqual(findProblems(root), [
-    'README.md: the heading "Plan: a Course" is not in title case ("a")',
-    'README.md: the heading "the Start" is not in title case ("the")',
-    'README.md: the heading "Where It Goes to" is not in title case ("to")',
+    caseProblem('Plan: a Course', 'a'),
+    caseProblem('the Start', 'the'),
+    caseProblem('Where It Goes to', 'to'),
   ]);
 });
 
 test('the banned phrase is reported anywhere in the text, but not inside code', (t) => {
   const bad = tree(t, { 'README.md': front(0) + '\nAn In Plain English section.\n' });
-  assert.deepEqual(findProblems(bad), ['README.md uses a banned phrase (plain[- ]english); say Overview or describe it differently']);
+  assert.deepEqual(findProblems(bad), ['README.md uses the banned phrase "plain English"; use "Overview" for a heading, or describe it differently']);
   const ok = tree(t, { 'README.md': front(0) + '\nThe phrase `plain English` in code is an example.\n' });
   assert.deepEqual(findProblems(ok), []);
+});
+
+test('hyphenated words, tool names written in lower case, and C# are fine', (t) => {
+  const root = tree(t, { 'README.md': front(0) + '\n## Low-fidelity Prototype\n## Running k6 Against the API\n## Intro to C#\n## What to Do If It Fails\n## Why npm Audit Matters\n' });
+  assert.deepEqual(findProblems(root), []);
+});
+
+test('files with Windows line endings are checked the same way', (t) => {
+  const root = tree(t, { 'README.md': front(0) + '\r\n## Find what fits you\r\n' });
+  assert.deepEqual(findProblems(root), [caseProblem('Find what fits you', 'what')]);
+});
+
+test('a heading inside a code fence is not checked', (t) => {
+  const root = tree(t, { 'README.md': front(0) + '\n```md\n## not a real heading\n```\n' });
+  assert.deepEqual(findProblems(root), []);
+});
+
+test('a heading that ends with code is judged on its last real word', (t) => {
+  const root = tree(t, { 'README.md': front(0) + '\n## Where It Goes to `x`\n' });
+  assert.deepEqual(findProblems(root), [caseProblem('Where It Goes to', 'to')]);
 });

@@ -16,4 +16,4 @@ Open questions:
 
 **For the trainer, one month later:** Ask one more question, "Have you written or changed an automated test since the course?" The answer tells you whether the course changed the work, which the Day 10 score cannot.
 
-**What to do with the answers:** List the three most common comments, decide one change for the next run, and write that change at the top of the course page under "What I would improve next time".
+**What to do with the answers:** List the three most common comments, decide one change for the next run, and write that change at the top of the course page under "What I Would Improve Next Time".

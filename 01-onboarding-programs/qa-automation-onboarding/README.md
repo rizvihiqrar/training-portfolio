@@ -20,8 +20,8 @@ You do not need to know how to code. Each day is one hour: you watch a short les
 
 By the end you can:
 
-1. Find your way around VS Code and its terminal;
-2. Ask an AI helper for code and say what it did;
+1. Find your way around VS Code and its terminal.
+2. Ask an AI helper for code and say what it did.
 3. Write and run a simple automated test, and read whether it passed or failed.
 
 ## Outline
@@ -30,21 +30,21 @@ By the end you can:
 
 | Day | Topic | Time |
 |---|---|---|
-| 1 | [VS Code for beginners](https://www.youtube.com/watch?v=B-s71n0dHUk): interface, file explorer, extensions, terminal | About 60 min |
-| 2 | [Command line crash course](https://www.youtube.com/watch?v=oxuRxtrO2Ag): the few terminal commands testers use | About 40 min |
-| 3 | [GitHub Copilot: getting started](https://www.pluralsight.com/courses/github-copilot-getting-started): how AI suggests code in VS Code (subscription needed) | About 60 min |
+| 1 | [VS Code for beginners](https://www.youtube.com/watch?v=B-s71n0dHUk): interface, file explorer, extensions, terminal | 60 min |
+| 2 | [Command line crash course](https://www.youtube.com/watch?v=oxuRxtrO2Ag): the few terminal commands testers use | 40 min |
+| 3 | [GitHub Copilot: getting started](https://www.pluralsight.com/courses/github-copilot-getting-started): how AI suggests code in VS Code (subscription needed) | 60 min |
 | 4 | [Copilot in action](https://www.youtube.com/watch?v=Fi3AJZZregI): a short demo, then try it yourself | 15 min plus practice |
-| 5 | **Practice day.** Ask Copilot for three things in everyday words. No right or wrong; explore. See the [lesson plan](lesson-plan-day-5-practice.md). | About 60 min |
+| 5 | **Practice day.** Ask Copilot for three things in everyday words. No right or wrong; explore. See the [lesson plan](lesson-plan-day-5-practice.md). | 60 min |
 
 **Week 2: QA Automation with Playwright and AI Help**
 
 | Day | Topic | Time |
 |---|---|---|
 | 6 | [What is QA automation?](https://www.youtube.com/watch?v=RIiNLR3-As8): a non-technical overview and how AI changes the role | 20 min plus discussion |
-| 7 | [Playwright beginner tutorial](https://www.youtube.com/watch?v=wawbt1cATsk): setup, a first test, running it in VS Code | About 60 min |
-| 8 | [Automated web testing with Playwright](https://www.pluralsight.com/courses/playwright-automated-web-testing): selectors and assertions only (subscription needed) | About 60 min |
+| 7 | [Playwright beginner tutorial](https://www.youtube.com/watch?v=wawbt1cATsk): setup, a first test, running it in VS Code | 60 min |
+| 8 | [Automated web testing with Playwright](https://www.pluralsight.com/courses/playwright-automated-web-testing): selectors and assertions only (subscription needed) | 60 min |
 | 9 | [Write Playwright tests with AI](https://www.youtube.com/watch?v=1nQNL4BDPIY): describe a test in everyday words, let Copilot write it, run it | 30 min plus practice |
-| 10 | **Final practice.** Pick one real user flow; use Playwright's recorder and Copilot to write and run the test. Scored with the [rubric](rubric-day-10-final-practice.md). | About 60 min |
+| 10 | **Practical round.** Pick one real user flow; use Playwright's recorder and Copilot to write and run the test. Scored with the [rubric](rubric-day-10-final-practice.md). | 60 min |
 
 The video and course links point to the original authors' pages; nothing from those courses is copied here. I have not re-checked them since I made the plan, so test every link before running a group.
 
@@ -56,7 +56,7 @@ Read these in the browser:
 |---|---|---|
 | [Day 5 lesson plan](lesson-plan-day-5-practice.md) | Trainer | One page: timings, steps, checks |
 | [Quiz and answer key](quiz-and-answer-key.md) | Trainer and learner | Ten questions with feedback, to give after Day 9 |
-| [Day 10 rubric](rubric-day-10-final-practice.md) | Trainer | How the final practice is scored |
+| [Day 10 rubric](rubric-day-10-final-practice.md) | Trainer | How the practical round is scored |
 | [Learner survey](survey.md) | Learner | What learners thought and what to change |
 
 Download these Word files (click the link, then the download button on the file page):

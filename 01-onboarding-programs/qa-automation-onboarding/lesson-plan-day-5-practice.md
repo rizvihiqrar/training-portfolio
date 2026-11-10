@@ -1,10 +1,10 @@
 # Lesson Plan: Day 5, Practice with VS Code and Copilot
 
-**Course:** QA automation onboarding  **Session:** Day 5 (Week 1 benchmark)  **Length:** 60 minutes  **Group size:** up to 8 (one trainer)
+**Course:** QA automation onboarding  **Session:** Day 5, the midpoint check (the Week 1 benchmark)  **Length:** 60 minutes  **Group size:** Up to 8 (one trainer)
 
 **By the end, learners can:**
-- Find their way around VS Code and open the integrated terminal;
-- Ask Copilot for code in everyday words and say what it did;
+- Find their way around VS Code and open the integrated terminal.
+- Ask Copilot for code in everyday words and say what it did.
 - Tell a good suggestion from one that needs checking.
 
 | Time | Step | What the trainer does | What the learners do | Check |
