@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { rewriteHref, renderMarkdown, buildSite, checkSite, repoRoot } from './build.mjs';
+import { rewriteHref, renderMarkdown, buildSite, checkSite, repoRoot, PUBLISHED_FILES } from './build.mjs';
 
 const config = JSON.parse(fs.readFileSync(new URL('./site.json', import.meta.url), 'utf8'));
 
@@ -89,4 +89,55 @@ test('only one tab in the course navigation is marked as the current page', (t) 
   assert.equal((html.match(/aria-current="page"/g) ?? []).length, 1);
   const quiz = fs.readFileSync(path.join(out, '01-onboarding-programs/qa-automation-onboarding/quiz-and-answer-key.html'), 'utf8');
   assert.match(quiz, /<a href="quiz-and-answer-key\.html" aria-current="page">Quiz<\/a>/);
+});
+
+test('a callout inside a quote, and a quote after a callout, keep their tags balanced', () => {
+  const { html } = renderMarkdown('> A quote.\n>\n> > [!NOTE]\n> > Inner note.\n\n> [!TIP]\n> Tip text.\n\n> Another quote.\n');
+  assert.equal((html.match(/<blockquote>/g) ?? []).length, (html.match(/<\/blockquote>/g) ?? []).length);
+  assert.equal((html.match(/<aside /g) ?? []).length, 2);
+  assert.doesNotMatch(html, /data-plain/);
+});
+
+test('example links inside code are not rewritten', () => {
+  const { html } = renderMarkdown('Use `<a href="quiz.md">` and:\n\n```html\n<a href="quiz.md">x</a>\n```\n\n[real](quiz.md)\n');
+  assert.equal((html.match(/href="quiz\.html"/g) ?? []).length, 1);
+  assert.match(html, /&lt;a href=&quot;quiz\.md&quot;&gt;/);
+});
+
+test('only handouts and images are published, never editor or lock files', () => {
+  for (const ok of ['materials/plan.docx', 'a/b.PNG', 'docs/assets/banner.svg']) assert.ok(PUBLISHED_FILES.test(ok), ok);
+  for (const no of ['materials/~$plan.docx.tmp', '.DS_Store', 'notes.bak', 'draft.html']) assert.ok(!PUBLISHED_FILES.test(no), no);
+});
+
+test('a lock file next to a handout is not copied into the site', (t) => {
+  const root = scratch(t);
+  const out = scratch(t);
+  fs.mkdirSync(path.join(root, '01-a'));
+  fs.writeFileSync(path.join(root, '01-a', 'README.md'), '# Course\n\n[plan](plan.docx)\n');
+  fs.writeFileSync(path.join(root, '01-a', 'plan.docx'), 'x');
+  fs.writeFileSync(path.join(root, '01-a', '~$plan.docx'), 'lock');
+  const small = { ...config, nav: [{ label: 'Home', href: 'index.html' }], aboutHref: 'index.html', cards: [{ title: 'C', path: '01-a/README.md', chips: [], summary: 's', button: 'Open' }], courseNav: [] };
+  buildSite({ root, out, config: small });
+  assert.ok(fs.existsSync(path.join(out, '01-a', 'plan.docx')));
+  assert.ok(!fs.existsSync(path.join(out, '01-a', '~$plan.docx')));
+});
+
+test('two files that would become the same page stop the build', (t) => {
+  const root = scratch(t);
+  const out = scratch(t);
+  fs.mkdirSync(path.join(root, '01-a'));
+  fs.writeFileSync(path.join(root, '01-a', 'README.md'), '# One\n');
+  fs.writeFileSync(path.join(root, '01-a', 'index.md'), '# Two\n');
+  const small = { ...config, nav: [{ label: 'Home', href: 'index.html' }], aboutHref: 'index.html', cards: [{ title: 'C', path: '01-a/README.md', chips: [], summary: 's', button: 'Open' }], courseNav: [] };
+  assert.throws(() => buildSite({ root, out, config: small }), /two files would both become 01-a\/index\.html/);
+});
+
+test('a malformed percent sequence in a link is reported, not a crash', (t) => {
+  const root = scratch(t);
+  const out = scratch(t);
+  fs.mkdirSync(path.join(root, '01-a'));
+  fs.writeFileSync(path.join(root, '01-a', 'README.md'), '# Course\n\n[x](50%.md)\n');
+  const small = { ...config, nav: [{ label: 'Home', href: 'index.html' }], aboutHref: 'index.html', cards: [{ title: 'C', path: '01-a/README.md', chips: [], summary: 's', button: 'Open' }], courseNav: [] };
+  buildSite({ root, out, config: small });
+  assert.deepEqual(checkSite(out), ['01-a/index.html links to 50%.html, which is not in the site']);
 });

@@ -32,12 +32,17 @@ export function renderMarkdown(markdown) {
   marked.use(gfmHeadingId());
   let html = marked.parse(markdown);
   const title = (html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/) ?? [])[1]?.replace(/<[^>]+>/g, '') ?? '';
-  html = html.replace(/<blockquote>([\s\S]*?)<\/blockquote>/g, (whole, inner) => {
-    const m = inner.match(/^\s*<p>\[!(TIP|NOTE|IMPORTANT|WARNING|CAUTION)\]\s*/);
-    if (!m) return whole;
-    const rest = inner.slice(m[0].length);
-    return `<aside class="callout callout-${m[1].toLowerCase()}"><p class="callout-title">${CALLOUTS[m[1]]}</p><p>${rest.replace(/^<br\s*\/?>\s*/, '')}</aside>`;
-  });
+  const innermost = /<blockquote>((?:(?!<blockquote>)[\s\S])*?)<\/blockquote>/;
+  for (let before = ''; before !== html;) {
+    before = html;
+    html = html.replace(new RegExp(innermost.source, 'g'), (whole, inner) => {
+      const m = inner.match(/^\s*<p>\[!(TIP|NOTE|IMPORTANT|WARNING|CAUTION)\]\s*/);
+      if (!m) return whole.replace('<blockquote>', '<blockquote data-plain>');
+      const rest = inner.slice(m[0].length);
+      return `<aside class="callout callout-${m[1].toLowerCase()}"><p class="callout-title">${CALLOUTS[m[1]]}</p><p>${rest.replace(/^<br\s*\/?>\s*/, '')}</aside>`;
+    });
+  }
+  html = html.replace(/<blockquote data-plain>/g, '<blockquote>');
   let hasMermaid = false;
   html = html.replace(/<pre><code class="language-mermaid">([\s\S]*?)<\/code><\/pre>/g, (_, code) => {
     hasMermaid = true;
@@ -45,12 +50,12 @@ export function renderMarkdown(markdown) {
   });
   html = html.replace(/<thead>\s*<tr>(?:\s*<th[^>]*>\s*<\/th>)+\s*<\/tr>\s*<\/thead>/g, ''); // a table with an empty header row shows no header
   html = html.replace(/<table>([\s\S]*?)<\/table>/g, '<div class="table-wrap" tabindex="0" role="region" aria-label="Table"><table>$1</table></div>');
-  html = html.replace(/href="([^"]*)"/g, (_, href) => `href="${rewriteHref(href.replace(/&amp;/g, '&')).replace(/&/g, '&amp;')}"`);
+  html = html.replace(/<a href="([^"]*)"/g, (_, href) => `<a href="${rewriteHref(href.replace(/&amp;/g, '&')).replace(/&/g, '&amp;')}"`);
   return { html, title, hasMermaid };
 }
 
-const THEME_SCRIPT = `try{var s=localStorage.getItem('theme');var t=s||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','light')}`;
-const TOGGLE_SCRIPT = `(function(){var b=document.getElementById('theme-toggle');if(!b)return;function label(){var d=document.documentElement.getAttribute('data-theme')==='dark';b.setAttribute('aria-label',d?'Switch to Light Mode':'Switch to Dark Mode');b.title=d?'Switch to Light Mode':'Switch to Dark Mode'}label();b.addEventListener('click',function(){var n=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);try{localStorage.setItem('theme',n)}catch(e){}label()})})();`;
+const THEME_SCRIPT = `try{var s=localStorage.getItem('theme');s=(s==='dark'||s==='light')?s:null;var t=s||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','light')}`;
+const TOGGLE_SCRIPT = `(function(){var b=document.getElementById('theme-toggle');if(!b)return;function label(){var d=document.documentElement.getAttribute('data-theme')==='dark';b.setAttribute('aria-label',d?'Switch to Light Mode':'Switch to Dark Mode');b.title=d?'Switch to Light Mode':'Switch to Dark Mode'}label();b.addEventListener('click',function(){var n=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);try{localStorage.setItem('theme',n)}catch(e){}label();if(document.querySelector('pre.mermaid'))location.reload()})})();`;
 const MERMAID_SCRIPT = `import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.4.0/dist/mermaid.esm.min.mjs';mermaid.initialize({startOnLoad:true,theme:document.documentElement.getAttribute('data-theme')==='dark'?'dark':'default'});`;
 
 /** The whole HTML page around a body. */
@@ -126,6 +131,9 @@ function subnavFor(config, mdPath) {
   return '';
 }
 
+/** The only non-Markdown files that are published: handouts and images. Editor and lock files never are. */
+export const PUBLISHED_FILES = /\.(docx|xlsx|pptx|pdf|png|jpe?g|gif|svg|csv|txt)$/i;
+
 function walk(root, dir, include) {
   const out = [];
   for (const e of fs.readdirSync(path.join(root, dir), { withFileTypes: true })) {
@@ -150,8 +158,9 @@ export function buildSite({ root = repoRoot, out = path.join(root, '_site'), con
       const target = path.join(out, outRel);
       fs.mkdirSync(path.dirname(target), { recursive: true });
       fs.writeFileSync(target, pageHtml({ config, title, body: `<article class="prose">\n${html}</article>`, depth, subnav: subnavFor(config, rel), hasMermaid }));
+      if (pages.includes(outRel)) throw new Error(`two files would both become ${outRel}`);
       pages.push(outRel);
-    } else {
+    } else if (PUBLISHED_FILES.test(rel) && !/(^|\/)(\.|~\$)/.test(rel)) {
       const target = path.join(out, rel);
       fs.mkdirSync(path.dirname(target), { recursive: true });
       fs.copyFileSync(path.join(root, rel), target);
@@ -175,6 +184,7 @@ export function checkSite(out) {
       else if (e.name.endsWith('.html')) htmlFiles.push(p);
     }
   })(out);
+  const decode = (s) => { try { return decodeURIComponent(s); } catch { return s; } };
   const idsOf = (file) => new Set([...fs.readFileSync(file, 'utf8').matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
   for (const file of htmlFiles) {
     const html = fs.readFileSync(file, 'utf8');
@@ -183,11 +193,11 @@ export function checkSite(out) {
       const raw = m[1].replace(/&amp;/g, '&');
       if (!raw || /^([a-z][a-z0-9+.-]*:|\/\/)/i.test(raw)) continue;
       const [rel, anchor] = raw.split('#');
-      let target = rel ? path.resolve(path.dirname(file), decodeURIComponent(rel)) : file;
+      let target = rel ? path.resolve(path.dirname(file), decode(rel)) : file;
       if (rel && fs.existsSync(target) && fs.statSync(target).isDirectory()) target = path.join(target, 'index.html');
       if (!fs.existsSync(target)) {
         problems.push(`${name} links to ${raw}, which is not in the site`);
-      } else if (anchor && target.endsWith('.html') && !idsOf(target).has(decodeURIComponent(anchor))) {
+      } else if (anchor && target.endsWith('.html') && !idsOf(target).has(decode(anchor))) {
         problems.push(`${name} links to ${raw}, but that page has no #${anchor}`);
       }
     }
