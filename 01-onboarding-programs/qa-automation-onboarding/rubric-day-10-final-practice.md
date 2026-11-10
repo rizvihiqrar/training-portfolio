@@ -1,4 +1,4 @@
-# Rubric: Day 10 final practice
+# Rubric: Day 10 Practical Round
 
 The task: pick one real user flow in an app you know, then use Playwright's recorder and Copilot to write a test and run it. About 60 minutes. The trainer watches and scores, then gives feedback in the same conversation.
 
@@ -18,4 +18,4 @@ Score each row 0, 1 or 2. Total out of 10.
 | 6 to 8 | Solid start | Repeat the practice with a second flow |
 | 0 to 5 | Not there yet | Redo Days 7 to 9 with a trainer beside them |
 
-**Trainer notes:** record which row lost the points most often across the group. If it is "a real assertion", add a short exercise to Day 8: break the app on purpose and see whether the test notices.
+**Trainer notes:** Record which row lost the points most often across the group. If it is "a real assertion", add a short exercise to Day 8: break the app on purpose and see whether the test notices.

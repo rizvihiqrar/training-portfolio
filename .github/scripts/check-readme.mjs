@@ -6,6 +6,7 @@
 //   - a course folder (NN-section/course-name/) is not linked from the front README;
 //   - a top-level folder is neither a numbered section (NN-name), docs nor .github (a course placed elsewhere would escape the check);
 //   - the front README says "N courses so far" and N is not the number of course folders.
+// Written style: headings are in title case, and the phrase "plain English" is not used anywhere.
 // Web links are not checked: third-party sites block bots and would make the build flaky.
 import fs from 'fs';
 import path from 'path';
@@ -98,11 +99,46 @@ export function courseFolders(root) {
   return found;
 }
 
+const SMALL_WORDS = new Set(['a', 'an', 'and', 'as', 'at', 'but', 'by', 'for', 'if', 'in', 'of', 'off', 'on', 'onto', 'or', 'out', 'over', 'per', 'so', 'the', 'to', 'up', 'upon', 'vs', 'via', 'with', 'from', 'into', 'than', 'nor', 'yet']);
+// Names that are written in lower case on purpose.
+const LOWERCASE_NAMES = new Set(['npm', 'npx', 'pnpm', 'k6', 'ios', 'macos', 'iphone', 'ipad', 'e2e', 'eslint']);
+
+/** Headings that are not in title case: a word starts in lower case, unless it is a small word in the middle (a, of, to, with...) or a name written in lower case (npm, k6). The first word, the last word and the word after a colon are always capitalized. Later parts of a hyphenated word may be lower case (Low-fidelity). */
+export function headingProblems(markdown) {
+  const out = [];
+  for (const m of withoutCode(markdown).matchAll(/^#{1,6}[ \t]+(.+)$/gm)) {
+    const text = m[1].replace(/\s+#+\s*$/, '').trim();
+    const words = text.split(/\s+/).filter(Boolean);
+    const checkable = words.map((w, i) => ({ w, i })).filter(({ w }) => !/^(`|\[|http)/.test(w));
+    const lastIndex = checkable.length ? checkable[checkable.length - 1].i : -1;
+    for (const { w, i } of checkable) {
+      const core = (w.match(/^[^A-Za-z0-9]*([A-Za-z0-9'’-]+)/) ?? [])[1];
+      if (!core) continue;
+      const first = core.split('-')[0];
+      const forced = i === 0 || i === lastIndex || words[i - 1].endsWith(':');
+      if (/^[a-z]/.test(first) && !LOWERCASE_NAMES.has(first.toLowerCase()) && (forced || !SMALL_WORDS.has(first))) {
+        out.push(`the heading "${text}" is not in title case ("${first}"): capitalize it, or add it to LOWERCASE_NAMES if it is a name written in lower case`);
+        break;
+      }
+    }
+  }
+  return out;
+}
+
+/** Phrases that must not appear in the written text, and what to say instead. */
+export const BANNED_PHRASES = [
+  { pattern: /plain[- ]english/i, name: 'plain English', say: 'use "Overview" for a heading, or describe it differently' },
+];
+
 /** @returns {string[]} one line per problem; empty when the README is in step with the folders */
 export function findProblems(root) {
   const problems = [];
   for (const file of markdownFiles(root)) {
     const text = fs.readFileSync(path.join(root, file), 'utf8');
+    for (const problem of headingProblems(text)) problems.push(`${file}: ${problem}`);
+    for (const { pattern, name, say } of BANNED_PHRASES) {
+      if (pattern.test(withoutCode(text))) problems.push(`${file} uses the banned phrase "${name}"; ${say}`);
+    }
     for (const { target, anchor } of links(text)) {
       const resolved = target ? fromRoot(file, target) : file;
       if (target && !existsExact(root, resolved)) {
