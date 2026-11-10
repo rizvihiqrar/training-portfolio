@@ -4,7 +4,7 @@
 //   - any Markdown file links to a file or folder that doesn't exist (exact letter case, as on GitHub),
 //     or to a #heading that is not in the file it points at;
 //   - a course folder (NN-section/course-name/) is not linked from the front README;
-//   - a top-level folder is neither a numbered section (NN-name), docs nor .github (a course placed elsewhere would escape the check);
+//   - a top-level folder is neither a numbered section (NN-name), docs, site nor .github (a course placed elsewhere would escape the check);
 //   - the front README says "N courses so far" and N is not the number of course folders.
 // Written style: headings are in title case, and the phrase "plain English" is not used anywhere.
 // Web links are not checked: third-party sites block bots and would make the build flaky.
@@ -150,8 +150,8 @@ export function findProblems(root) {
     }
   }
   for (const e of fs.readdirSync(root, { withFileTypes: true })) {
-    if (e.isDirectory() && !/^\d\d-/.test(e.name) && !['docs', '.github', '.git', 'node_modules'].includes(e.name)) {
-      problems.push(`${e.name}/ is not a numbered section folder (01-name), docs or .github, so courses in it would not be checked`);
+    if (e.isDirectory() && !/^\d\d-/.test(e.name) && !['docs', 'site', '_site', '.github', '.git', 'node_modules'].includes(e.name)) {
+      problems.push(`${e.name}/ is not a numbered section folder (01-name), docs, site or .github, so courses in it would not be checked`);
     }
   }
   const readme = fs.readFileSync(path.join(root, 'README.md'), 'utf8');
