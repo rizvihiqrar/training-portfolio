@@ -10,6 +10,20 @@
 | Format | Self-paced or group watch sessions. Days 5 and 10 are hands-on with no video: the goal is to do, not only watch. |
 | Trainer | Iqrar Rizvi (designed the plan and the practice days) |
 
+## In plain words
+
+You do not need to know how to code. Each day is one hour: you watch a short lesson, then try the skill yourself.
+
+- **VS Code** is a free program for writing code. Week 1 teaches you to move around in it.
+- **Copilot** is an AI helper inside VS Code. You describe what you want in plain English and it suggests code. You always check what it gives you.
+- **Playwright** is a free tool that clicks through a website for you and checks that it works. Week 2 teaches you to write and run a simple test with it.
+
+By the end you can:
+
+1. find your way around VS Code and its terminal;
+2. ask an AI helper for code and say what it did;
+3. write and run a simple automated test, and read whether it passed or failed.
+
 ## Outline
 
 **Week 1: foundations, VS Code and AI tools**
@@ -36,16 +50,23 @@ The video and course links point to the original authors' pages; nothing from th
 
 ## Materials
 
-| File | Purpose |
+Read these in the browser:
+
+| Page | For | What it is |
+|---|---|---|
+| [Day 5 lesson plan](lesson-plan-day-5-practice.md) | Trainer | One page: timings, steps, checks |
+| [Quiz and answer key](quiz-and-answer-key.md) | Trainer and learner | Ten questions with feedback, to give after Day 9 |
+| [Day 10 rubric](rubric-day-10-final-practice.md) | Trainer | How the final practice is scored |
+| [Learner survey](survey.md) | Learner | What learners thought and what to change |
+
+Download these Word files (click the link, then the download button on the file page):
+
+| File | What it is |
 |---|---|
-| [Two-week schedule (Word)](materials/qa-automation-2-week-schedule.docx) | The plan as a handout, with clickable links |
-| [Ten-day cheat sheet (Word)](materials/qa-automation-10-day-cheat-sheet.docx) | Short notes for each day: what to know, commands, shortcuts |
-| [Testing types cheat sheet (Word)](materials/testing-types-cheat-sheet.docx) | Unit, integration, system, smoke, regression and the rest, in plain words |
-| [Test strategy and automation test plan template (Word)](materials/test-strategy-and-automation-test-plan-template.docx) | A fill-in template for the next step after the course |
-| [Day 5 lesson plan](lesson-plan-day-5-practice.md) | One page for the trainer |
-| [Quiz and answer key](quiz-and-answer-key.md) | Ten questions with feedback, to give after Day 9 |
-| [Day 10 rubric](rubric-day-10-final-practice.md) | How the final practice is scored |
-| [Learner survey](survey.md) | What learners thought and what to change |
+| [Two-week schedule](materials/qa-automation-2-week-schedule.docx) | The plan as a handout, with clickable links |
+| [Ten-day cheat sheet](materials/qa-automation-10-day-cheat-sheet.docx) | Short notes for each day: what to know, commands, shortcuts |
+| [Testing types cheat sheet](materials/testing-types-cheat-sheet.docx) | Unit, integration, system, smoke, regression and the rest, in plain words |
+| [Test strategy and automation test plan template](materials/test-strategy-and-automation-test-plan-template.docx) | A fill-in template for the next step after the course |
 
 ## How learning was checked
 
