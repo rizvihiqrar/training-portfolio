@@ -24,7 +24,7 @@ Each course is a page (what, who, how long, what was learned) plus the files a t
 
 | Section | Status |
 |---|---|
-| 01 Onboarding programs | Planned: QA automation 2-week plan first |
+| 01 Onboarding programs | 1 course: [QA automation onboarding](01-onboarding-programs/qa-automation-onboarding/) |
 | 02 System training | Planned |
 | 03 Sessions and decks | Planned |
 | 04 Technical enablement | Planned: Git workflow guide first |
