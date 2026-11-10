@@ -2,7 +2,7 @@
 
 # Training portfolio
 
-Courses, lesson plans, assignments, quizzes and presentations I have designed and taught for new hires, support teams and technical staff, with how I checked that people learned. I am a QA analyst with a background in customer support and training. Each course is a page plus the files a trainer really uses. Every company, system and person in the materials is invented, so nothing here depends on an employer's material.
+Courses, lesson plans, assignments, quizzes and presentations I have designed and taught for new hires, support teams and technical staff, with how I checked that people learned. I am a QA analyst with a background in customer support and training. Each course is a page plus the files a trainer really uses: you can read it in the browser or download the Word files. Every company, system and person in the materials is invented, so nothing here depends on an employer's material.
 
 > **If you have five minutes**, open these three files for the first course. Together they show how I plan a session, how I mark it, and how I teach a hands-on skill:
 >
@@ -12,42 +12,43 @@ Courses, lesson plans, assignments, quizzes and presentations I have designed an
 
 ## In plain English
 
-Training is how a new person becomes useful quickly. A good course says who it is for and what they can do at the end, how the trainer teaches it, how you check they got it, and what you change next time. This repository shows each of those parts for real courses, not only the slides.
+Training is how a new person becomes useful quickly. A good course says who it is for and what they can do at the end, how the trainer teaches it, how you check they got it, and what you change next time. This portfolio shows each of those parts for real courses, not only the slides.
 
 ## At a glance
 
-- 1 course so far: a two-week QA automation onboarding plan (one hour a day), with more planned (see [the courses](#the-courses))
+- 1 course so far: a two-week QA automation onboarding plan (one hour a day), with more on the way (see [coming next](#coming-next))
 - Each course has a page, a one-page lesson plan, a quiz with an answer key, a scoring rubric and a learner survey
-- Four ready-to-use Word handouts: the schedule, a ten-day cheat sheet, a testing types cheat sheet and a test strategy template
-- Two [templates](templates/) so every course is laid out the same way
-- A reading path for each reader: HR, recruitment, product, enablement, customer success, implementation and technical teams
+- Four ready-to-use Word handouts you can download: the schedule, a ten-day cheat sheet, a testing types cheat sheet and a test strategy template
+- Two [templates](docs/templates/) so every course is laid out the same way
 - Honest results: where no learner numbers exist, the page says so instead of inventing them
-- A [check](scripts/check-readme.mjs) that fails the build if this page links to a missing file or forgets a new course
-
-## Start here, by role
-
-| If you are in... | Look at | What you will find |
-|---|---|---|
-| HR | [01 Onboarding programs](01-onboarding-programs/), [05 Assessment and feedback](05-assessment-and-feedback/) | New-hire plans, evaluation forms, surveys |
-| Recruitment | [06 Programme management](06-programme-management/), [08 Case studies](08-case-studies/) | Skills tracking, how I measure results |
-| Product | [03 Sessions and decks](03-sessions-and-decks/), [08 Case studies](08-case-studies/) | Release training, how feedback comes back |
-| Enablement | [01](01-onboarding-programs/), [05](05-assessment-and-feedback/), [06](06-programme-management/) | The whole programme: plan, teach, assess, report |
-| Customer success | [07 Customer and implementation](07-customer-and-implementation/) | Onboarding kit, runbooks |
-| Implementation | [07](07-customer-and-implementation/), [02 System training](02-system-training/) | Go-live training plan, hands-on assignments |
-| Technical teams | [04 Technical enablement](04-technical-enablement/), [03](03-sessions-and-decks/) | Git workflow, QA automation, CI/CD |
+- A [check](.github/scripts/check-readme.mjs) that fails the build if this page links to a missing file or forgets a new course
 
 ## The courses
 
-| Section | Course | Length | Status |
-|---|---|---|---|
-| 01 Onboarding programs | [QA automation onboarding](01-onboarding-programs/qa-automation-onboarding/) | 10 days, 1 hour each | Page, lesson plan, quiz, rubric, survey, 4 handouts |
-| 02 System training | Assignments and a bank reconciliation course on an invented ERP | planned | Planned |
-| 03 Sessions and decks | Two drop-in session decks, QA with AI tools | planned | Planned |
-| 04 Technical enablement | Git workflow guide, Jira release reports | planned | Planned |
-| 05 Assessment and feedback | Rubric, evaluation form, quiz bank, survey, certificate | planned | Planned |
-| 06 Programme management | Schedule, attendance, skills tracker | planned | Planned |
-| 07 Customer and implementation | Onboarding kit, go-live training plan | planned | Planned |
-| 08 Case studies | Two or three one-page stories | planned | Planned |
+### QA automation onboarding
+
+*For testers new to automation tools. 10 days, 1 hour a day. About a ten-minute read.*
+
+After ten one-hour days, a tester who has never written code can open a project in VS Code, ask an AI assistant for help, and write and run a basic automated browser test. Two of the days are hands-on, with no video, because the goal is to do, not only watch.
+
+| Open | What it is |
+|---|---|
+| [**Course page**](01-onboarding-programs/qa-automation-onboarding/) | The ten-day outline, goal, how learning was checked, and what I would improve |
+| [Day 5 lesson plan](01-onboarding-programs/qa-automation-onboarding/lesson-plan-day-5-practice.md) | One page for the trainer: timings, steps, checks, what to cut if time runs short |
+| [Quiz and answer key](01-onboarding-programs/qa-automation-onboarding/quiz-and-answer-key.md) | Ten questions with feedback and where to review |
+| [Day 10 rubric](01-onboarding-programs/qa-automation-onboarding/rubric-day-10-final-practice.md) | How the final practice is scored, and the next step for each result |
+| [Learner survey](01-onboarding-programs/qa-automation-onboarding/survey.md) | What learners thought, and how the answers change the next run |
+| Download: [schedule](01-onboarding-programs/qa-automation-onboarding/materials/qa-automation-2-week-schedule.docx), [cheat sheet](01-onboarding-programs/qa-automation-onboarding/materials/qa-automation-10-day-cheat-sheet.docx), [testing types](01-onboarding-programs/qa-automation-onboarding/materials/testing-types-cheat-sheet.docx), [test strategy template](01-onboarding-programs/qa-automation-onboarding/materials/test-strategy-and-automation-test-plan-template.docx) | Word files, with clickable links |
+
+## Find what fits you
+
+| If you work in... | Start with | What you will see |
+|---|---|---|
+| HR | [The survey](01-onboarding-programs/qa-automation-onboarding/survey.md) and [the rubric](01-onboarding-programs/qa-automation-onboarding/rubric-day-10-final-practice.md) | How new people are assessed and how their feedback is used |
+| Recruitment | [The rubric](01-onboarding-programs/qa-automation-onboarding/rubric-day-10-final-practice.md) | How a skill is judged, step by step, so two reviewers score alike |
+| Enablement | [The course page](01-onboarding-programs/qa-automation-onboarding/) and [the lesson plan](01-onboarding-programs/qa-automation-onboarding/lesson-plan-day-5-practice.md) | The whole loop: plan, teach, check, improve |
+| Technical teams | [The course page](01-onboarding-programs/qa-automation-onboarding/) and [the cheat sheet](01-onboarding-programs/qa-automation-onboarding/materials/qa-automation-10-day-cheat-sheet.docx) | What a non-technical tester learns first, and in what order |
+| Product, customer success, implementation | Coming next | Release training, onboarding kits, go-live plans |
 
 ## What a course pack contains
 
@@ -63,7 +64,7 @@ Training is how a new person becomes useful quickly. A good course says who it i
 | Survey | What learners thought, and what changed because of it |
 | Certificate | Given on completion |
 
-The layout is in the [course page template](templates/course-page-template.md) and the [lesson plan template](templates/lesson-plan-template.md).
+The first course has the page, lesson plan, quiz, rubric, survey and handouts. Slides, an assignment and a certificate come with later courses. The layout is in the [course page template](docs/templates/course-page-template.md) and the [lesson plan template](docs/templates/lesson-plan-template.md).
 
 ## How I check that people learned
 
@@ -71,6 +72,17 @@ The layout is in the [course page template](templates/course-page-template.md) a
 - **At the end:** a marked assignment, a quiz, and a trainer-scored practice task with a rubric.
 - **Later:** a one-month follow-up question, "have you used this since?", because a score on the day shows that people understood, not that the work changed.
 - **After each run:** the survey answers and the common mistakes become the next run's first change, written at the bottom of the course page.
+
+## Coming next
+
+Added one piece at a time; this page is updated with each one.
+
+- Assignments and a bank reconciliation course on an invented accounting system
+- A Git workflow guide for people new to version control
+- Two short drop-in session decks, and QA with AI tools
+- An assessment kit: evaluation form, quiz bank, certificate
+- A programme view: schedule, attendance, skills tracker
+- A customer onboarding kit and a go-live training plan
 
 ## Words used on this page
 
@@ -84,6 +96,6 @@ The layout is in the [course page template](templates/course-page-template.md) a
 | Go-live | The day a customer or team starts using a system for real work |
 | Runbook | Step-by-step instructions for handling a known situation |
 
-## Roadmap
+## Related work
 
-Built one piece at a time, each through its own pull request, and this page is updated with every piece. Sections 02 to 08 above show what is planned. My test automation work is in [qa-automation-platform](https://github.com/rizvihiqrar/qa-automation-platform), and my product case studies are in [product-portfolio](https://github.com/rizvihiqrar/product-portfolio).
+My test automation work is in [qa-automation-platform](https://github.com/rizvihiqrar/qa-automation-platform), and my product case studies are in [product-portfolio](https://github.com/rizvihiqrar/product-portfolio).

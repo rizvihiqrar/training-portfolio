@@ -17,6 +17,6 @@ jobs:
         with:
           node-version: 22
       - name: Test the check
-        run: node --test scripts/check-readme.test.mjs
+        run: node --test .github/scripts/check-readme.test.mjs
       - name: Front README links every course and every link resolves
-        run: node scripts/check-readme.mjs
+        run: node .github/scripts/check-readme.mjs

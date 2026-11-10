@@ -90,7 +90,7 @@ export function findProblems(root) {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
   const problems = findProblems(root);
   if (problems.length) {
     console.error(problems.join('\n'));

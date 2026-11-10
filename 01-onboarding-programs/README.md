@@ -1,6 +1,6 @@
 # Onboarding programs
 
-New-hire and team onboarding plans, with checklists and a clear first-week to first-quarter path.
+Plans that take a new person from day one to doing the work on their own.
 
 Courses:
 

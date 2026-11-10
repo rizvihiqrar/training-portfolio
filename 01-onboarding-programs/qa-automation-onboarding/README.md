@@ -36,16 +36,23 @@ The video and course links point to the original authors' pages; nothing from th
 
 ## Materials
 
-| File | Purpose |
-|---|---|
-| [Two-week schedule (Word)](materials/qa-automation-2-week-schedule.docx) | The plan as a handout, with clickable links |
-| [Ten-day cheat sheet (Word)](materials/qa-automation-10-day-cheat-sheet.docx) | Short notes for each day: what to know, commands, shortcuts |
-| [Testing types cheat sheet (Word)](materials/testing-types-cheat-sheet.docx) | Unit, integration, system, smoke, regression and the rest, in plain words |
-| [Test strategy and automation test plan template (Word)](materials/test-strategy-and-automation-test-plan-template.docx) | A fill-in template for the next step after the course |
-| [Day 5 lesson plan](lesson-plan-day-5-practice.md) | One page for the trainer |
-| [Quiz and answer key](quiz-and-answer-key.md) | Ten questions with feedback, to give after Day 9 |
-| [Day 10 rubric](rubric-day-10-final-practice.md) | How the final practice is scored |
-| [Learner survey](survey.md) | What learners thought and what to change |
+Read these in the browser:
+
+| Page | For | What it is |
+|---|---|---|
+| [Day 5 lesson plan](lesson-plan-day-5-practice.md) | Trainer | One page: timings, steps, checks |
+| [Quiz and answer key](quiz-and-answer-key.md) | Trainer and learner | Ten questions with feedback, to give after Day 9 |
+| [Day 10 rubric](rubric-day-10-final-practice.md) | Trainer | How the final practice is scored |
+| [Learner survey](survey.md) | Learner | What learners thought and what to change |
+
+Download these Word files (click the link, then the download button on the file page):
+
+| File | Size | What it is |
+|---|---|---|
+| [Two-week schedule](materials/qa-automation-2-week-schedule.docx) | 316 KB | The plan as a handout, with clickable links |
+| [Ten-day cheat sheet](materials/qa-automation-10-day-cheat-sheet.docx) | 17 KB | Short notes for each day: what to know, commands, shortcuts |
+| [Testing types cheat sheet](materials/testing-types-cheat-sheet.docx) | 10 KB | Unit, integration, system, smoke, regression and the rest, in plain words |
+| [Test strategy and automation test plan template](materials/test-strategy-and-automation-test-plan-template.docx) | 12 KB | A fill-in template for the next step after the course |
 
 ## How learning was checked
 
