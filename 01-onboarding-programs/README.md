@@ -2,4 +2,6 @@
 
 New-hire and team onboarding plans, with checklists and a clear first-week to first-quarter path.
 
-Coming first: a two-week QA automation onboarding plan for people new to testing tools (one hour a day).
+Courses:
+
+- [QA automation onboarding](qa-automation-onboarding/): a two-week plan (one hour a day) for people new to testing tools, with lesson plan, quiz, rubric and survey.

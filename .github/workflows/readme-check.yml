@@ -1,0 +1,22 @@
+name: README check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  readme:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Test the check
+        run: node --test scripts/check-readme.test.mjs
+      - name: Front README links every course and every link resolves
+        run: node scripts/check-readme.mjs

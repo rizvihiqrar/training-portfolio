@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="240" viewBox="0 0 1280 240" role="img" aria-labelledby="t d">
+  <title id="t">Training Portfolio</title>
+  <desc id="d">Courses, lesson plans, assignments and quizzes, with how learning was checked.</desc>
+  <rect width="1280" height="240" rx="12" fill="#0f172a"/>
+  <rect x="0" y="228" width="1280" height="12" fill="#0d9488"/>
+  <g fill="none" stroke="#2dd4bf" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M100 82c26-12 50-12 50 8v62c0-14-24-14-50-2z"/>
+    <path d="M200 82c-26-12-50-12-50 8v62c0-14 24-14 50-2z"/>
+  </g>
+  <text x="250" y="112" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="64" font-weight="700" fill="#f8fafc">Training Portfolio</text>
+  <text x="252" y="162" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="28" fill="#cbd5e1">Courses people can follow, and proof that they learned.</text>
+</svg>
