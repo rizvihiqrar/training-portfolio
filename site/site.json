@@ -1,0 +1,38 @@
+{
+  "name": "Training Portfolio",
+  "intro": "Training courses I have designed and taught, with the lesson plans, quizzes and scoring guides behind them.",
+  "repo": "https://github.com/rizvihiqrar/training-portfolio",
+  "include": ["^\\d\\d-", "^docs$"],
+  "nav": [
+    { "label": "Courses", "href": "index.html#courses" },
+    { "label": "About", "href": "docs/overview.html" }
+  ],
+  "sectionId": "courses",
+  "sectionTitle": "Courses",
+  "sectionIntro": "Each course has a plan, a lesson, a quiz and a scoring guide. Open one to see all of it.",
+  "primaryButton": "Browse Courses",
+  "aboutButton": "How It Works",
+  "aboutHref": "docs/overview.html",
+  "cards": [
+    {
+      "title": "QA Automation Onboarding",
+      "path": "01-onboarding-programs/qa-automation-onboarding/README.md",
+      "chips": ["10 Days", "1 Hour a Day", "No Coding Needed"],
+      "summary": "A tester who has never written code learns to use VS Code and an AI helper, then writes and runs a first automated test of a website.",
+      "button": "Open Course"
+    }
+  ],
+  "courseNav": [
+    {
+      "folder": "01-onboarding-programs/qa-automation-onboarding",
+      "items": [
+        { "file": "README.md", "label": "Overview" },
+        { "file": "lesson-plan-day-5-practice.md", "label": "Lesson Plan" },
+        { "file": "quiz-and-answer-key.md", "label": "Quiz" },
+        { "file": "rubric-day-10-final-practice.md", "label": "Scoring Guide" },
+        { "file": "survey.md", "label": "Feedback Form" },
+        { "file": "README.md", "label": "Downloads", "anchor": "materials" }
+      ]
+    }
+  ]
+}

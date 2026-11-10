@@ -101,7 +101,7 @@ test('the real repository passes its own check (also proves the script finds the
 
 test('a top-level folder that is not a numbered section is reported, because courses in it would escape the check', (t) => {
   const root = tree(t, { 'README.md': front(0), 'courses/new/README.md': '# C' });
-  assert.deepEqual(findProblems(root), ['courses/ is not a numbered section folder (01-name), docs or .github, so courses in it would not be checked']);
+  assert.deepEqual(findProblems(root), ['courses/ is not a numbered section folder (01-name), docs, site or .github, so courses in it would not be checked']);
 });
 
 test('headings in title case pass, including small words in the middle and hyphenated words', (t) => {
