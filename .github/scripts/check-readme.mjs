@@ -1,8 +1,10 @@
 // Keeps the front page honest as content is added.
-//   node scripts/check-readme.mjs
+//   node .github/scripts/check-readme.mjs
 // Fails (exit 1) when:
-//   - any Markdown file links to a file or folder that doesn't exist (exact letter case, as on GitHub);
+//   - any Markdown file links to a file or folder that doesn't exist (exact letter case, as on GitHub),
+//     or to a #heading that is not in the file it points at;
 //   - a course folder (NN-section/course-name/) is not linked from the front README;
+//   - a top-level folder is neither a numbered section (NN-name), docs nor .github (a course placed elsewhere would escape the check);
 //   - the front README says "N courses so far" and N is not the number of course folders.
 // Web links are not checked: third-party sites block bots and would make the build flaky.
 import fs from 'fs';
@@ -14,18 +16,47 @@ export function withoutCode(markdown) {
   return markdown.replace(/^(```|~~~)[\s\S]*?^\1/gm, '').replace(/`[^`\n]*`/g, '');
 }
 
-/** Relative link targets in a Markdown text: anchors and queries removed, web links skipped. */
-export function relativeLinks(markdown) {
-  const targets = [];
+/** Links in a Markdown text as { target, anchor }: web links skipped, queries removed; target is '' for a link within the same file. */
+export function links(markdown) {
+  const found = [];
   const link = /\]\((<[^>]+>|[^()\s]*(?:\([^()\s]*\)[^()\s]*)*)(?:\s+"[^"]*")?\)/g;
   for (const m of withoutCode(markdown).matchAll(link)) {
-    let raw = m[1].replace(/^<|>$/g, '');
-    if (/^([a-z][a-z0-9+.-]*:|#)/i.test(raw)) continue;
-    raw = raw.split('#')[0].split('?')[0];
-    try { raw = decodeURIComponent(raw); } catch { /* a bare % is kept as written */ }
-    if (raw) targets.push(raw);
+    const raw = m[1].replace(/^<|>$/g, '');
+    if (/^[a-z][a-z0-9+.-]*:/i.test(raw)) continue;
+    const [pathPart, ...rest] = raw.split('#');
+    const decode = (s) => { try { return decodeURIComponent(s); } catch { return s; } }; // a bare % is kept as written
+    found.push({ target: decode(pathPart.split('?')[0]), anchor: decode(rest.join('#')) });
   }
-  return targets;
+  return found;
+}
+
+/** Relative link targets in a Markdown text: anchors and queries removed, web links and same-file links skipped. */
+export function relativeLinks(markdown) {
+  return links(markdown).map((l) => l.target).filter(Boolean);
+}
+
+/** GitHub's anchor for a heading: lower case, punctuation removed, spaces to hyphens. */
+export function slug(heading) {
+  return heading
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/[`*]/g, '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s_-]/gu, '')
+    .replace(/\s/g, '-');
+}
+
+/** The anchors a Markdown file offers (a repeated heading gets -1, -2, as on GitHub). */
+export function headingSlugs(markdown) {
+  const seen = new Map();
+  const out = [];
+  for (const m of withoutCode(markdown).matchAll(/^#{1,6}\s+(.+?)\s*#*\s*$/gm)) {
+    const base = slug(m[1]);
+    const n = seen.get(base) ?? 0;
+    seen.set(base, n + 1);
+    out.push(n ? `${base}-${n}` : base);
+  }
+  return out;
 }
 
 /** True when every segment of rel exists with exactly this letter case (GitHub is case-sensitive, Windows is not). */
@@ -47,7 +78,7 @@ export function fromRoot(fileRel, target) {
 function markdownFiles(root, dir = '') {
   const out = [];
   for (const e of fs.readdirSync(path.join(root, dir), { withFileTypes: true })) {
-    if (e.name === '.git' || e.name === 'node_modules') continue;
+    if (e.name === '.git' || e.name === '.github' || e.name === 'node_modules') continue;
     const rel = dir ? `${dir}/${e.name}` : e.name;
     if (e.isDirectory()) out.push(...markdownFiles(root, rel));
     else if (e.name.endsWith('.md')) out.push(rel);
@@ -71,8 +102,20 @@ export function courseFolders(root) {
 export function findProblems(root) {
   const problems = [];
   for (const file of markdownFiles(root)) {
-    for (const target of relativeLinks(fs.readFileSync(path.join(root, file), 'utf8'))) {
-      if (!existsExact(root, fromRoot(file, target))) problems.push(`${file} links to ${target}, which does not exist`);
+    const text = fs.readFileSync(path.join(root, file), 'utf8');
+    for (const { target, anchor } of links(text)) {
+      const resolved = target ? fromRoot(file, target) : file;
+      if (target && !existsExact(root, resolved)) {
+        problems.push(`${file} links to ${target}, which does not exist`);
+      } else if (anchor && resolved.endsWith('.md')) {
+        const slugs = headingSlugs(fs.readFileSync(path.join(root, resolved), 'utf8'));
+        if (!slugs.includes(anchor.toLowerCase())) problems.push(`${file} links to ${target}#${anchor}, but ${resolved} has no such heading`);
+      }
+    }
+  }
+  for (const e of fs.readdirSync(root, { withFileTypes: true })) {
+    if (e.isDirectory() && !/^\d\d-/.test(e.name) && !['docs', '.github', '.git', 'node_modules'].includes(e.name)) {
+      problems.push(`${e.name}/ is not a numbered section folder (01-name), docs or .github, so courses in it would not be checked`);
     }
   }
   const readme = fs.readFileSync(path.join(root, 'README.md'), 'utf8');

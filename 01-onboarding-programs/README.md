@@ -1,6 +1,6 @@
 # Onboarding programs
 
-Plans that take a new person from day one to doing the work on their own.
+Plans that help a new person go from their first day to doing the work on their own.
 
 Courses:
 
