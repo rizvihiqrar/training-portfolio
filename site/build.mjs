@@ -59,8 +59,9 @@ export function renderMarkdown(markdown) {
   html = html.replace(/<table>([\s\S]*?)<\/table>/g, (whole, inner, offset, all) => {
     const heads = [...all.slice(0, offset).matchAll(/<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>/g)];
     const near = heads.length ? decodeEntities(heads[heads.length - 1][1].replace(/<[^>]+>/g, '')) : 'Opening';
-    const n = (tablesUnder.get(heads.length) ?? 0) + 1; // a second table under one heading gets a number, so each is told apart
-    tablesUnder.set(heads.length, n);
+    const key = heads.length ? heads[heads.length - 1].index : -1; // where the heading sits, so a repeated title elsewhere is a different key
+    const n = (tablesUnder.get(key) ?? 0) + 1; // a second table under one heading gets a number, so each is told apart
+    tablesUnder.set(key, n);
     return `<div class="table-wrap" tabindex="0" role="region" aria-label="${escapeHtml(`${near} table${n > 1 ? ` ${n}` : ''}`)}"><table>${inner}</table></div>`;
   });
   html = html.replace(/<a href="([^"]*)"/g, (_, href) => `<a href="${rewriteHref(href.replace(/&amp;/g, '&')).replace(/&/g, '&amp;')}"`);
@@ -71,7 +72,7 @@ export function renderMarkdown(markdown) {
 
 const THEME_SCRIPT = `try{var s=localStorage.getItem('theme');s=(s==='dark'||s==='light')?s:null;var t=s||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','light')}`;
 const TOGGLE_SCRIPT = `(function(){var b=document.getElementById('theme-toggle');if(!b)return;function label(){var d=document.documentElement.getAttribute('data-theme')==='dark';b.setAttribute('aria-label',d?'Switch to Light Mode':'Switch to Dark Mode');b.title=d?'Switch to Light Mode':'Switch to Dark Mode'}label();b.addEventListener('click',function(){var n=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);try{localStorage.setItem('theme',n)}catch(e){}label();if(document.querySelector('pre.mermaid'))location.reload()})})();`;
-const FILTER_SCRIPT = `(function(){var g=document.querySelector('.filters');var f=document.querySelectorAll('.filter'),cards=document.querySelectorAll('.card'),st=document.getElementById('filter-status');if(!g||!f.length||!st)return;g.hidden=false;f.forEach(function(b){b.addEventListener('click',function(){var v=b.getAttribute('data-filter');f.forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});var n=0;cards.forEach(function(c){var show=v==='all'||(c.getAttribute('data-tags')||'').split(' ').indexOf(v)>-1;c.hidden=!show;if(show)n++});st.textContent=n+(n===1?' item':' items')+' shown'})})})();`;
+const FILTER_SCRIPT = `(function(){var g=document.querySelector('.filters');var f=document.querySelectorAll('.filter'),cards=document.querySelectorAll('.card'),st=document.getElementById('filter-status');if(!g||!f.length)return;g.hidden=false;f.forEach(function(b){b.addEventListener('click',function(){var v=b.getAttribute('data-filter');f.forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});var n=0;cards.forEach(function(c){var show=v==='all'||(c.getAttribute('data-tags')||'').split(' ').indexOf(v)>-1;c.hidden=!show;if(show)n++});if(st)st.textContent=n+(n===1?' item':' items')+' shown'})})})();`;
 const MERMAID_SCRIPT = `import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.4.0/dist/mermaid.esm.min.mjs';mermaid.initialize({startOnLoad:true,theme:document.documentElement.getAttribute('data-theme')==='dark'?'dark':'default'});`;
 
 /** The whole HTML page around a body. */
