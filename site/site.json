@@ -1,5 +1,6 @@
 {
   "name": "Training Portfolio",
+  "theme": "stageshow",
   "intro": "Training courses I have designed and taught, with the lesson plans, quizzes and scoring guides behind them.",
   "repo": "https://github.com/rizvihiqrar/training-portfolio",
   "include": [
@@ -32,7 +33,52 @@
         "Technical Enablement"
       ],
       "summary": "A tester who has never written code learns to use VS Code and an AI helper, then writes and runs a first automated test of a website. Ten days, one hour a day.",
-      "button": "Open Course"
+      "button": "Open Course",
+      "facts": [
+        "Audience: all level testers",
+        "Tools: VS Code, Copilot, Playwright",
+        "Length: 10 days, 1 hour a day"
+      ],
+      "visual": "docs/assets/visuals/qa-onboarding.svg",
+      "visualAlt": "Looping illustration: a plain-words prompt in VS Code becomes a Playwright test that runs and passes.",
+      "code": "Write a function that checks a password has at least 8 characters, a number and a capital letter.",
+      "codeLang": "text",
+      "oneLiner": "Ten one-hour days take a tester who has never written code to a running Playwright test.",
+      "inlineIn": "materials",
+      "inline": [
+        {
+          "title": "Day 5 Lesson Plan",
+          "md": "lesson-plan-day-5-practice.md"
+        },
+        {
+          "title": "Quiz",
+          "md": "quiz.md"
+        },
+        {
+          "title": "Day 10 Scoring Guide",
+          "md": "rubric-day-10-practical-round.md"
+        },
+        {
+          "title": "Feedback Form",
+          "md": "survey.md"
+        },
+        {
+          "title": "Two-Week Schedule",
+          "docx": "materials/qa-automation-2-week-schedule.docx"
+        },
+        {
+          "title": "Ten-Day Cheat Sheet",
+          "docx": "materials/qa-automation-10-day-cheat-sheet.docx"
+        },
+        {
+          "title": "Testing Types Cheat Sheet",
+          "docx": "materials/testing-types-cheat-sheet.docx"
+        },
+        {
+          "title": "Test Strategy and Automation Test Plan Template",
+          "docx": "materials/test-strategy-and-automation-test-plan-template.docx"
+        }
+      ]
     },
     {
       "label": "Course",
@@ -119,6 +165,9 @@
   "footerNote": "Every company, system and person here is made up.",
   "contact": {
     "email": "iqrar.h.rizvi@gmail.com",
-    "linkedin": "https://www.linkedin.com/in/iqrar-rizvi"
-  }
+    "linkedin": "https://www.linkedin.com/in/iqrar-rizvi",
+    "instagram": "https://www.instagram.com/iqrar.rizvi.ai/",
+    "x": "https://x.com/iqrar_rizvi_ai"
+  },
+  "owner": "Iqrar Rizvi"
 }

@@ -6,7 +6,7 @@ Copy this for each course. Write the first paragraph for someone who does not wo
 
 # Course Title
 
-**In one sentence:** What a learner can do after this course that they could not before.
+What a learner can do after this course that they could not before.
 
 | | |
 |---|---|

@@ -8,6 +8,7 @@
     "previews": "node previews.mjs"
   },
   "dependencies": {
+    "mammoth": "^1.13.0",
     "marked": "^15.0.0",
     "marked-gfm-heading-id": "^4.1.0"
   },

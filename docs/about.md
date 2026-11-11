@@ -14,6 +14,7 @@ That is what I like building most: a lesson plan, a clear page, a test that tell
 - Weigh trade-offs and say plainly what I chose not to do
 - Measure whether a decision worked, and report the numbers honestly
 - Next: requirements with acceptance criteria, and a metrics case study
+- See the [product portfolio](https://rizvihiqrar.github.io/product-portfolio/)
 
 ### Product Makeover and Design
 
@@ -28,6 +29,7 @@ That is what I like building most: a lesson plan, a clear page, a test that tell
 - Automate regression tests so a release does not depend on a week of manual checks
 - Tell the people who decide what was and was not covered
 - Review AI-written work before it is trusted
+- See the [QA automation platform](https://github.com/rizvihiqrar/qa-automation-platform)
 
 ### Training
 
