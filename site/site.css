@@ -120,7 +120,7 @@ blockquote { margin: 24px 0; padding: 4px 20px; border-left: 4px solid var(--bor
 .filter { font: inherit; font-size: 13px; min-height: 36px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); cursor: pointer; }
 .filter:hover { background: var(--surface-3); }
 .filter[aria-pressed="true"], .filter[aria-pressed="true"]:hover { background: var(--primary); color: var(--primary-text); border-color: var(--primary); }
-.card[hidden] { display: none; }
+.filters[hidden], .card[hidden] { display: none; }
 .card { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
 .card-img { display: block; width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: cover; border-bottom: 1px solid var(--border); background: var(--surface-2); }
 .card-body { padding: 24px; display: flex; flex-direction: column; flex: 1; }

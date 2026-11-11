@@ -343,7 +343,7 @@ test('a page description with an ampersand or quotes is escaped once, not twice'
 test('table names are decoded once, a second table under one heading is numbered, and a table with no heading is still named', () => {
   const md = '| A |\n|---|\n| 1 |\n\n## Q&A\n\n| B |\n|---|\n| 2 |\n\n| C |\n|---|\n| 3 |\n';
   const { html } = renderMarkdown(md);
-  assert.match(html, /aria-label="Data table"/);
+  assert.match(html, /aria-label="Opening table"/);
   assert.match(html, /aria-label="Q&amp;A table"/);
   assert.match(html, /aria-label="Q&amp;A table 2"/);
   assert.doesNotMatch(html, /&amp;amp;/);
@@ -358,12 +358,28 @@ test('the filter chips stay hidden until the page script reveals them, so nothin
   assert.match(html, /\(c\.getAttribute\('data-tags'\)\|\|''\)/);
 });
 
-test('the filter group is named after what the cards are filtered by', () => {
-  assert.ok(config.filterLabel);
+test('the filter group is named after what the cards are filtered by', (t) => {
+  const out = scratch(t);
+  buildSite({ root: repoRoot, out, config });
+  assert.match(fs.readFileSync(path.join(out, 'index.html'), 'utf8'), new RegExp(`aria-label="Filter by ${config.filterLabel}"`));
+  const noLabel = scratch(t);
+  buildSite({ root: repoRoot, out: noLabel, config: { ...config, filterLabel: undefined } });
+  assert.match(fs.readFileSync(path.join(noLabel, 'index.html'), 'utf8'), /aria-label="Filter by Topic"/);
 });
 
 test('the About page uses the same email and LinkedIn address as the footer and contact buttons', () => {
   const about = fs.readFileSync(path.join(repoRoot, 'docs/about.md'), 'utf8');
   assert.ok(about.includes(`mailto:${config.contact.email}`), 'the email matches site.json');
   assert.ok(about.includes(config.contact.linkedin), 'the LinkedIn address matches site.json');
+});
+
+test('the stylesheet really hides the filter chips while they have the hidden attribute (the markup alone is not enough)', () => {
+  const css = fs.readFileSync(new URL('./site.css', import.meta.url), 'utf8');
+  assert.match(css, /\.filters\[hidden\][^{]*\{[^}]*display:\s*none/);
+});
+
+test('two sections that happen to share a heading each get their own table name, not a number', () => {
+  const { html } = renderMarkdown('## A\n\n## Results\n\n| X |\n|---|\n| 1 |\n\n## B\n\n## Results\n\n| Y |\n|---|\n| 2 |\n');
+  assert.equal((html.match(/aria-label="Results table"/g) ?? []).length, 2);
+  assert.doesNotMatch(html, /Results table 2/);
 });

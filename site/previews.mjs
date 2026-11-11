@@ -34,8 +34,9 @@ const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
 for (const card of config.cards.filter((c) => c.image)) {
   await page.setContent(cardHtml(card), { waitUntil: 'networkidle' });
-  await page.evaluate(() => document.fonts.ready);
-  if (!(await page.evaluate(() => document.fonts.check('600 20px Poppins')))) throw new Error('The Poppins font did not load: run this with a network connection, or the images would use a different font.');
+  // fonts.check() says yes when no font was ever registered, so ask for each weight to load and look at what came back
+  const loaded = await page.evaluate(async () => (await Promise.all([document.fonts.load('600 20px Poppins'), document.fonts.load('500 20px Poppins')])).every((r) => r.length > 0));
+  if (!loaded) throw new Error('The Poppins font did not load: run this with a network connection, or the images would use a different font.');
   const target = path.join(repoRoot, card.image);
   fs.mkdirSync(path.dirname(target), { recursive: true });
   await page.screenshot({ path: target });
