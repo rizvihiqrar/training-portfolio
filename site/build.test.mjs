@@ -244,32 +244,27 @@ test('every link in the front README that points into the live site is a real pa
 
 const read = (out, rel) => fs.readFileSync(path.join(out, rel), 'utf8');
 
-test('the home page has a filter chip for each topic, All pressed first, and a status line for screen readers', (t) => {
+test('the home page is a plain list: one linked entry with a thumbnail and title for each finished piece, and no filters, buttons or hero', (t) => {
   const out = scratch(t);
   buildSite({ root: repoRoot, out, config });
   const html = read(out, 'index.html');
-  assert.match(html, /<button type="button" class="filter" data-filter="all" aria-pressed="true">All<\/button>/);
-  for (const tag of config.filterTags) assert.match(html, new RegExp(`class="filter" data-filter="[a-z-]+" aria-pressed="false">${tag}<`));
-  assert.match(html, /id="filter-status" class="sr-only" role="status" aria-live="polite"/);
-  assert.equal((html.match(/<article class="card/g) ?? []).length, config.cards.length);
-});
-
-test('every card carries only tags that have a filter chip', () => {
-  const chips = new Set(config.filterTags);
-  for (const c of config.cards) {
-    assert.ok(c.tags.length > 0, `${c.title} has tags`);
-    for (const tag of c.tags) assert.ok(chips.has(tag), `${c.title}: "${tag}" has a filter chip`);
+  const ready = config.cards.filter((c) => c.status !== 'planned');
+  assert.equal((html.match(/<a class="work" href=/g) ?? []).length, ready.length);
+  for (const c of ready) {
+    assert.ok(html.includes(`href="${rewriteHref(c.path)}"`), `${c.title} links to its page`);
+    assert.ok(html.includes(`<span class="work-title">${escapeHtml(c.title)}</span>`), `${c.title} is listed`);
   }
+  assert.doesNotMatch(html, /class="filter|class="btn|class="hero|Get in Touch|data-filter|filter-status/);
 });
 
-test('a planned card has no link and says so; a ready card links to its course', (t) => {
+test('a planned piece is not on the home page, so nothing there reads Coming Soon (the break: list every card)', (t) => {
   const out = scratch(t);
   buildSite({ root: repoRoot, out, config });
   const html = read(out, 'index.html');
   const planned = config.cards.filter((c) => c.status === 'planned');
-  assert.ok(planned.length > 0);
-  assert.equal((html.match(/Coming Soon/g) ?? []).length, planned.length);
-  assert.match(html, /<a class="btn" href="01-onboarding-programs\/qa-automation-onboarding\/">Open Course<\/a>/);
+  assert.ok(planned.length > 0, 'the plan stays in site.json');
+  for (const c of planned) assert.ok(!html.includes(escapeHtml(c.title)), `${c.title} is not listed yet`);
+  assert.doesNotMatch(html, /Coming Soon/);
 });
 
 test('every course folder has a card (the break: add a course, forget its card)', () => {
@@ -296,17 +291,19 @@ test('every ready card has a preview image that exists, with alt text, and it ma
   assert.notEqual(previewKey(c, config.name), previewKey({ ...c, title: `${c.title}!` }, config.name));
 });
 
-test('the contact buttons are on the home page and in the footer of every page, and the About page exists', (t) => {
+test('the email and LinkedIn links are at the top of the home page and in the footer of every page, and the About page exists', (t) => {
   const out = scratch(t);
   const pages = buildSite({ root: repoRoot, out, config });
   assert.ok(pages.includes('docs/about.html'));
-  assert.match(contactHtml(config), /href="mailto:[^"]+">Send an Email<\/a><a class="btn btn-secondary" href="https:\/\/www\.linkedin\.com\/in\/[^"]+">View LinkedIn<\/a>/);
+  assert.match(contactHtml(config), /^<p class="links"><a href="mailto:[^"]+">Email<\/a><a href="https:\/\/www\.linkedin\.com\/in\/[^"]+">LinkedIn<\/a><a href="[^"]+">About Me<\/a><a href="https:\/\/github\.com\/rizvihiqrar\/[^"]+">GitHub<\/a><\/p>$/);
+  const top = read(out, 'index.html').split('<section id=')[0];
+  assert.match(top, /href="mailto:/);
+  assert.match(top, /linkedin\.com\/in\//);
   for (const rel of ['index.html', 'docs/about.html', '01-onboarding-programs/qa-automation-onboarding/index.html']) {
-    const html = read(out, rel);
-    assert.match(html, /href="mailto:/);
-    assert.match(html, /linkedin\.com\/in\//);
+    const foot = read(out, rel).split('<footer')[1];
+    assert.match(foot, /href="mailto:/);
+    assert.match(foot, /linkedin\.com\/in\//);
   }
-  assert.match(read(out, 'index.html'), /<section id="contact" class="section">/);
 });
 
 test('each table is named after the heading above it, and each page has its own description', () => {
@@ -349,33 +346,10 @@ test('table names are decoded once, a second table under one heading is numbered
   assert.doesNotMatch(html, /&amp;amp;/);
 });
 
-test('the filter chips stay hidden until the page script reveals them, so nothing useless shows without JavaScript', (t) => {
-  const out = scratch(t);
-  buildSite({ root: repoRoot, out, config });
-  const html = fs.readFileSync(path.join(out, 'index.html'), 'utf8');
-  assert.match(html, /<div class="filters" role="group" aria-label="Filter by [A-Za-z ]+" hidden>/);
-  assert.match(html, /g\.hidden=false/);
-  assert.match(html, /\(c\.getAttribute\('data-tags'\)\|\|''\)/);
-});
-
-test('the filter group is named after what the cards are filtered by', (t) => {
-  const out = scratch(t);
-  buildSite({ root: repoRoot, out, config });
-  assert.ok(fs.readFileSync(path.join(out, 'index.html'), 'utf8').includes(`aria-label="Filter by ${escapeHtml(config.filterLabel)}"`));
-  const noLabel = scratch(t);
-  buildSite({ root: repoRoot, out: noLabel, config: { ...config, filterLabel: undefined } });
-  assert.match(fs.readFileSync(path.join(noLabel, 'index.html'), 'utf8'), /aria-label="Filter by Topic"/);
-});
-
 test('the About page uses the same email and LinkedIn address as the footer and contact buttons', () => {
   const about = fs.readFileSync(path.join(repoRoot, 'docs/about.md'), 'utf8');
   assert.ok(about.includes(`mailto:${config.contact.email}`), 'the email matches site.json');
   assert.ok(about.includes(config.contact.linkedin), 'the LinkedIn address matches site.json');
-});
-
-test('the stylesheet really hides the filter chips while they have the hidden attribute (the markup alone is not enough)', () => {
-  const css = fs.readFileSync(new URL('./site.css', import.meta.url), 'utf8');
-  assert.match(css, /\.filters\[hidden\][^{]*\{[^}]*display:\s*none/);
 });
 
 test('two sections that happen to share a heading each get their own table name, not a number', () => {

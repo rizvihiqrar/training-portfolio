@@ -8,26 +8,16 @@
   ],
   "nav": [
     {
-      "label": "Courses",
-      "href": "index.html#courses"
-    },
-    {
       "label": "About Me",
       "href": "docs/about.html"
     },
     {
       "label": "How It Works",
       "href": "docs/overview.html"
-    },
-    {
-      "label": "Contact",
-      "href": "index.html#contact"
     }
   ],
   "sectionId": "courses",
   "sectionTitle": "Courses",
-  "sectionIntro": "Each course has a plan, a lesson, a quiz and a scoring guide. Filter by topic.",
-  "primaryButton": "Browse Courses",
   "aboutButton": "About Me",
   "aboutHref": "docs/about.html",
   "cards": [
@@ -135,15 +125,6 @@
   "footerNote": "Every company, system and person here is made up.",
   "contact": {
     "email": "iqrar.h.rizvi@gmail.com",
-    "linkedin": "https://www.linkedin.com/in/iqrar-rizvi",
-    "intro": "Hiring, training a team, or curious how I teach? Send me a message."
-  },
-  "filterTags": [
-    "Onboarding",
-    "Technical Enablement",
-    "System Training",
-    "Assessment",
-    "Customer and Implementation"
-  ],
-  "filterLabel": "Topic"
+    "linkedin": "https://www.linkedin.com/in/iqrar-rizvi"
+  }
 }
