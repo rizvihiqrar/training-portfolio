@@ -4,9 +4,9 @@
 //   - any Markdown file links to a file or folder that doesn't exist (exact letter case, as on GitHub),
 //     or to a #heading that is not in the file it points at;
 //   - a course folder (NN-section/course-name/) is not linked from the front README;
-//   - a top-level folder is neither a numbered section (NN-name), docs, site nor .github (a course placed elsewhere would escape the check);
+//   - a top-level folder is neither a numbered section (NN-name), docs, site nor .github (a course placed elsewhere would escape the check).
 // Written style: headings are in title case, and the phrase "plain English" is not used anywhere.
-// Web links are not checked: third-party sites block bots and would make the build flaky.
+// Web links are not checked here: third-party sites block bots and would make the build flaky. The site's own tests check the README's links into the live site.
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';

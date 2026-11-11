@@ -8,7 +8,7 @@ Training is how a new person becomes useful quickly. A good course tells you who
 
 ## At a Glance
 
-- 1 course so far: a two-week plan that teaches testers to use automation tools, one hour a day (more on the way, see [coming next](#coming-next))
+- A two-week plan that teaches testers to use automation tools, one hour a day (more on the way, see [coming next](#coming-next))
 - Every course has a page, a one-page lesson plan, a quiz, a scoring guide and a feedback form for learners
 - Four Word files you can download and use: the schedule, a ten-day cheat sheet, a guide to the kinds of testing, and a test plan template
 - Two templates ([course page](templates/course-page-template.md) and [lesson plan](templates/lesson-plan-template.md)), so every course is laid out the same way
