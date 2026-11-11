@@ -27,8 +27,8 @@ A numbered list of sessions or lessons, each with a time and the activity (expla
 | Lesson plan (one page) | Timings, activities, what to prepare |
 | Slides with speaker notes | The teaching deck |
 | Learner handout | What the learner keeps |
-| Assignment and answer key | Marked, hands-on work |
-| Quiz and answer key | Ten questions with feedback |
+| Assignment | Marked, hands-on work; the trainer keeps the answers |
+| Quiz | Ten questions; the trainer keeps the answers |
 | Rubric | How the trainer scores and gives feedback |
 | Survey | What learners thought, and what changed because of it |
 | Certificate | Given on completion |
