@@ -72,11 +72,10 @@ export function renderMarkdown(markdown) {
 
 const THEME_SCRIPT = `try{var s=localStorage.getItem('theme');s=(s==='dark'||s==='light')?s:null;var t=s||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','light')}`;
 const TOGGLE_SCRIPT = `(function(){var b=document.getElementById('theme-toggle');if(!b)return;function label(){var d=document.documentElement.getAttribute('data-theme')==='dark';b.setAttribute('aria-label',d?'Switch to Light Mode':'Switch to Dark Mode');b.title=d?'Switch to Light Mode':'Switch to Dark Mode'}label();b.addEventListener('click',function(){var n=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);try{localStorage.setItem('theme',n)}catch(e){}label();if(document.querySelector('pre.mermaid'))location.reload()})})();`;
-const FILTER_SCRIPT = `(function(){var g=document.querySelector('.filters');var f=document.querySelectorAll('.filter'),cards=document.querySelectorAll('.card'),st=document.getElementById('filter-status');if(!g||!f.length)return;g.hidden=false;f.forEach(function(b){b.addEventListener('click',function(){var v=b.getAttribute('data-filter');f.forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});var n=0;cards.forEach(function(c){var show=v==='all'||(c.getAttribute('data-tags')||'').split(' ').indexOf(v)>-1;c.hidden=!show;if(show)n++});if(st)st.textContent=n+(n===1?' item':' items')+' shown'})})})();`;
 const MERMAID_SCRIPT = `import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.4.0/dist/mermaid.esm.min.mjs';mermaid.initialize({startOnLoad:true,theme:document.documentElement.getAttribute('data-theme')==='dark'?'dark':'default'});`;
 
 /** The whole HTML page around a body. */
-export function pageHtml({ config, title, body, depth, subnav = '', hasMermaid = false, description = '', filters = false }) {
+export function pageHtml({ config, title, body, depth, subnav = '', hasMermaid = false, description = '' }) {
   const root = '../'.repeat(depth);
   const nav = config.nav.map((n) => `<a href="${root}${n.href}">${escapeHtml(n.label)}</a>`).join('');
   const desc = escapeHtml(description || config.intro);
@@ -107,57 +106,37 @@ ${subnav}${body}
 </main>
 <footer class="site-footer"><div class="wrap"><p>${escapeHtml(config.name)}. ${escapeHtml(config.footerNote)} <a href="mailto:${escapeHtml(config.contact.email)}">Send an Email</a> · <a href="${escapeHtml(config.contact.linkedin)}">LinkedIn</a> · <a href="${escapeHtml(config.repo)}">Source on GitHub</a></p></div></footer>
 <script>${TOGGLE_SCRIPT}</script>
-${filters ? `<script>${FILTER_SCRIPT}</script>\n` : ''}${hasMermaid ? `<script type="module">${MERMAID_SCRIPT}</script>` : ''}
+${hasMermaid ? `<script type="module">${MERMAID_SCRIPT}</script>` : ''}
 </body>
 </html>
 `;
 }
 
-const tagSlug = (tag) => tag.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-
-function cardHtml(c) {
-  const planned = c.status === 'planned';
-  const image = c.image ? `<img class="card-img" src="${escapeHtml(c.image)}" alt="${escapeHtml(c.imageAlt ?? '')}" loading="lazy" width="1200" height="630">` : '';
-  const action = planned
-    ? '<span class="btn btn-disabled">Coming Soon</span>'
-    : `<a class="btn" href="${escapeHtml(rewriteHref(c.path))}">${escapeHtml(c.button)}</a>`;
-  return `<article class="card${planned ? ' card-planned' : ''}" data-tags="${c.tags.map(tagSlug).join(' ')}">
-${image}<div class="card-body">
-<p class="label">${escapeHtml(c.label)}${planned ? ' (Planned)' : ''}</p>
-<h3>${escapeHtml(c.title)}</h3>
-<p>${escapeHtml(c.summary)}</p>
-<p class="chips">${c.tags.map((x) => `<span class="chip">${escapeHtml(x)}</span>`).join('')}</p>
-<p>${action}</p>
-</div>
-</article>`;
+/** One finished piece on the home page: a thumbnail, its title and what kind of piece it is. Planned pieces are not listed. */
+function workHtml(c) {
+  const image = c.image ? `<img class="work-img" src="${escapeHtml(c.image)}" alt="${escapeHtml(c.imageAlt ?? '')}" loading="lazy" width="1200" height="630">` : '';
+  return `<li><a class="work" href="${escapeHtml(rewriteHref(c.path))}">
+${image}<span class="work-title">${escapeHtml(c.title)}</span>
+<span class="work-meta">${escapeHtml(c.label)}</span>
+</a></li>`;
 }
 
-/** The email and LinkedIn buttons, as one block. */
+/** The email and LinkedIn links, as one line. */
 export function contactHtml(config) {
-  return `<p class="actions"><a class="btn" href="mailto:${escapeHtml(config.contact.email)}">Send an Email</a><a class="btn btn-secondary" href="${escapeHtml(config.contact.linkedin)}">View LinkedIn</a></p>`;
+  return `<p class="links"><a href="mailto:${escapeHtml(config.contact.email)}">Email</a><a href="${escapeHtml(config.contact.linkedin)}">LinkedIn</a><a href="${escapeHtml(config.aboutHref)}">${escapeHtml(config.aboutButton)}</a><a href="${escapeHtml(config.repo)}">GitHub</a></p>`;
 }
 
 function homeBody(config) {
-  const tags = config.filterTags ?? [...new Set(config.cards.flatMap((c) => c.tags))];
-  const chips = ['All', ...tags].map((tag, i) => `<button type="button" class="filter" data-filter="${i === 0 ? 'all' : tagSlug(tag)}" aria-pressed="${i === 0}">${escapeHtml(tag)}</button>`).join('');
-  return `<section class="hero">
+  const ready = config.cards.filter((c) => c.status !== 'planned');
+  return `<section class="intro">
 <h1>${escapeHtml(config.name)}</h1>
 <p class="lead">${escapeHtml(config.intro)}</p>
-<p class="actions"><a class="btn" href="#${config.sectionId}">${escapeHtml(config.primaryButton)}</a><a class="btn btn-secondary" href="${escapeHtml(config.aboutHref)}">${escapeHtml(config.aboutButton)}</a></p>
-</section>
-<section id="${config.sectionId}" class="section">
-<h2>${escapeHtml(config.sectionTitle)}</h2>
-<p class="section-intro">${escapeHtml(config.sectionIntro)}</p>
-<div class="filters" role="group" aria-label="Filter by ${escapeHtml(config.filterLabel ?? 'Topic')}" hidden>${chips}</div>
-<p id="filter-status" class="sr-only" role="status" aria-live="polite"></p>
-<div class="grid">
-${config.cards.map(cardHtml).join('\n')}
-</div>
-</section>
-<section id="contact" class="section">
-<h2>Get in Touch</h2>
-<p class="section-intro">${escapeHtml(config.contact.intro)}</p>
 ${contactHtml(config)}
+</section>
+<section id="${config.sectionId}" class="works-section" aria-label="${escapeHtml(config.sectionTitle)}">
+<ul class="works">
+${ready.map(workHtml).join('\n')}
+</ul>
 </section>`;
 }
 
@@ -232,7 +211,7 @@ export function buildSite({ root = repoRoot, out = path.join(root, '_site'), con
     fs.mkdirSync(path.dirname(path.join(out, d.zip)), { recursive: true });
     fs.writeFileSync(path.join(out, d.zip), zipSync(entries));
   }
-  fs.writeFileSync(path.join(out, 'index.html'), pageHtml({ config, title: '', body: homeBody(config), depth: 0, filters: true }));
+  fs.writeFileSync(path.join(out, 'index.html'), pageHtml({ config, title: '', body: homeBody(config), depth: 0 }));
   pages.push('index.html');
   fs.copyFileSync(path.join(here, 'site.css'), path.join(out, 'site.css'));
   fs.writeFileSync(path.join(out, '.nojekyll'), '');
