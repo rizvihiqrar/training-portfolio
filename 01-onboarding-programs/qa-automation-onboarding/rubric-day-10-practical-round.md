@@ -2,7 +2,7 @@
 
 **The task:** Pick one real user flow in an app you know, then use Playwright's recorder and Copilot to write a test and run it. About 60 minutes. The trainer watches, scores, and gives feedback in the same conversation.
 
-**How to score:** Give each of the five criteria a score from 1 to 4. The total is out of 20.
+**How to score:** Give each of the five criteria a score from 1 to 4. The total is out of 20. If a learner did not attempt the task, write "Not attempted" instead of a score and offer another try.
 
 | Score | Level | In short |
 |---|---|---|

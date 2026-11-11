@@ -135,6 +135,9 @@ function subnavFor(config, mdPath) {
 /** The only non-Markdown files that are published: handouts and images. Editor and lock files never are. */
 export const PUBLISHED_FILES = /\.(docx|xlsx|pptx|pdf|png|jpe?g|gif|svg|csv|txt)$/i;
 
+/** What goes into a download package: the handouts a person would keep. */
+export const HANDOUTS = /\.(docx|xlsx|pptx|pdf)$/i;
+
 function walk(root, dir, include) {
   const out = [];
   for (const e of fs.readdirSync(path.join(root, dir), { withFileTypes: true })) {
@@ -168,12 +171,17 @@ export function buildSite({ root = repoRoot, out = path.join(root, '_site'), con
     }
   }
   for (const d of config.downloads ?? []) {
+    const dir = path.join(root, d.folder);
+    if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) throw new Error(`download folder ${d.folder} not found`);
     const entries = {};
-    for (const f of fs.readdirSync(path.join(root, d.folder)).sort()) {
-      if (PUBLISHED_FILES.test(f) && !/^(\.|~\$)/.test(f)) entries[f] = new Uint8Array(fs.readFileSync(path.join(root, d.folder, f)));
+    for (const e of fs.readdirSync(dir, { withFileTypes: true }).sort((x, y) => x.name.localeCompare(y.name))) {
+      // Handouts are already compressed, so they are stored, with a fixed date, to make the same package every build.
+      if (e.isFile() && HANDOUTS.test(e.name) && !/^(\.|~\$)/.test(e.name)) {
+        entries[e.name] = [new Uint8Array(fs.readFileSync(path.join(dir, e.name))), { level: 0, mtime: new Date('2026-01-01T00:00:00Z') }];
+      }
     }
     fs.mkdirSync(path.dirname(path.join(out, d.zip)), { recursive: true });
-    fs.writeFileSync(path.join(out, d.zip), zipSync(entries, { level: 6 }));
+    fs.writeFileSync(path.join(out, d.zip), zipSync(entries));
   }
   fs.writeFileSync(path.join(out, 'index.html'), pageHtml({ config, title: '', body: homeBody(config), depth: 0 }));
   pages.push('index.html');

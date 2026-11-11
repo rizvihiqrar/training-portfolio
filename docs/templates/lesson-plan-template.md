@@ -4,7 +4,7 @@
 
 **By the end, learners can:** (two or three things, each one something you can watch them do)
 
-| Time | Step | What the trainer does | What the learners do | Check |
+| Length | Step | What the trainer does | What the learners do | Check |
 |---|---|---|---|---|
 | 10 min | Open | State the goal and why it matters on the job | Say what they already know | A show of hands or a one-line answer |
 | 15 min | Explain | Teach one idea with one example | Follow along, ask questions | A question to the room |

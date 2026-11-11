@@ -7,7 +7,7 @@
 - Ask Copilot for code in everyday words and say what it did.
 - Tell a good suggestion from one that needs checking.
 
-| Time | Step | What the trainer does | What the learners do | Check |
+| Length | Step | What the trainer does | What the learners do | Check |
 |---|---|---|---|---|
 | 5 min | Open | Says the goal: today is about doing, not watching. Nothing here is graded as right or wrong. | Say one thing from Days 1 to 4 they found useful or confusing | One sentence each |
 | 5 min | Setup check | Makes sure VS Code, Copilot and the terminal all open | Open a new empty folder in VS Code, open the terminal (Ctrl+`) | Everyone has a terminal open |
