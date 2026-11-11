@@ -6,11 +6,13 @@
 
 | Time | Step | What the trainer does | What the learners do | Check |
 |---|---|---|---|---|
-| 0:00 | Open | State the goal and why it matters on the job | Say what they already know | A show of hands or a one-line answer |
-| 0:10 | Explain | Teach one idea with one example | Follow along, ask questions | A question to the room |
-| 0:25 | Demonstrate | Do the task slowly, saying why at each step | Watch, then note the steps | They repeat the steps back |
-| 0:40 | Practise | Circulate and note mistakes | Do the task on sample data | A marked exercise |
-| 0:55 | Close | Recap, set the assignment | Write one thing they will do next | A short quiz question |
+| 10 min | Open | State the goal and why it matters on the job | Say what they already know | A show of hands or a one-line answer |
+| 15 min | Explain | Teach one idea with one example | Follow along, ask questions | A question to the room |
+| 15 min | Demonstrate | Do the task slowly, saying why at each step | Watch, then note the steps | They repeat the steps back |
+| 15 min | Practise | Circulate and note mistakes | Do the task on sample data | A marked exercise |
+| 5 min | Close | Recap, set the assignment | Write one thing they will do next | A short quiz question |
+
+**Total:** 60 min. Write each step as how long it takes, not the clock time it starts.
 
 **Prepare:** Files, sample data, room or screen setup.
 

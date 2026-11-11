@@ -7,6 +7,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { Marked } from 'marked';
 import { gfmHeadingId } from 'marked-gfm-heading-id';
+import { zipSync } from 'fflate';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 export const repoRoot = path.resolve(here, '..');
@@ -165,6 +166,14 @@ export function buildSite({ root = repoRoot, out = path.join(root, '_site'), con
       fs.mkdirSync(path.dirname(target), { recursive: true });
       fs.copyFileSync(path.join(root, rel), target);
     }
+  }
+  for (const d of config.downloads ?? []) {
+    const entries = {};
+    for (const f of fs.readdirSync(path.join(root, d.folder)).sort()) {
+      if (PUBLISHED_FILES.test(f) && !/^(\.|~\$)/.test(f)) entries[f] = new Uint8Array(fs.readFileSync(path.join(root, d.folder, f)));
+    }
+    fs.mkdirSync(path.dirname(path.join(out, d.zip)), { recursive: true });
+    fs.writeFileSync(path.join(out, d.zip), zipSync(entries, { level: 6 }));
   }
   fs.writeFileSync(path.join(out, 'index.html'), pageHtml({ config, title: '', body: homeBody(config), depth: 0 }));
   pages.push('index.html');

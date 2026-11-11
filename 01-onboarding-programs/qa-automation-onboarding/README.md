@@ -44,7 +44,7 @@ By the end you can:
 | 7 | [Playwright beginner tutorial](https://www.youtube.com/watch?v=wawbt1cATsk): setup, a first test, running it in VS Code | 60 min |
 | 8 | [Automated web testing with Playwright](https://www.pluralsight.com/courses/playwright-automated-web-testing): selectors and assertions only (subscription needed) | 60 min |
 | 9 | [Write Playwright tests with AI](https://www.youtube.com/watch?v=1nQNL4BDPIY): describe a test in everyday words, let Copilot write it, run it | 30 min plus practice |
-| 10 | **Practical round.** Pick one real user flow; use Playwright's recorder and Copilot to write and run the test. Scored with the [rubric](rubric-day-10-final-practice.md). | 60 min |
+| 10 | **Practical round.** Pick one real user flow; use Playwright's recorder and Copilot to write and run the test. Scored with the [rubric](rubric-day-10-practical-round.md). | 60 min |
 
 The video and course links point to the original authors' pages; nothing from those courses is copied here. I have not re-checked them since I made the plan, so test every link before running a group.
 
@@ -55,11 +55,11 @@ Read these in the browser:
 | Page | For | What it is |
 |---|---|---|
 | [Day 5 lesson plan](lesson-plan-day-5-practice.md) | Trainer | One page: timings, steps, checks |
-| [Quiz and answer key](quiz-and-answer-key.md) | Trainer and learner | Ten questions with feedback, to give after Day 9 |
-| [Day 10 rubric](rubric-day-10-final-practice.md) | Trainer | How the practical round is scored |
+| [Quiz](quiz.md) | Trainer and learner | Ten questions, to give after Day 9 (the trainer keeps the answers) |
+| [Day 10 rubric](rubric-day-10-practical-round.md) | Trainer | How the practical round is scored |
 | [Learner survey](survey.md) | Learner | What learners thought and what to change |
 
-Download these Word files (click the link, then the download button on the file page):
+**[Download All Handouts (ZIP)](https://rizvihiqrar.github.io/training-portfolio/01-onboarding-programs/qa-automation-onboarding/qa-automation-onboarding-downloads.zip)** gets you the four Word files below in one package. Or take them one at a time (click the link, then the download button on the file page):
 
 | File | What it is |
 |---|---|
@@ -80,7 +80,7 @@ Every course is a set of choices. These are the main ones, why I made them, and 
 | Link to the original authors, never copy | The authors' own pages are the current version, and the lessons stay theirs. | Control over the wording, and certainty that every link still works: I have not re-checked them since I made the plan. |
 | "Always check what the AI gives you" (in the Day 3 notes, practised on Day 5) | AI suggestions can be wrong or incomplete. The habit is named early, and on Day 5 every learner has to find one thing to fix. | Faster practice with less checking. |
 | No prior coding needed | Many testers have never written code. The course goes only as far as a first working test, which builds confidence, and the rest can follow. | Depth: how to design a test framework, organize a large suite or run tests in a build pipeline. |
-| A quiz after Day 9 and a scored practical round on Day 10 | The quiz shows who needs to review (eight or more is ready; fewer means going back over the days named in the answers). The practical round shows who can do it, and the scoring guide gives each person a next step. | A single final exam. |
+| A quiz after Day 9 and a scored practical round on Day 10 | The quiz shows who needs to review (eight or more is ready; fewer means going back over the days named in the quiz). The practical round shows who can do it, and the scoring guide gives each person a next step. | A single final exam. |
 
 ## How Learning Was Checked
 

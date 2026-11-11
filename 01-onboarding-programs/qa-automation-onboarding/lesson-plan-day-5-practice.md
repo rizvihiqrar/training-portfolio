@@ -9,13 +9,15 @@
 
 | Time | Step | What the trainer does | What the learners do | Check |
 |---|---|---|---|---|
-| 0:00 | Open | Says the goal: today is about doing, not watching. Nothing here is graded as right or wrong. | Say one thing from Days 1 to 4 they found useful or confusing | One sentence each |
-| 0:05 | Setup check | Makes sure VS Code, Copilot and the terminal all open | Open a new empty folder in VS Code, open the terminal (Ctrl+`) | Everyone has a terminal open |
-| 0:10 | Prompt 1 | Reads the prompt aloud, shows how to open inline chat (Ctrl+I) | Ask: "Write a function that checks a password has at least 8 characters, a number and a capital letter." | Ghost text appears; they accept it with Tab or dismiss it with Esc |
-| 0:20 | Prompt 2 | Walks round, asks "what does that line do?" | Ask: "Write a function that adds up a list of prices and returns the total." | They explain one line in their own words |
-| 0:30 | Prompt 3 | Reminds them to review before trusting | Paste any short code and ask: "Explain this in everyday words." | They compare the explanation with the code |
-| 0:40 | Review | Asks each learner to find one thing Copilot got wrong or left out (an empty list, a missing check) | Run each function with a few inputs in the terminal | One problem found per learner |
-| 0:55 | Close | Recaps: AI suggests, I review, I run it | Write down one thing they will try tomorrow | Benchmark: terminal opened, snippet generated from a prompt, one suggestion reviewed |
+| 5 min | Open | Says the goal: today is about doing, not watching. Nothing here is graded as right or wrong. | Say one thing from Days 1 to 4 they found useful or confusing | One sentence each |
+| 5 min | Setup check | Makes sure VS Code, Copilot and the terminal all open | Open a new empty folder in VS Code, open the terminal (Ctrl+`) | Everyone has a terminal open |
+| 10 min | Prompt 1 | Reads the prompt aloud, shows how to open inline chat (Ctrl+I) | Ask: "Write a function that checks a password has at least 8 characters, a number and a capital letter." | Ghost text appears; they accept it with Tab or dismiss it with Esc |
+| 10 min | Prompt 2 | Walks round, asks "what does that line do?" | Ask: "Write a function that adds up a list of prices and returns the total." | They explain one line in their own words |
+| 10 min | Prompt 3 | Reminds them to review before trusting | Paste any short code and ask: "Explain this in everyday words." | They compare the explanation with the code |
+| 15 min | Review | Asks each learner to find one thing Copilot got wrong or left out (an empty list, a missing check) | Run each function with a few inputs in the terminal | One problem found per learner |
+| 5 min | Close | Recaps: AI suggests, I review, I run it | Write down one thing they will try tomorrow | Benchmark: terminal opened, snippet generated from a prompt, one suggestion reviewed |
+
+**Total:** 60 min.
 
 **Prepare:** Each learner has VS Code and Copilot signed in, and Node.js installed (needed from Day 7). Have the three prompts on a slide or a printed card.
 
