@@ -12,27 +12,85 @@
       "href": "index.html#courses"
     },
     {
-      "label": "About",
+      "label": "About Me",
+      "href": "docs/about.html"
+    },
+    {
+      "label": "How It Works",
       "href": "docs/overview.html"
+    },
+    {
+      "label": "Contact",
+      "href": "index.html#contact"
     }
   ],
   "sectionId": "courses",
   "sectionTitle": "Courses",
-  "sectionIntro": "Each course has a plan, a lesson, a quiz and a scoring guide. Open one to see all of it.",
+  "sectionIntro": "Each course has a plan, a lesson, a quiz and a scoring guide. Filter by topic.",
   "primaryButton": "Browse Courses",
-  "aboutButton": "How It Works",
-  "aboutHref": "docs/overview.html",
+  "aboutButton": "About Me",
+  "aboutHref": "docs/about.html",
   "cards": [
     {
+      "label": "Course",
       "title": "QA Automation Onboarding",
       "path": "01-onboarding-programs/qa-automation-onboarding/README.md",
-      "chips": [
-        "10 Days",
-        "1 Hour a Day",
-        "No Coding Needed"
+      "image": "docs/assets/previews/01-qa-onboarding.png",
+      "imageAlt": "Title card: QA Automation Onboarding",
+      "tags": [
+        "Onboarding",
+        "Technical Enablement"
       ],
-      "summary": "A tester who has never written code learns to use VS Code and an AI helper, then writes and runs a first automated test of a website.",
+      "summary": "A tester who has never written code learns to use VS Code and an AI helper, then writes and runs a first automated test of a website. Ten days, one hour a day.",
       "button": "Open Course"
+    },
+    {
+      "label": "Course",
+      "title": "Bank Reconciliation, Hands-On",
+      "status": "planned",
+      "tags": [
+        "System Training",
+        "Onboarding"
+      ],
+      "summary": "A hands-on course on a made-up accounting system, with marked assignments and an interactive lesson."
+    },
+    {
+      "label": "Guide",
+      "title": "Git for People New to Version Control",
+      "status": "planned",
+      "tags": [
+        "Technical Enablement"
+      ],
+      "summary": "Clone, branch, push and raise a pull request, with a short quiz."
+    },
+    {
+      "label": "Sessions",
+      "title": "Drop-In Session Decks",
+      "status": "planned",
+      "tags": [
+        "Technical Enablement",
+        "System Training"
+      ],
+      "summary": "Short sessions with slides, speaker notes and a handout."
+    },
+    {
+      "label": "Kit",
+      "title": "Assessment Kit",
+      "status": "planned",
+      "tags": [
+        "Assessment"
+      ],
+      "summary": "An evaluation form, a quiz bank and a certificate, with sample data."
+    },
+    {
+      "label": "Kit",
+      "title": "Customer Onboarding and Go-Live Plan",
+      "status": "planned",
+      "tags": [
+        "Customer and Implementation",
+        "Onboarding"
+      ],
+      "summary": "An onboarding kit and a go-live training plan for a made-up customer."
     }
   ],
   "courseNav": [
@@ -73,5 +131,18 @@
       "folder": "01-onboarding-programs/qa-automation-onboarding/materials",
       "zip": "01-onboarding-programs/qa-automation-onboarding/qa-automation-onboarding-downloads.zip"
     }
+  ],
+  "footerNote": "Every company, system and person here is made up.",
+  "contact": {
+    "email": "iqrar.h.rizvi@gmail.com",
+    "linkedin": "https://www.linkedin.com/in/iqrar-rizvi",
+    "intro": "Hiring, training a team, or curious how I teach? Send me a message."
+  },
+  "filterTags": [
+    "Onboarding",
+    "Technical Enablement",
+    "System Training",
+    "Assessment",
+    "Customer and Implementation"
   ]
 }
