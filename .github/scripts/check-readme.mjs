@@ -4,10 +4,9 @@
 //   - any Markdown file links to a file or folder that doesn't exist (exact letter case, as on GitHub),
 //     or to a #heading that is not in the file it points at;
 //   - a course folder (NN-section/course-name/) is not linked from the front README;
-//   - a top-level folder is neither a numbered section (NN-name), docs, site nor .github (a course placed elsewhere would escape the check);
-//   - the front README says "N courses so far" and N is not the number of course folders.
+//   - a top-level folder is neither a numbered section (NN-name), docs, site nor .github (a course placed elsewhere would escape the check).
 // Written style: headings are in title case, and the phrase "plain English" is not used anywhere.
-// Web links are not checked: third-party sites block bots and would make the build flaky.
+// Web links are not checked here: third-party sites block bots and would make the build flaky. The site's own tests check the README's links into the live site.
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -162,9 +161,6 @@ export function findProblems(root) {
       problems.push(`${course} exists but the front README does not link to it`);
     }
   }
-  const stated = readme.match(/(\d+) courses? so far/);
-  if (!stated) problems.push('the front README does not say "N courses so far"');
-  else if (Number(stated[1]) !== courses.length) problems.push(`the front README says ${stated[1]} courses so far, but there are ${courses.length} course folders`);
   return problems;
 }
 

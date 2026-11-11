@@ -8,11 +8,11 @@ Training courses I have designed and taught, with the lesson plans, quizzes and 
 
 ## Courses
 
-1 course so far. More are on the way. Click a course to open its page on the site.
+Click a course to open its page on the site.
 
-| Course | For | Length | Open |
+| Course | Goals | Length | Open |
 |---|---|---|---|
-| [**QA Automation Onboarding**](https://rizvihiqrar.github.io/training-portfolio/01-onboarding-programs/qa-automation-onboarding/) | Testers new to automation tools | 10 days, 1 hour each | [Lesson plan](https://rizvihiqrar.github.io/training-portfolio/01-onboarding-programs/qa-automation-onboarding/lesson-plan-day-5-practice.html), [Quiz](https://rizvihiqrar.github.io/training-portfolio/01-onboarding-programs/qa-automation-onboarding/quiz.html), [Scoring guide](https://rizvihiqrar.github.io/training-portfolio/01-onboarding-programs/qa-automation-onboarding/rubric-day-10-practical-round.html), [Source files](01-onboarding-programs/qa-automation-onboarding/) |
+| [**QA Automation Onboarding**](https://rizvihiqrar.github.io/training-portfolio/01-onboarding-programs/qa-automation-onboarding/) | Open a project, ask an AI helper for code, and write and run a first automated test | 10 days | [Lesson plan](https://rizvihiqrar.github.io/training-portfolio/01-onboarding-programs/qa-automation-onboarding/lesson-plan-day-5-practice.html), [Quiz](https://rizvihiqrar.github.io/training-portfolio/01-onboarding-programs/qa-automation-onboarding/quiz.html), [Scoring guide](https://rizvihiqrar.github.io/training-portfolio/01-onboarding-programs/qa-automation-onboarding/rubric-day-10-practical-round.html), [Source files](01-onboarding-programs/qa-automation-onboarding/) |
 
 After ten one-hour days, a tester who has never written code can open a project in VS Code, ask an AI helper for help, and write and run a simple automated test of a website. Two of the days are hands-on, with no video, because the goal is to do, not only watch.
 
@@ -46,7 +46,11 @@ Every course is a set of choices, and each course page says what I chose, why, a
 
 ## About
 
-[How the courses are built and checked](docs/overview.md), and [about me](https://rizvihiqrar.github.io/product-portfolio/docs/about.html).
+I am Iqrar Rizvi, a QA analyst who also trains people and builds small product and design pieces. I started in customer support, moved into training new hires and writing the help articles they used, and then into quality assurance. What I like most is turning how something works into something a new person can use on their first day.
+
+- [About me](https://rizvihiqrar.github.io/product-portfolio/docs/about.html): the longer story, and what I do
+- [How the courses are built and checked](docs/overview.md): the course pack, the checks, and a short glossary
+- **Get in touch:** [Send an email](mailto:iqrar.h.rizvi@gmail.com) or find me on [LinkedIn](https://www.linkedin.com/in/iqrar-rizvi)
 
 ## Related Work
 
