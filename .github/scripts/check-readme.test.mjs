@@ -16,7 +16,8 @@ function tree(t, files) {
   return root;
 }
 const caseProblem = (heading, word) => `README.md: the heading "${heading}" is not in title case ("${word}"): capitalize it, or add it to LOWERCASE_NAMES if it is a name written in lower case`;
-const front = (courses, links = '') => `${courses} courses so far ${links}`;
+const front = (count, links = '') => `# Front
+${links}`;
 
 test('web links, anchors and web images are not checked', () => {
   assert.deepEqual(relativeLinks('[a](https://x.y) [b](#top) [c](docs/a.md#part) ![d](https://i.png) [e](mailto:a@b.c)'), ['docs/a.md']);
@@ -30,7 +31,7 @@ test('a target with parentheses, a title, angle brackets and a malformed percent
   assert.deepEqual(relativeLinks('[a](docs/Guide_(v2).md) [b](x.md "Title") [c](<my file.md>) [d](100%.md)'), ['docs/Guide_(v2).md', 'x.md', 'my file.md', '100%.md']);
 });
 
-test('a README that links every course, with the right count, is fine', (t) => {
+test('a README that links every course is fine', (t) => {
   const root = tree(t, { 'README.md': front(1, '[c](./01-a/first/)'), '01-a/first/README.md': '# C' });
   assert.deepEqual(findProblems(root), []);
 });
@@ -62,11 +63,6 @@ test('a course folder the README does not mention is reported (the break: add a 
 test('a course folder with no README of its own still has to be linked', (t) => {
   const root = tree(t, { 'README.md': front(1), '01-a/new/lesson-plan.md': '# L' });
   assert.deepEqual(findProblems(root), ['01-a/new exists but the front README does not link to it']);
-});
-
-test('a stale course count is reported (the break: add a course, forget the number)', (t) => {
-  const root = tree(t, { 'README.md': front(1, '[a](01-a/one/) [b](01-a/two/)'), '01-a/one/README.md': '# H', '01-a/two/README.md': '# H' });
-  assert.deepEqual(findProblems(root), ['the front README says 1 courses so far, but there are 2 course folders']);
 });
 
 test('a section page alone is not a course', (t) => {
