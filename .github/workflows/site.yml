@@ -21,7 +21,7 @@ jobs:
           cache: npm
           cache-dependency-path: site/package-lock.json
       - name: Install
-        run: npm ci
+        run: npm ci --omit=dev
         working-directory: site
       - name: Test the build
         run: npm test

@@ -7,6 +7,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { Marked } from 'marked';
 import { gfmHeadingId } from 'marked-gfm-heading-id';
+import crypto from 'crypto';
 import { zipSync } from 'fflate';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -17,15 +18,19 @@ export const escapeHtml = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').
 /** A relative link in the Markdown, as it should read on the site: .md becomes .html, README.md becomes its folder. */
 export function rewriteHref(href) {
   if (/^([a-z][a-z0-9+.-]*:|#|\/\/)/i.test(href)) return href;
-  const [file, ...rest] = href.split('#');
+  const [withQuery, ...rest] = href.split('#');
+  const file = withQuery.split('?')[0];
   const anchor = rest.length ? `#${rest.join('#')}` : '';
-  let out = file;
+  // A README link becomes its folder, another Markdown link becomes its page (query dropped), anything else is kept as written.
+  let out = withQuery;
   if (/(^|\/)README\.md$/i.test(file)) out = file.replace(/README\.md$/i, '');
   else if (file.endsWith('.md')) out = `${file.slice(0, -3)}.html`;
   return (out || './') + anchor;
 }
 
 const CALLOUTS = { TIP: 'Tip', NOTE: 'Note', IMPORTANT: 'Important', WARNING: 'Warning', CAUTION: 'Caution' };
+
+const decodeEntities = (s) => s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&#x27;/g, "'").replace(/&amp;/g, '&');
 
 /** Markdown to the page body: callouts, diagrams, wrapped tables and site links. */
 export function renderMarkdown(markdown) {
@@ -50,17 +55,27 @@ export function renderMarkdown(markdown) {
     return `<pre class="mermaid">${code}</pre>`;
   });
   html = html.replace(/<thead>\s*<tr>(?:\s*<th[^>]*>\s*<\/th>)+\s*<\/tr>\s*<\/thead>/g, ''); // a table with an empty header row shows no header
-  html = html.replace(/<table>([\s\S]*?)<\/table>/g, '<div class="table-wrap" tabindex="0" role="region" aria-label="Table"><table>$1</table></div>');
+  const tablesUnder = new Map();
+  html = html.replace(/<table>([\s\S]*?)<\/table>/g, (whole, inner, offset, all) => {
+    const heads = [...all.slice(0, offset).matchAll(/<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>/g)];
+    const near = heads.length ? decodeEntities(heads[heads.length - 1][1].replace(/<[^>]+>/g, '')) : 'Data';
+    const n = (tablesUnder.get(near) ?? 0) + 1; // a second table under one heading gets a number, so each is told apart
+    tablesUnder.set(near, n);
+    return `<div class="table-wrap" tabindex="0" role="region" aria-label="${escapeHtml(`${near} table${n > 1 ? ` ${n}` : ''}`)}"><table>${inner}</table></div>`;
+  });
   html = html.replace(/<a href="([^"]*)"/g, (_, href) => `<a href="${rewriteHref(href.replace(/&amp;/g, '&')).replace(/&/g, '&amp;')}"`);
-  return { html, title, hasMermaid };
+  const first = (html.match(/<p>([\s\S]*?)<\/p>/) ?? [])[1] ?? '';
+  const description = decodeEntities(first.replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim().slice(0, 160);
+  return { html, title, hasMermaid, description };
 }
 
 const THEME_SCRIPT = `try{var s=localStorage.getItem('theme');s=(s==='dark'||s==='light')?s:null;var t=s||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','light')}`;
 const TOGGLE_SCRIPT = `(function(){var b=document.getElementById('theme-toggle');if(!b)return;function label(){var d=document.documentElement.getAttribute('data-theme')==='dark';b.setAttribute('aria-label',d?'Switch to Light Mode':'Switch to Dark Mode');b.title=d?'Switch to Light Mode':'Switch to Dark Mode'}label();b.addEventListener('click',function(){var n=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);try{localStorage.setItem('theme',n)}catch(e){}label();if(document.querySelector('pre.mermaid'))location.reload()})})();`;
+const FILTER_SCRIPT = `(function(){var g=document.querySelector('.filters');if(g)g.hidden=false;var f=document.querySelectorAll('.filter'),cards=document.querySelectorAll('.card'),st=document.getElementById('filter-status');f.forEach(function(b){b.addEventListener('click',function(){var v=b.getAttribute('data-filter');f.forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});var n=0;cards.forEach(function(c){var show=v==='all'||(c.getAttribute('data-tags')||'').split(' ').indexOf(v)>-1;c.hidden=!show;if(show)n++});st.textContent=n+(n===1?' item':' items')+' shown'})})})();`;
 const MERMAID_SCRIPT = `import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.4.0/dist/mermaid.esm.min.mjs';mermaid.initialize({startOnLoad:true,theme:document.documentElement.getAttribute('data-theme')==='dark'?'dark':'default'});`;
 
 /** The whole HTML page around a body. */
-export function pageHtml({ config, title, body, depth, subnav = '', hasMermaid = false, description = '' }) {
+export function pageHtml({ config, title, body, depth, subnav = '', hasMermaid = false, description = '', filters = false }) {
   const root = '../'.repeat(depth);
   const nav = config.nav.map((n) => `<a href="${root}${n.href}">${escapeHtml(n.label)}</a>`).join('');
   const desc = escapeHtml(description || config.intro);
@@ -89,21 +104,41 @@ export function pageHtml({ config, title, body, depth, subnav = '', hasMermaid =
 <main id="main" class="wrap">
 ${subnav}${body}
 </main>
-<footer class="site-footer"><div class="wrap"><p>${escapeHtml(config.name)}. Every company, system and person here is made up. <a href="${escapeHtml(config.repo)}">Source on GitHub</a></p></div></footer>
+<footer class="site-footer"><div class="wrap"><p>${escapeHtml(config.name)}. ${escapeHtml(config.footerNote)} <a href="mailto:${escapeHtml(config.contact.email)}">Send an Email</a> · <a href="${escapeHtml(config.contact.linkedin)}">LinkedIn</a> · <a href="${escapeHtml(config.repo)}">Source on GitHub</a></p></div></footer>
 <script>${TOGGLE_SCRIPT}</script>
-${hasMermaid ? `<script type="module">${MERMAID_SCRIPT}</script>` : ''}
+${filters ? `<script>${FILTER_SCRIPT}</script>\n` : ''}${hasMermaid ? `<script type="module">${MERMAID_SCRIPT}</script>` : ''}
 </body>
 </html>
 `;
 }
 
-function homeBody(config) {
-  const cards = config.cards.map((c) => `<article class="card">
+const tagSlug = (tag) => tag.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+function cardHtml(c) {
+  const planned = c.status === 'planned';
+  const image = c.image ? `<img class="card-img" src="${escapeHtml(c.image)}" alt="${escapeHtml(c.imageAlt ?? '')}" loading="lazy" width="1200" height="630">` : '';
+  const action = planned
+    ? '<span class="btn btn-disabled">Coming Soon</span>'
+    : `<a class="btn" href="${escapeHtml(rewriteHref(c.path))}">${escapeHtml(c.button)}</a>`;
+  return `<article class="card${planned ? ' card-planned' : ''}" data-tags="${c.tags.map(tagSlug).join(' ')}">
+${image}<div class="card-body">
+<p class="label">${escapeHtml(c.label)}${planned ? ' (Planned)' : ''}</p>
 <h3>${escapeHtml(c.title)}</h3>
-<p class="chips">${c.chips.map((x) => `<span class="chip">${escapeHtml(x)}</span>`).join('')}</p>
 <p>${escapeHtml(c.summary)}</p>
-<p><a class="btn" href="${escapeHtml(rewriteHref(c.path))}">${escapeHtml(c.button)}</a></p>
-</article>`).join('\n');
+<p class="chips">${c.tags.map((x) => `<span class="chip">${escapeHtml(x)}</span>`).join('')}</p>
+<p>${action}</p>
+</div>
+</article>`;
+}
+
+/** The email and LinkedIn buttons, as one block. */
+export function contactHtml(config) {
+  return `<p class="actions"><a class="btn" href="mailto:${escapeHtml(config.contact.email)}">Send an Email</a><a class="btn btn-secondary" href="${escapeHtml(config.contact.linkedin)}">View LinkedIn</a></p>`;
+}
+
+function homeBody(config) {
+  const tags = config.filterTags ?? [...new Set(config.cards.flatMap((c) => c.tags))];
+  const chips = ['All', ...tags].map((tag, i) => `<button type="button" class="filter" data-filter="${i === 0 ? 'all' : tagSlug(tag)}" aria-pressed="${i === 0}">${escapeHtml(tag)}</button>`).join('');
   return `<section class="hero">
 <h1>${escapeHtml(config.name)}</h1>
 <p class="lead">${escapeHtml(config.intro)}</p>
@@ -112,9 +147,16 @@ function homeBody(config) {
 <section id="${config.sectionId}" class="section">
 <h2>${escapeHtml(config.sectionTitle)}</h2>
 <p class="section-intro">${escapeHtml(config.sectionIntro)}</p>
+<div class="filters" role="group" aria-label="Filter by ${escapeHtml(config.filterLabel)}" hidden>${chips}</div>
+<p id="filter-status" class="sr-only" role="status" aria-live="polite"></p>
 <div class="grid">
-${cards}
+${config.cards.map(cardHtml).join('\n')}
 </div>
+</section>
+<section id="contact" class="section">
+<h2>Get in Touch</h2>
+<p class="section-intro">${escapeHtml(config.contact.intro)}</p>
+${contactHtml(config)}
 </section>`;
 }
 
@@ -133,7 +175,7 @@ function subnavFor(config, mdPath) {
 }
 
 /** The only non-Markdown files that are published: handouts and images. Editor and lock files never are. */
-export const PUBLISHED_FILES = /\.(docx|xlsx|pptx|pdf|png|jpe?g|gif|svg|csv|txt)$/i;
+export const PUBLISHED_FILES = /\.(docx|xlsx|pptx|pdf|png|jpe?g|gif|svg)$/i;
 
 /** What goes into a download package: the handouts a person would keep. */
 export const HANDOUTS = /\.(docx|xlsx|pptx|pdf)$/i;
@@ -154,15 +196,21 @@ export function buildSite({ root = repoRoot, out = path.join(root, '_site'), con
   fs.rmSync(out, { recursive: true, force: true });
   fs.mkdirSync(out, { recursive: true });
   const pages = [];
-  for (const rel of walk(root, '', config.include)) {
+  const files = walk(root, '', config.include);
+  const taken = new Map([['index.html', 'the home page']]);
+  for (const rel of files.filter((f) => f.endsWith('.md'))) {
+    const outRel = /(^|\/)README\.md$/i.test(rel) ? rel.replace(/README\.md$/i, 'index.html') : rel.replace(/\.md$/, '.html');
+    if (taken.has(outRel)) throw new Error(`two files would both become ${outRel}`);
+    taken.set(outRel, rel);
+  }
+  for (const rel of files) {
     if (rel.endsWith('.md')) {
-      const { html, title, hasMermaid } = renderMarkdown(fs.readFileSync(path.join(root, rel), 'utf8'));
+      const { html, title, hasMermaid, description } = renderMarkdown(fs.readFileSync(path.join(root, rel), 'utf8'));
       const outRel = /(^|\/)README\.md$/i.test(rel) ? rel.replace(/README\.md$/i, 'index.html') : rel.replace(/\.md$/, '.html');
       const depth = outRel.split('/').length - 1;
       const target = path.join(out, outRel);
       fs.mkdirSync(path.dirname(target), { recursive: true });
-      fs.writeFileSync(target, pageHtml({ config, title, body: `<article class="prose">\n${html}</article>`, depth, subnav: subnavFor(config, rel), hasMermaid }));
-      if (pages.includes(outRel)) throw new Error(`two files would both become ${outRel}`);
+      fs.writeFileSync(target, pageHtml({ config, title, body: `<article class="prose">\n${html}</article>`, depth, subnav: subnavFor(config, rel), hasMermaid, description }));
       pages.push(outRel);
     } else if (PUBLISHED_FILES.test(rel) && !/(^|\/)(\.|~\$)/.test(rel)) {
       const target = path.join(out, rel);
@@ -183,11 +231,17 @@ export function buildSite({ root = repoRoot, out = path.join(root, '_site'), con
     fs.mkdirSync(path.dirname(path.join(out, d.zip)), { recursive: true });
     fs.writeFileSync(path.join(out, d.zip), zipSync(entries));
   }
-  fs.writeFileSync(path.join(out, 'index.html'), pageHtml({ config, title: '', body: homeBody(config), depth: 0 }));
+  fs.writeFileSync(path.join(out, 'index.html'), pageHtml({ config, title: '', body: homeBody(config), depth: 0, filters: true }));
   pages.push('index.html');
   fs.copyFileSync(path.join(here, 'site.css'), path.join(out, 'site.css'));
   fs.writeFileSync(path.join(out, '.nojekyll'), '');
   return pages;
+}
+
+/** What a card's preview image shows: if any of it changes, the image is out of date. */
+export const PREVIEW_VERSION = 1; // raise this when the title-card design in previews.mjs changes, so every image is remade
+export function previewKey(card, siteName) {
+  return crypto.createHash('sha1').update(JSON.stringify([PREVIEW_VERSION, siteName, card.label, card.title, card.tags])).digest('hex').slice(0, 12);
 }
 
 /** Every relative link and file reference in the built site must resolve, and every #anchor must exist. */
