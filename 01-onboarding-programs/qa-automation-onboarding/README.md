@@ -1,10 +1,10 @@
 # QA Automation Onboarding: A Two-Week Plan for People New to Testing Tools
 
-**In one sentence:** After ten one-hour days, a tester who has never written code can open a project in VS Code, ask an AI assistant for help, and write and run a basic automated browser test.
+After ten one-hour days, a tester who has never written code can open a project in VS Code, ask an AI assistant for help, and write and run a basic automated browser test.
 
 | | |
 |---|---|
-| Audience | Manual or non-technical QA team members. No coding needed to start. |
+| Audience | All level testers. No coding needed to start. |
 | Goal | Week 1: move around VS Code, open the terminal, and get a code snippet from a prompt written in everyday words. Week 2: write and run a basic Playwright test with AI help, and read the pass or fail result. |
 | Length | 10 days, 1 hour a day (two weeks) |
 | Format | Self-paced or group watch sessions. Days 5 and 10 are hands-on with no video: the goal is to do, not only watch. |
@@ -59,7 +59,7 @@ Read these in the browser:
 | [Day 10 rubric](rubric-day-10-practical-round.md) | Trainer | How the practical round is scored |
 | [Learner survey](survey.md) | Learner | What learners thought and what to change |
 
-**[Download All Handouts (ZIP)](https://rizvihiqrar.github.io/training-portfolio/01-onboarding-programs/qa-automation-onboarding/qa-automation-onboarding-downloads.zip)** gets you the four Word files below in one package. Or take them one at a time (click the link, then the download button on the file page):
+Download the four Word files below one at a time (click the link, then the download button on the file page):
 
 | File | What it is |
 |---|---|
