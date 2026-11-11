@@ -76,11 +76,11 @@ Every course is a set of choices. These are the main ones, why I made them, and 
 |---|---|---|
 | One hour a day for two weeks | It fits around a full workload, so people finish. An hour is enough for one short lesson and some practice, and a day between lessons gives it time to sink in. | A fast one-week bootcamp. |
 | Two hands-on days with no video (Days 5 and 10) | The skill is doing, not watching. Day 5 checks that Week 1 stuck before Week 2 builds on it, and Day 10 shows whether a person can do it alone. | Two more days of new content. |
-| Free videos, plus two paid courses (Days 3 and 8) | Free videos keep the cost low and work well for groups watching together. The two paid courses add depth where it matters most: the AI helper, and writing checks inside a test. Day 5 has a fallback for learners without the AI helper. | All-original lessons, which would take far longer to make, and links that can never go out of date. |
-| Link to the original authors, never copy | The authors' own pages are always the current, correct version, and the lessons stay theirs. | Control over the wording and the order inside each lesson. |
-| "Always check what the AI gives you" from Day 3 | AI suggestions can be wrong or incomplete. Checking becomes a habit before it is needed, and on Day 5 every learner has to find one thing to fix. | Faster practice with less checking. |
-| No coding needed to start | Many testers have never written code. A first working test builds confidence, and the rest can follow. | Depth on programming, frameworks and build pipelines. |
-| A quiz after Day 9 and a scored practical round on Day 10 | The quiz shows who needs to review. The practical round shows who can do it, and the scoring guide gives each person a next step. | A single final exam. |
+| Free videos, plus two paid courses (Days 3 and 8) | Free videos keep the cost low and work well for groups watching together. The two paid courses add depth where it matters most: the AI helper, and writing checks inside a test. | All-original lessons, which would take far longer to make, and a free option for every day: only Day 5 has a fallback so far (for learners without the AI helper), and Days 3 and 8 still need one. |
+| Link to the original authors, never copy | The authors' own pages are the current version, and the lessons stay theirs. | Control over the wording, and certainty that every link still works: I have not re-checked them since I made the plan. |
+| "Always check what the AI gives you" (in the Day 3 notes, practised on Day 5) | AI suggestions can be wrong or incomplete. The habit is named early, and on Day 5 every learner has to find one thing to fix. | Faster practice with less checking. |
+| No prior coding needed | Many testers have never written code. The course goes only as far as a first working test, which builds confidence, and the rest can follow. | Depth: how to design a test framework, organize a large suite or run tests in a build pipeline. |
+| A quiz after Day 9 and a scored practical round on Day 10 | The quiz shows who needs to review (eight or more is ready; fewer means going back over the days named in the answers). The practical round shows who can do it, and the scoring guide gives each person a next step. | A single final exam. |
 
 ## How Learning Was Checked
 
