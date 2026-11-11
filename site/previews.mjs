@@ -35,6 +35,7 @@ const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
 for (const card of config.cards.filter((c) => c.image)) {
   await page.setContent(cardHtml(card), { waitUntil: 'networkidle' });
   await page.evaluate(() => document.fonts.ready);
+  if (!(await page.evaluate(() => document.fonts.check('600 20px Poppins')))) throw new Error('The Poppins font did not load: run this with a network connection, or the images would use a different font.');
   const target = path.join(repoRoot, card.image);
   fs.mkdirSync(path.dirname(target), { recursive: true });
   await page.screenshot({ path: target });

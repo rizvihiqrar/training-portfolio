@@ -144,5 +144,6 @@
     "System Training",
     "Assessment",
     "Customer and Implementation"
-  ]
+  ],
+  "filterLabel": "Topic"
 }

@@ -4,7 +4,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { unzipSync } from 'fflate';
-import { rewriteHref, renderMarkdown, buildSite, checkSite, repoRoot, PUBLISHED_FILES, HANDOUTS, contactHtml, previewKey } from './build.mjs';
+import { rewriteHref, renderMarkdown, buildSite, checkSite, repoRoot, pageHtml, PUBLISHED_FILES, HANDOUTS, contactHtml, previewKey } from './build.mjs';
 
 const config = JSON.parse(fs.readFileSync(new URL('./site.json', import.meta.url), 'utf8'));
 
@@ -330,4 +330,40 @@ test('csv and txt files are not published, and a link with a query string still 
   for (const no of ['data.csv', 'notes.txt']) assert.ok(!PUBLISHED_FILES.test(no), no);
   assert.equal(rewriteHref('other.md?plain=1'), 'other.html');
   assert.equal(rewriteHref('other.md?plain=1#part'), 'other.html#part');
+});
+
+test('a page description with an ampersand or quotes is escaped once, not twice', () => {
+  const { description } = renderMarkdown('# T\n\nTom & "Jerry" <b>and</b> friends.\n');
+  assert.equal(description, 'Tom & "Jerry" and friends.');
+  const html = pageHtml({ config, title: 'T', body: '', depth: 0, description });
+  assert.match(html, /<meta name="description" content="Tom &amp; &quot;Jerry&quot; and friends\.">/);
+  assert.doesNotMatch(html, /&amp;amp;/);
+});
+
+test('table names are decoded once, a second table under one heading is numbered, and a table with no heading is still named', () => {
+  const md = '| A |\n|---|\n| 1 |\n\n## Q&A\n\n| B |\n|---|\n| 2 |\n\n| C |\n|---|\n| 3 |\n';
+  const { html } = renderMarkdown(md);
+  assert.match(html, /aria-label="Data table"/);
+  assert.match(html, /aria-label="Q&amp;A table"/);
+  assert.match(html, /aria-label="Q&amp;A table 2"/);
+  assert.doesNotMatch(html, /&amp;amp;/);
+});
+
+test('the filter chips stay hidden until the page script reveals them, so nothing useless shows without JavaScript', (t) => {
+  const out = scratch(t);
+  buildSite({ root: repoRoot, out, config });
+  const html = fs.readFileSync(path.join(out, 'index.html'), 'utf8');
+  assert.match(html, /<div class="filters" role="group" aria-label="Filter by [A-Za-z ]+" hidden>/);
+  assert.match(html, /g\.hidden=false/);
+  assert.match(html, /\(c\.getAttribute\('data-tags'\)\|\|''\)/);
+});
+
+test('the filter group is named after what the cards are filtered by', () => {
+  assert.ok(config.filterLabel);
+});
+
+test('the About page uses the same email and LinkedIn address as the footer and contact buttons', () => {
+  const about = fs.readFileSync(path.join(repoRoot, 'docs/about.md'), 'utf8');
+  assert.ok(about.includes(`mailto:${config.contact.email}`), 'the email matches site.json');
+  assert.ok(about.includes(config.contact.linkedin), 'the LinkedIn address matches site.json');
 });

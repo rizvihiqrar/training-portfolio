@@ -7,12 +7,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { Marked } from 'marked';
 import { gfmHeadingId } from 'marked-gfm-heading-id';
+import crypto from 'crypto';
 import { zipSync } from 'fflate';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 export const repoRoot = path.resolve(here, '..');
 
-import crypto from 'crypto';
 export const escapeHtml = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 /** A relative link in the Markdown, as it should read on the site: .md becomes .html, README.md becomes its folder. */
@@ -21,14 +21,16 @@ export function rewriteHref(href) {
   const [withQuery, ...rest] = href.split('#');
   const file = withQuery.split('?')[0];
   const anchor = rest.length ? `#${rest.join('#')}` : '';
+  // A README link becomes its folder, another Markdown link becomes its page (query dropped), anything else is kept as written.
   let out = withQuery;
   if (/(^|\/)README\.md$/i.test(file)) out = file.replace(/README\.md$/i, '');
   else if (file.endsWith('.md')) out = `${file.slice(0, -3)}.html`;
-  else out = withQuery;
   return (out || './') + anchor;
 }
 
 const CALLOUTS = { TIP: 'Tip', NOTE: 'Note', IMPORTANT: 'Important', WARNING: 'Warning', CAUTION: 'Caution' };
+
+const decodeEntities = (s) => s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&#x27;/g, "'").replace(/&amp;/g, '&');
 
 /** Markdown to the page body: callouts, diagrams, wrapped tables and site links. */
 export function renderMarkdown(markdown) {
@@ -53,20 +55,23 @@ export function renderMarkdown(markdown) {
     return `<pre class="mermaid">${code}</pre>`;
   });
   html = html.replace(/<thead>\s*<tr>(?:\s*<th[^>]*>\s*<\/th>)+\s*<\/tr>\s*<\/thead>/g, ''); // a table with an empty header row shows no header
+  const tablesUnder = new Map();
   html = html.replace(/<table>([\s\S]*?)<\/table>/g, (whole, inner, offset, all) => {
     const heads = [...all.slice(0, offset).matchAll(/<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>/g)];
-    const near = heads.length ? heads[heads.length - 1][1].replace(/<[^>]+>/g, '') : 'Page';
-    return `<div class="table-wrap" tabindex="0" role="region" aria-label="${escapeHtml(near)} table"><table>${inner}</table></div>`;
+    const near = heads.length ? decodeEntities(heads[heads.length - 1][1].replace(/<[^>]+>/g, '')) : 'Data';
+    const n = (tablesUnder.get(near) ?? 0) + 1; // a second table under one heading gets a number, so each is told apart
+    tablesUnder.set(near, n);
+    return `<div class="table-wrap" tabindex="0" role="region" aria-label="${escapeHtml(`${near} table${n > 1 ? ` ${n}` : ''}`)}"><table>${inner}</table></div>`;
   });
   html = html.replace(/<a href="([^"]*)"/g, (_, href) => `<a href="${rewriteHref(href.replace(/&amp;/g, '&')).replace(/&/g, '&amp;')}"`);
   const first = (html.match(/<p>([\s\S]*?)<\/p>/) ?? [])[1] ?? '';
-  const description = first.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 160);
+  const description = decodeEntities(first.replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim().slice(0, 160);
   return { html, title, hasMermaid, description };
 }
 
 const THEME_SCRIPT = `try{var s=localStorage.getItem('theme');s=(s==='dark'||s==='light')?s:null;var t=s||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','light')}`;
 const TOGGLE_SCRIPT = `(function(){var b=document.getElementById('theme-toggle');if(!b)return;function label(){var d=document.documentElement.getAttribute('data-theme')==='dark';b.setAttribute('aria-label',d?'Switch to Light Mode':'Switch to Dark Mode');b.title=d?'Switch to Light Mode':'Switch to Dark Mode'}label();b.addEventListener('click',function(){var n=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);try{localStorage.setItem('theme',n)}catch(e){}label();if(document.querySelector('pre.mermaid'))location.reload()})})();`;
-const FILTER_SCRIPT = `(function(){var f=document.querySelectorAll('.filter'),cards=document.querySelectorAll('.card'),st=document.getElementById('filter-status');f.forEach(function(b){b.addEventListener('click',function(){var v=b.getAttribute('data-filter');f.forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});var n=0;cards.forEach(function(c){var show=v==='all'||c.getAttribute('data-tags').split(' ').indexOf(v)>-1;c.hidden=!show;if(show)n++});st.textContent=n+(n===1?' item':' items')+' shown'})})})();`;
+const FILTER_SCRIPT = `(function(){var g=document.querySelector('.filters');if(g)g.hidden=false;var f=document.querySelectorAll('.filter'),cards=document.querySelectorAll('.card'),st=document.getElementById('filter-status');f.forEach(function(b){b.addEventListener('click',function(){var v=b.getAttribute('data-filter');f.forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});var n=0;cards.forEach(function(c){var show=v==='all'||(c.getAttribute('data-tags')||'').split(' ').indexOf(v)>-1;c.hidden=!show;if(show)n++});st.textContent=n+(n===1?' item':' items')+' shown'})})})();`;
 const MERMAID_SCRIPT = `import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.4.0/dist/mermaid.esm.min.mjs';mermaid.initialize({startOnLoad:true,theme:document.documentElement.getAttribute('data-theme')==='dark'?'dark':'default'});`;
 
 /** The whole HTML page around a body. */
@@ -142,7 +147,7 @@ function homeBody(config) {
 <section id="${config.sectionId}" class="section">
 <h2>${escapeHtml(config.sectionTitle)}</h2>
 <p class="section-intro">${escapeHtml(config.sectionIntro)}</p>
-<div class="filters" role="group" aria-label="Filter by Role">${chips}</div>
+<div class="filters" role="group" aria-label="Filter by ${escapeHtml(config.filterLabel)}" hidden>${chips}</div>
 <p id="filter-status" class="sr-only" role="status" aria-live="polite"></p>
 <div class="grid">
 ${config.cards.map(cardHtml).join('\n')}
@@ -234,8 +239,9 @@ export function buildSite({ root = repoRoot, out = path.join(root, '_site'), con
 }
 
 /** What a card's preview image shows: if any of it changes, the image is out of date. */
+export const PREVIEW_VERSION = 1; // raise this when the title-card design in previews.mjs changes, so every image is remade
 export function previewKey(card, siteName) {
-  return crypto.createHash('sha1').update(JSON.stringify([siteName, card.label, card.title, card.tags])).digest('hex').slice(0, 12);
+  return crypto.createHash('sha1').update(JSON.stringify([PREVIEW_VERSION, siteName, card.label, card.title, card.tags])).digest('hex').slice(0, 12);
 }
 
 /** Every relative link and file reference in the built site must resolve, and every #anchor must exist. */
