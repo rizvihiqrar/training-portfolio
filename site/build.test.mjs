@@ -577,9 +577,32 @@ test('review fixes: Word handouts lose their bookmark ids and in-page links, and
   assert.match(copy, /Copy failed/, 'a refused clipboard write is shown, not ignored');
 });
 
+test('code boxes look like a VS Code window: dark in both modes, a title bar with the language and the dots, and the editor colours (the break: back to the light box)', () => {
+  const css = fs.readFileSync(new URL('./stage.css', import.meta.url), 'utf8');
+  assert.match(css, /pre\.code, \.stage \.prose pre:not\(\.mermaid\) \{[^}]*background: #1e1e1e/, 'the editor background');
+  assert.match(css, /pre\.code::before \{[^}]*content: attr\(data-lang\)/, 'the title bar shows the language');
+  assert.match(css, /\.tk-cmd \{ color: #dcdcaa/);
+  assert.match(css, /\.tk-str \{ color: #ce9178/);
+  assert.match(css, /\.copy \{[^}]*top: 3px/, 'the copy button sits in the title bar');
+  assert.match(codeBox('x', 'js'), /data-lang="JavaScript"/);
+  assert.match(codeBox('x', 'something-else'), /data-lang="something-else"/, 'an unknown language is shown as written');
+  assert.match(codeBox('x', 'constructor'), /data-lang="constructor"/, 'a language named like an object key is not looked up on Object');
+  assert.match(codeBox('x', ''), /data-lang="Text"/, 'no language gives Text, not an empty bar');
+  assert.match(css, /pre\.code code \{[^}]*overflow-x: auto/, 'the code scrolls inside the box, so the title bar and copy button stay put');
+});
+
+test('a card can name its code box (a prompt, a result, a rule) instead of the language', () => {
+  assert.match(codeBox('x', 'text', 'proj-code', 'Prompt'), /data-lang="Prompt"/);
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'codelabel-'));
+  buildSite({ root: repoRoot, out, config: stage });
+  const home = fs.readFileSync(path.join(out, 'index.html'), 'utf8');
+  for (const c of config.cards.filter((x) => x.codeLabel)) assert.ok(home.includes(`data-lang="${c.codeLabel}"`), `${c.title}: the title bar shows its label`);
+  fs.rmSync(out, { recursive: true, force: true });
+});
+
 test('codeBox numbers each line, colours shell commands and JavaScript lightly, and escapes what it shows (the break: skip the escaping)', () => {
   const bash = codeBox('$ npx playwright test --headed "a b"', 'bash');
-  assert.match(bash, /<pre class="code"><code><span class="line">/);
+  assert.match(bash, /<pre class="code" data-lang="Terminal"><code><span class="line">/, 'the title bar names the language');
   assert.match(bash, /<span class="tk-mute">\$<\/span> <span class="tk-cmd">npx<\/span> playwright test <span class="tk-flag">--headed<\/span>/);
   const js = codeBox("// check it\nawait page.goto('/login');", 'js');
   assert.equal((js.match(/<span class="line">/g) ?? []).length, 2);
@@ -588,13 +611,13 @@ test('codeBox numbers each line, colours shell commands and JavaScript lightly, 
   const unsafe = codeBox('<script>alert("x")</script> & more', 'text');
   assert.doesNotMatch(unsafe, /<script>/);
   assert.match(unsafe, /&lt;script&gt;/);
-  assert.match(codeBox('one line', 'text', 'proj-code'), /<pre class="code proj-code">/);
+  assert.match(codeBox('one line', 'text', 'proj-code'), /<pre class="code proj-code" data-lang="Text">/);
 });
 
 test('a code block in the Markdown becomes a code box, and a diagram is left for the diagram script', () => {
   const { html } = renderMarkdown('```bash\nnpm test\n```\n\n```mermaid\nflowchart LR\n  A --> B\n```\n');
   const out = enhanceCodeBlocks(html);
-  assert.match(out, /<pre class="code"><code><span class="line"><span class="tk-cmd">npm<\/span> test<\/span><\/code><\/pre>/);
+  assert.match(out, /<pre class="code" data-lang="Terminal"><code><span class="line"><span class="tk-cmd">npm<\/span> test<\/span><\/code><\/pre>/);
   assert.match(out, /<pre class="mermaid">/);
 });
 
@@ -607,7 +630,7 @@ test('a project head shows its code line in a numbered code box, escaped and one
   assert.ok(withCode.length > 0, 'at least one project has a code line');
   for (const c of withCode) {
     const head = home.split(`<h2 class="proj-title">${escapeHtml(c.title)}</h2>`)[1].split('</header>')[0];
-    const box = head.match(/<pre class="code proj-code"><code>([\s\S]*?)<\/code><\/pre>/);
+    const box = head.match(/<pre class="code proj-code" data-lang="[^"]*"><code>([\s\S]*?)<\/code><\/pre>/);
     assert.ok(box, `${c.title} has a code box in its head`);
     assert.equal((box[1].match(/<span class="line">/g) ?? []).length, 2, 'two lines, two numbers');
     assert.ok(box[1].includes('x &lt; y &amp; &quot;z&quot;') || box[1].includes('x &lt; y &amp; "z"'), 'the text is escaped');

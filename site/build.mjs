@@ -246,10 +246,17 @@ function highlightLine(line, lang) {
   return escapeHtml(line);
 }
 
-/** A code box in the stageshow style: numbered lines, light colours, and a copy button that the page script adds. */
-export function codeBox(text, lang = 'text', extra = '') {
+const LANG_LABELS = { bash: 'Terminal', sh: 'Terminal', shell: 'Terminal', zsh: 'Terminal', powershell: 'PowerShell', js: 'JavaScript', javascript: 'JavaScript', ts: 'TypeScript', typescript: 'TypeScript', json: 'JSON', yaml: 'YAML', yml: 'YAML', html: 'HTML', css: 'CSS', md: 'Markdown', text: 'Text' };
+
+/**
+ * A code box after the VS Code editor: a dark window with a title bar, numbered lines and a copy button that the page script adds.
+ * The title bar shows `title` when given (a prompt, a result, a rule), else the language's name, else the language as written.
+ */
+export function codeBox(text, lang = 'text', extra = '', title = '') {
+  const key = String(lang || 'text').toLowerCase();
+  const label = title || (Object.hasOwn(LANG_LABELS, key) ? LANG_LABELS[key] : lang || 'Text');
   const lines = text.replace(/\n$/, '').split('\n').map((line) => `<span class="line">${highlightLine(line, lang)}</span>`).join('\n');
-  return `<pre class="code${extra ? ` ${extra}` : ''}"><code>${lines}</code></pre>`;
+  return `<pre class="code${extra ? ` ${extra}` : ''}" data-lang="${escapeHtml(label)}"><code>${lines}</code></pre>`;
 }
 
 /** Every fenced code block in rendered Markdown becomes a code box. The diagrams were already turned into their own blocks. */
@@ -327,7 +334,7 @@ function projectHead(c, level, prefix) {
 <h${level} class="proj-title">${escapeHtml(c.title)}</h${level}>
 ${c.oneLiner ? `<p class="proj-line">${escapeHtml(c.oneLiner)}</p>` : ''}
 ${facts ? `<ul class="proj-facts">${facts}</ul>` : ''}
-${c.code ? codeBox(c.code, c.codeLang ?? 'text', 'proj-code') : ''}
+${c.code ? codeBox(c.code, c.codeLang ?? 'text', 'proj-code', c.codeLabel ?? '') : ''}
 </div>
 ${image}
 </header>`;

@@ -78,7 +78,8 @@
           "title": "Test Strategy and Automation Test Plan Template",
           "docx": "materials/test-strategy-and-automation-test-plan-template.docx"
         }
-      ]
+      ],
+      "codeLabel": "Prompt"
     },
     {
       "label": "Course",
