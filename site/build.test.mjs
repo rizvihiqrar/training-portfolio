@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { unzipSync } from 'fflate';
 import { rewriteHref, renderMarkdown, buildSite, checkSite, repoRoot, pageHtml, escapeHtml, PUBLISHED_FILES, HANDOUTS, contactHtml, previewKey } from './build.mjs';
 
 const config = JSON.parse(fs.readFileSync(new URL('./site.json', import.meta.url), 'utf8'));
@@ -49,7 +48,7 @@ test('a link to a page that is not in the site is reported (the break: a page is
   const out = scratch(t);
   fs.mkdirSync(path.join(root, '01-a'));
   fs.writeFileSync(path.join(root, '01-a', 'README.md'), '# Course\n\n[gone](missing.md) and [here](#course)\n');
-  const small = { ...config, nav: [{ label: 'Home', href: 'index.html' }], aboutHref: 'index.html', cards: [{ title: 'C', path: '01-a/README.md', label: 'Course', tags: ['Onboarding'], summary: 's', button: 'Open' }], courseNav: [], downloads: [] };
+  const small = { ...config, nav: [{ label: 'Home', href: 'index.html' }], aboutHref: 'index.html', cards: [{ title: 'C', path: '01-a/README.md', label: 'Course', tags: ['Onboarding'], summary: 's', button: 'Open' }], courseNav: [] };
   buildSite({ root, out, config: small });
   assert.deepEqual(checkSite(out), ['01-a/index.html links to missing.html, which is not in the site']);
 });
@@ -60,7 +59,7 @@ test('a link to a heading that does not exist is reported', (t) => {
   fs.mkdirSync(path.join(root, '01-a'));
   fs.writeFileSync(path.join(root, '01-a', 'README.md'), '# Course\n\n[x](other.md#nope)\n');
   fs.writeFileSync(path.join(root, '01-a', 'other.md'), '# Other\n');
-  const small = { ...config, nav: [{ label: 'Home', href: 'index.html' }], aboutHref: 'index.html', cards: [{ title: 'C', path: '01-a/README.md', label: 'Course', tags: ['Onboarding'], summary: 's', button: 'Open' }], courseNav: [], downloads: [] };
+  const small = { ...config, nav: [{ label: 'Home', href: 'index.html' }], aboutHref: 'index.html', cards: [{ title: 'C', path: '01-a/README.md', label: 'Course', tags: ['Onboarding'], summary: 's', button: 'Open' }], courseNav: [] };
   buildSite({ root, out, config: small });
   assert.deepEqual(checkSite(out), ['01-a/index.html links to other.html#nope, but that page has no #nope']);
 });
@@ -117,7 +116,7 @@ test('a lock file next to a handout is not copied into the site', (t) => {
   fs.writeFileSync(path.join(root, '01-a', 'README.md'), '# Course\n\n[plan](plan.docx)\n');
   fs.writeFileSync(path.join(root, '01-a', 'plan.docx'), 'x');
   fs.writeFileSync(path.join(root, '01-a', '~$plan.docx'), 'lock');
-  const small = { ...config, nav: [{ label: 'Home', href: 'index.html' }], aboutHref: 'index.html', cards: [{ title: 'C', path: '01-a/README.md', label: 'Course', tags: ['Onboarding'], summary: 's', button: 'Open' }], courseNav: [], downloads: [] };
+  const small = { ...config, nav: [{ label: 'Home', href: 'index.html' }], aboutHref: 'index.html', cards: [{ title: 'C', path: '01-a/README.md', label: 'Course', tags: ['Onboarding'], summary: 's', button: 'Open' }], courseNav: [] };
   buildSite({ root, out, config: small });
   assert.ok(fs.existsSync(path.join(out, '01-a', 'plan.docx')));
   assert.ok(!fs.existsSync(path.join(out, '01-a', '~$plan.docx')));
@@ -129,7 +128,7 @@ test('two files that would become the same page stop the build', (t) => {
   fs.mkdirSync(path.join(root, '01-a'));
   fs.writeFileSync(path.join(root, '01-a', 'README.md'), '# One\n');
   fs.writeFileSync(path.join(root, '01-a', 'index.md'), '# Two\n');
-  const small = { ...config, nav: [{ label: 'Home', href: 'index.html' }], aboutHref: 'index.html', cards: [{ title: 'C', path: '01-a/README.md', label: 'Course', tags: ['Onboarding'], summary: 's', button: 'Open' }], courseNav: [], downloads: [] };
+  const small = { ...config, nav: [{ label: 'Home', href: 'index.html' }], aboutHref: 'index.html', cards: [{ title: 'C', path: '01-a/README.md', label: 'Course', tags: ['Onboarding'], summary: 's', button: 'Open' }], courseNav: [] };
   assert.throws(() => buildSite({ root, out, config: small }), /two files would both become 01-a\/index\.html/);
 });
 
@@ -138,24 +137,9 @@ test('a malformed percent sequence in a link is reported, not a crash', (t) => {
   const out = scratch(t);
   fs.mkdirSync(path.join(root, '01-a'));
   fs.writeFileSync(path.join(root, '01-a', 'README.md'), '# Course\n\n[x](50%.md)\n');
-  const small = { ...config, nav: [{ label: 'Home', href: 'index.html' }], aboutHref: 'index.html', cards: [{ title: 'C', path: '01-a/README.md', label: 'Course', tags: ['Onboarding'], summary: 's', button: 'Open' }], courseNav: [], downloads: [] };
+  const small = { ...config, nav: [{ label: 'Home', href: 'index.html' }], aboutHref: 'index.html', cards: [{ title: 'C', path: '01-a/README.md', label: 'Course', tags: ['Onboarding'], summary: 's', button: 'Open' }], courseNav: [] };
   buildSite({ root, out, config: small });
   assert.deepEqual(checkSite(out), ['01-a/index.html links to 50%.html, which is not in the site']);
-});
-
-test('each download package is built, holds every handout, and the course page links to it', (t) => {
-  const out = scratch(t);
-  buildSite({ root: repoRoot, out, config });
-  assert.ok(config.downloads.length > 0);
-  for (const d of config.downloads) {
-    const zip = path.join(out, d.zip);
-    assert.ok(fs.existsSync(zip), `${d.zip} is built`);
-    const names = Object.keys(unzipSync(new Uint8Array(fs.readFileSync(zip)))).sort();
-    const handouts = fs.readdirSync(path.join(repoRoot, d.folder)).filter((f) => HANDOUTS.test(f)).sort();
-    assert.deepEqual(names, handouts);
-    const readme = fs.readFileSync(path.join(repoRoot, d.zip.replace(/[^/]+$/, 'README.md')), 'utf8');
-    assert.ok(readme.includes(`${config.siteUrl}${d.zip}`), 'the course page links to the package');
-  }
 });
 
 test('the quiz page has no answers, and the answer key is not in the published site', (t) => {
@@ -165,30 +149,6 @@ test('the quiz page has no answers, and the answer key is not in the published s
   assert.doesNotMatch(quiz, /Answer Key/i);
   assert.doesNotMatch(quiz, /Ctrl\+`<\/code>|Runs any VS Code action/);
   assert.ok(!fs.existsSync(path.join(out, '01-onboarding-programs/qa-automation-onboarding/quiz-and-answer-key.html')));
-});
-
-test('a download folder that does not exist stops the build with a clear message', (t) => {
-  const root = scratch(t);
-  const out = scratch(t);
-  fs.mkdirSync(path.join(root, '01-a'));
-  fs.writeFileSync(path.join(root, '01-a', 'README.md'), '# Course\n');
-  const cfg = { ...config, nav: [{ label: 'Home', href: 'index.html' }], aboutHref: 'index.html', cards: [{ title: 'C', path: '01-a/README.md', label: 'Course', tags: ['Onboarding'], summary: 's', button: 'Open' }], courseNav: [], downloads: [{ folder: '01-a/materials', zip: '01-a/x.zip' }] };
-  assert.throws(() => buildSite({ root, out, config: cfg }), /download folder 01-a\/materials not found/);
-});
-
-test('a folder inside the downloads folder is skipped, and the same package is made every time', (t) => {
-  const root = scratch(t);
-  fs.mkdirSync(path.join(root, '01-a', 'materials', 'old.docx'), { recursive: true });
-  fs.writeFileSync(path.join(root, '01-a', 'README.md'), '# Course\n');
-  fs.writeFileSync(path.join(root, '01-a', 'materials', 'plan.docx'), 'plan');
-  const cfg = { ...config, nav: [{ label: 'Home', href: 'index.html' }], aboutHref: 'index.html', cards: [{ title: 'C', path: '01-a/README.md', label: 'Course', tags: ['Onboarding'], summary: 's', button: 'Open' }], courseNav: [], downloads: [{ folder: '01-a/materials', zip: '01-a/x.zip' }] };
-  const one = scratch(t);
-  const two = scratch(t);
-  buildSite({ root, out: one, config: cfg });
-  buildSite({ root, out: two, config: cfg });
-  const a = fs.readFileSync(path.join(one, '01-a', 'x.zip'));
-  assert.deepEqual(Object.keys(unzipSync(new Uint8Array(a))), ['plan.docx']);
-  assert.ok(a.equals(fs.readFileSync(path.join(two, '01-a', 'x.zip'))), 'identical bytes');
 });
 
 test('no page or file anywhere in the published site is an answer key', (t) => {
@@ -318,7 +278,7 @@ test('a collision stops the build before anything is written', (t) => {
   fs.mkdirSync(path.join(root, 'docs'));
   fs.writeFileSync(path.join(root, 'docs', 'README.md'), '# One\n');
   fs.writeFileSync(path.join(root, 'docs', 'index.md'), '# Two\n');
-  const cfg = { ...config, nav: [{ label: 'Home', href: 'index.html' }], aboutHref: 'index.html', cards: [], courseNav: [], downloads: [] };
+  const cfg = { ...config, nav: [{ label: 'Home', href: 'index.html' }], aboutHref: 'index.html', cards: [], courseNav: [] };
   assert.throws(() => buildSite({ root, out, config: cfg }), /two files would both become docs\/index\.html/);
   assert.ok(!fs.existsSync(path.join(out, 'docs', 'index.html')), 'nothing was written');
 });
@@ -356,4 +316,38 @@ test('two sections that happen to share a heading each get their own table name,
   const { html } = renderMarkdown('## A\n\n## Results\n\n| X |\n|---|\n| 1 |\n\n## B\n\n## Results\n\n| Y |\n|---|\n| 2 |\n');
   assert.equal((html.match(/aria-label="Results table"/g) ?? []).length, 2);
   assert.doesNotMatch(html, /Results table 2/);
+});
+
+test('every Word handout in a course\'s materials folder is linked from that course page, so each one can be downloaded on its own', () => {
+  const folders = config.cards.filter((c) => c.status !== 'planned' && /README\.md$/.test(c.path)).map((c) => c.path.replace(/README\.md$/, ''));
+  assert.ok(folders.length > 0);
+  let checked = 0;
+  for (const folder of folders) {
+    const materials = path.join(repoRoot, folder, 'materials');
+    if (!fs.existsSync(materials)) continue; // a course with no handouts has nothing to link
+    const readme = fs.readFileSync(path.join(repoRoot, folder, 'README.md'), 'utf8');
+    for (const f of fs.readdirSync(materials).filter((x) => HANDOUTS.test(x))) {
+      assert.ok(readme.includes(`](materials/${f})`), `${folder}README.md has a link to ${f}`);
+      checked++;
+    }
+  }
+  assert.ok(checked > 0, 'at least one handout is checked');
+});
+
+test('the site has no ZIP package: not in the settings, not built, and no page or README links to one (the break: bring the package back)', (t) => {
+  assert.equal(config.downloads, undefined);
+  const out = scratch(t);
+  buildSite({ root: repoRoot, out, config });
+  const found = [];
+  const linksToZip = /(?:href="|\]\()[^")]*\.zip(?:[#?][^")]*)?(?:"|\))/i;
+  (function walk(dir) {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) walk(p);
+      else if (/\.zip$/i.test(e.name)) found.push(path.relative(out, p));
+      else if (e.name.endsWith('.html')) assert.doesNotMatch(fs.readFileSync(p, 'utf8'), linksToZip, `${path.relative(out, p)} links to a ZIP`);
+    }
+  })(out);
+  assert.deepEqual(found, []);
+  for (const f of ['README.md', '01-onboarding-programs/qa-automation-onboarding/README.md']) assert.doesNotMatch(fs.readFileSync(path.join(repoRoot, f), 'utf8'), linksToZip, `${f} links to a ZIP`);
 });
