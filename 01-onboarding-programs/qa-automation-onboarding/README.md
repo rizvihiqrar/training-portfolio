@@ -59,7 +59,7 @@ Read these in the browser:
 | [Day 10 rubric](rubric-day-10-practical-round.md) | Trainer | How the practical round is scored |
 | [Learner survey](survey.md) | Learner | What learners thought and what to change |
 
-**[Download All Handouts (ZIP)](https://rizvihiqrar.github.io/training-portfolio/01-onboarding-programs/qa-automation-onboarding/qa-automation-onboarding-downloads.zip)** gets you the four Word files below in one package. Or take them one at a time (click the link, then the download button on the file page):
+Download the four Word files below one at a time (click the link, then the download button on the file page):
 
 | File | What it is |
 |---|---|
