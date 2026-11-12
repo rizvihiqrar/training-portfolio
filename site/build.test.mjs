@@ -393,7 +393,7 @@ test('stageshow: every page lists all the finished projects on the left, and the
   buildSite({ root: repoRoot, out, config: stage });
   for (const rel of ['index.html', 'docs/about.html', OWN]) {
     const nav = read(out, rel).split('<nav class="side-nav"')[1].split('</nav>')[0];
-    assert.equal((nav.match(/<li data-id="/g) ?? []).length, ready.length + 1, `${rel}: every project and About Me are listed`);
+    assert.equal((nav.match(/<li data-id="/g) ?? []).length, ready.length + 2, `${rel}: every project, About Me and How It Works are listed`);
     assert.match(nav, /class="side-top" href="[^"]*#projects">&#8593; All /);
   }
   const home = read(out, 'index.html');
@@ -817,4 +817,21 @@ test('the site has no ZIP package: not in the settings, not built, and no page o
   })(out);
   assert.deepEqual(found, []);
   for (const f of ['README.md', '01-onboarding-programs/qa-automation-onboarding/README.md']) assert.doesNotMatch(fs.readFileSync(path.join(repoRoot, f), 'utf8'), linksToZip, `${f} links to a ZIP`);
+});
+
+
+test('stageshow home: How It Works follows About Me on the page and in the left list, and the footer does not link to it', (t) => {
+  const out = scratch(t);
+  buildSite({ root: repoRoot, out, config: stage });
+  const home = read(out, 'index.html');
+  assert.ok(home.indexOf('id="about"') < home.indexOf('id="how-it-works"'), 'the section follows About Me');
+  assert.ok(home.indexOf('id="how-it-works"') < home.indexOf(`id="${idOf(ready[0])}"`), 'and comes before the first project');
+  const nav = home.split('<nav class="side-nav"')[1].split('</nav>')[0];
+  assert.deepEqual([...nav.matchAll(/<li data-id="([^"]+)"/g)].map((m) => m[1]).slice(0, 2), ['about', 'how-it-works']);
+  for (const rel of ['index.html', 'docs/about.html', OWN]) assert.doesNotMatch(read(out, rel).split('<footer')[1], /overview\.html/, `${rel}: the footer does not link to How It Works`);
+});
+
+test('code boxes inside the page text keep the title bar clear of the first line', () => {
+  const css = fs.readFileSync(new URL('./stage.css', import.meta.url), 'utf8');
+  assert.match(css, /\.stage \.prose pre\.code:not\(\.mermaid\)\s*\{\s*padding-top:\s*52px/);
 });

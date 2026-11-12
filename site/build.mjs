@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 import { Marked } from 'marked';
 import { gfmHeadingId } from 'marked-gfm-heading-id';
 import crypto from 'crypto';
+import { applyComponents, COMPONENT_SCRIPT } from './components.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 export const repoRoot = path.resolve(here, '..');
@@ -246,7 +247,7 @@ function highlightLine(line, lang) {
   return escapeHtml(line);
 }
 
-const LANG_LABELS = { bash: 'Terminal', sh: 'Terminal', shell: 'Terminal', zsh: 'Terminal', powershell: 'PowerShell', js: 'JavaScript', javascript: 'JavaScript', ts: 'TypeScript', typescript: 'TypeScript', json: 'JSON', yaml: 'YAML', yml: 'YAML', html: 'HTML', css: 'CSS', md: 'Markdown', text: 'Text' };
+const LANG_LABELS = { bash: 'Terminal', sh: 'Terminal', shell: 'Terminal', zsh: 'Terminal', powershell: 'PowerShell', js: 'JavaScript', javascript: 'JavaScript', ts: 'TypeScript', typescript: 'TypeScript', json: 'JSON', yaml: 'YAML', yml: 'YAML', html: 'HTML', css: 'CSS', md: 'Markdown', text: 'Text', prompt: 'Prompt', gherkin: 'Gherkin' };
 
 /**
  * A code box after the VS Code editor: a dark window with a title bar, numbered lines and a copy button that the page script adds.
@@ -349,18 +350,21 @@ function chipHtml(c) {
 }
 
 /** The left list: every project (or course), with the sections of the one you are in under it. */
-function sideNav(config, { prefix, home, current, subs, about = false }) {
+function sideNav(config, { prefix, home, current, subs, about = false, overview = false }) {
   const aboutSubs = (subs.about ?? []).map((h) => `<li><a href="${escapeHtml(h.href)}">${escapeHtml(h.text)}</a></li>`).join('');
   const aboutItem = `<li data-id="about"><a href="${home ? '' : `${prefix}index.html`}#about">${escapeHtml(config.aboutButton ?? 'About Me')}</a>${aboutSubs ? `<ul class="sub">${aboutSubs}</ul>` : ''}</li>`;
+  const overviewSubs = (subs.overview ?? []).map((h) => `<li><a href="${escapeHtml(h.href)}">${escapeHtml(h.text)}</a></li>`).join('');
+  const overviewItem = `<li data-id="how-it-works"><a href="${home ? '' : `${prefix}index.html`}#how-it-works">How It Works</a>${overviewSubs ? `<ul class="sub">${overviewSubs}</ul>` : ''}</li>`;
   const items = config.cards.filter(isReady).map((c) => {
     const id = cardId(c);
     const sub = (subs[id] ?? []).map((h) => `<li><a href="${escapeHtml(h.href)}">${escapeHtml(h.text)}</a></li>`).join('');
     return `<li data-id="${id}"${current === id ? ' data-current=""' : ''}><a href="${home ? '' : `${prefix}index.html`}#${id}">${escapeHtml(c.title)}</a>${sub ? `<ul class="sub">${sub}</ul>` : ''}</li>`;
   }).join('');
-  return `<nav class="side-nav" aria-label="${escapeHtml(config.sectionTitle)}"><a class="side-top" href="${home ? '' : `${prefix}index.html`}#projects">&#8593; All ${escapeHtml(config.sectionTitle)}</a><ol class="side-list">${about ? aboutItem : ''}${items}</ol></nav>`;
+  return `<nav class="side-nav" aria-label="${escapeHtml(config.sectionTitle)}"><a class="side-top" href="${home ? '' : `${prefix}index.html`}#projects">&#8593; All ${escapeHtml(config.sectionTitle)}</a><ol class="side-list">${about ? aboutItem : ''}${overview ? overviewItem : ''}${items}</ol></nav>`;
 }
 
 const hasAbout = (root) => fs.existsSync(path.join(root, 'docs/about.md'));
+const hasOverview = (root) => fs.existsSync(path.join(root, 'docs/overview.md'));
 
 /** Every page of the stageshow look: a header that stays put, the project list on the left and the page on the right. */
 function stageShell({ config, title, description, depth, main, nav, hasMermaid = false, home = false }) {
@@ -395,6 +399,7 @@ ${main}
 <script>${TOGGLE_SCRIPT}</script>
 <script>${SPY_SCRIPT}</script>
 <script>${COPY_SCRIPT}</script>
+${main.includes('data-site="') ? `<script>${COMPONENT_SCRIPT}</script>` : ''}
 ${hasMermaid ? `<script type="module">${STAGE_MERMAID}</script>` : ''}
 </body>
 </html>
@@ -412,9 +417,9 @@ export function stageReadingPage({ config, rel, html, title, hasMermaid, descrip
   if (inline) heads = withItemHeads(heads, inline.heads, c.inlineIn ?? 'materials');
   const text = (x) => (inline ? x.replace(INLINE_TOKEN, inline.html) : x);
   const main = own
-    ? `${projectHead(c, 1, prefix)}\n${inline ? '' : subnav}<article class="prose">\n${text(enhanceCodeBlocks(dropFirstH1(source)))}</article>`
+    ? `${projectHead(c, 1, prefix)}\n${inline ? '' : subnav}<article class="prose">\n${applyComponents(text(enhanceCodeBlocks(dropFirstH1(source))), c.components)}</article>`
     : `${subnav}<article class="prose">\n${enhanceCodeBlocks(html)}</article>`;
-  return stageShell({ config, title, description, depth, main, hasMermaid, nav: sideNav(config, { prefix, home: false, current: c ? cardId(c) : '', subs: c ? { [cardId(c)]: heads } : {}, about: hasAbout(root) }) });
+  return stageShell({ config, title, description, depth, main, hasMermaid, nav: sideNav(config, { prefix, home: false, current: c ? cardId(c) : '', subs: c ? { [cardId(c)]: heads } : {}, about: hasAbout(root), overview: hasOverview(root) }) });
 }
 
 /** The home page: the chips, then every project in full on the same page, one after the other. */
@@ -425,7 +430,7 @@ export function stageHomePage({ config, root }) {
     const { html, hasMermaid } = renderMarkdown(fs.readFileSync(path.join(root, c.path), 'utf8'));
     const inline = c.inline ? inlineMaterials(config, root, c, true) : null;
     const source = inline ? swapSection(html, c.inlineIn ?? 'materials') : html;
-    let body = relocate(namespaced(shiftHeadings(dropFirstH1(enhanceCodeBlocks(source))), id), path.posix.dirname(c.path));
+    let body = relocate(namespaced(shiftHeadings(dropFirstH1(applyComponents(enhanceCodeBlocks(source), c.components))), id), path.posix.dirname(c.path));
     let heads = headingsOf(body, 3).map((h) => ({ text: h.text, href: `#${h.id}` }));
     if (inline) {
       body = body.replace(INLINE_TOKEN, inline.html);
@@ -440,9 +445,18 @@ export function stageHomePage({ config, root }) {
   });
   const about = hasAbout(root);
   const aboutRendered = about ? renderMarkdown(fs.readFileSync(path.join(root, 'docs/about.md'), 'utf8')) : { html: '', hasMermaid: false };
-  const aboutBody = relocate(namespaced(shiftHeadings(dropFirstH1(enhanceCodeBlocks(aboutRendered.html))), 'about'), 'docs');
+  const aboutBody = relocate(namespaced(shiftHeadings(dropFirstH1(applyComponents(enhanceCodeBlocks(aboutRendered.html), {}))), 'about'), 'docs');
   const aboutHeads = headingsOf(aboutBody, 3).map((h) => ({ text: h.text, href: `#${h.id}` }));
   const aboutSection = !about ? '' : `<section class="about" id="about">\n<h2 class="proj-title">${escapeHtml(config.aboutButton ?? 'About Me')}</h2>\n<div class="prose embedded">\n${aboutBody}</div>\n</section>`;
+  const overview = hasOverview(root);
+  const ovRendered = overview ? renderMarkdown(fs.readFileSync(path.join(root, 'docs/overview.md'), 'utf8')) : { html: '', hasMermaid: false };
+  const ovBody = relocate(namespaced(shiftHeadings(dropFirstH1(applyComponents(enhanceCodeBlocks(ovRendered.html), {}))), 'overview'), 'docs');
+  const ovHeads = headingsOf(ovBody, 3).map((h) => ({ text: h.text, href: `#${h.id}` }));
+  const overviewSection = !overview ? '' : `<section class="about" id="how-it-works">
+<h2 class="proj-title">How It Works</h2>
+<div class="prose embedded">
+${ovBody}</div>
+</section>`;
   const main = `<h1 class="sr-only">${escapeHtml(config.name)}</h1>
 <section id="projects" aria-label="${escapeHtml(config.sectionTitle)}">
 <ul class="chips">
@@ -450,10 +464,11 @@ ${ready.map(chipHtml).join('')}
 </ul>
 </section>
 ${aboutSection}
+${overviewSection}
 ${embeds.map((e) => e.section).join('\n')}`;
   return stageShell({
-    config, title: '', description: config.intro, depth: 0, main, home: true, hasMermaid: aboutRendered.hasMermaid || embeds.some((e) => e.hasMermaid),
-    nav: sideNav(config, { prefix: '', home: true, current: '', subs: { about: aboutHeads, ...Object.fromEntries(embeds.map((e) => [e.id, e.heads])) }, about }),
+    config, title: '', description: config.intro, depth: 0, main, home: true, hasMermaid: aboutRendered.hasMermaid || ovRendered.hasMermaid || embeds.some((e) => e.hasMermaid),
+    nav: sideNav(config, { prefix: '', home: true, current: '', subs: { about: aboutHeads, overview: ovHeads, ...Object.fromEntries(embeds.map((e) => [e.id, e.heads])) }, about, overview }),
   });
 }
 

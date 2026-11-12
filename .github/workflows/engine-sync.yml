@@ -1,0 +1,24 @@
+name: Engine sync
+
+# The site's engine (site/build.mjs, components.mjs, stage.css) is written twice, here and in the product portfolio.
+# Each repository's test pins its own copy (site/engine.sha256); this compares the two pins every morning,
+# so a change made in one place and forgotten in the other turns this red within a day.
+on:
+  schedule:
+    - cron: '17 7 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  same-engine:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: This engine matches the product portfolio's
+        run: node engine-sync.mjs --other rizvihiqrar/product-portfolio
+        working-directory: site
