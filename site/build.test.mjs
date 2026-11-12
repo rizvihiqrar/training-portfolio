@@ -898,3 +898,20 @@ test('every stage page can open a fold that a link points into, and the theme sw
   const toggle = html.match(/<script>\(function\(\)\{var b=document\.getElementById\('theme-toggle'\)[\s\S]*?<\/script>/)[0];
   assert.match(toggle, /foldsOpen[\s\S]*location\.reload\(\)/, 'open folds are saved before the reload');
 });
+
+test('the Word handouts link exactly the videos and courses on the course page\'s schedule, in day order, in their text and in their clickable links (the break: an old link left in a handout)', async () => {
+  const { default: mammoth } = await import('mammoth');
+  const days = courseCard().components.schedule.days;
+  const wanted = days.map((d) => (d.video ? 'https://www.youtube.com/watch?v=' + d.video : d.link)).filter(Boolean);
+  assert.ok(wanted.length > 0);
+  const media = /https?:\/\/[^\s"'<>)]*(?:youtube\.com|youtu\.be|pluralsight\.com)[^\s"'<>)]*/g;
+  const inOrder = (urls) => [...new Set(urls)];
+  for (const f of ['qa-automation-2-week-schedule.docx', 'qa-automation-10-day-cheat-sheet.docx']) {
+    const file = path.join(repoRoot, '01-onboarding-programs/qa-automation-onboarding/materials', f);
+    const text = (await mammoth.extractRawText({ path: file })).value.match(media) ?? [];
+    assert.deepEqual(inOrder(text), wanted, f + ': the links in its text');
+    const hrefs = [...(await mammoth.convertToHtml({ path: file })).value.matchAll(/href="([^"]+)"/g)].map((m) => m[1].replace(/&amp;/g, '&')).filter((u) => media.test(u) || (media.lastIndex = 0));
+    media.lastIndex = 0;
+    if (hrefs.length) assert.deepEqual(inOrder(hrefs), wanted, f + ': its clickable links');
+  }
+});
