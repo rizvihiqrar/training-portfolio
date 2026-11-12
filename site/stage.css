@@ -289,3 +289,13 @@ pre.proj-code .line { padding-left: 3.2em; text-indent: -3.2em; }
   .tw { grid-template-columns: 1fr; }
   .tw .ex { border-right: 0; border-bottom: 1px solid #333; }
 }
+
+/* ---- The full version, folded under the short one ---- */
+.fold { margin: 40px 0 8px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2); }
+.fold > summary { cursor: pointer; padding: 14px 18px; font-weight: 600; font-size: 15px; color: var(--text); list-style: none; display: flex; align-items: center; gap: 10px; }
+.fold > summary::-webkit-details-marker { display: none; }
+.fold > summary::before { content: ''; width: 8px; height: 8px; border-right: 2px solid var(--text-3); border-bottom: 2px solid var(--text-3); transform: rotate(-45deg); transition: transform 0.15s; }
+.fold[open] > summary::before { transform: rotate(45deg); }
+.fold > summary:hover { text-decoration: underline; text-underline-offset: 3px; }
+.fold-body { padding: 4px 22px 22px; border-top: 1px solid var(--border); }
+.fold-body > :first-child { margin-top: 20px; }

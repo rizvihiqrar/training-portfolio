@@ -84,15 +84,6 @@ test('a table with an empty header row is shown without a header bar', () => {
   assert.match(html, /<td>Audience<\/td>/);
 });
 
-test('only one tab in the course navigation is marked as the current page', (t) => {
-  const out = scratch(t);
-  buildSite({ root: repoRoot, out, config });
-  const html = fs.readFileSync(path.join(out, '01-onboarding-programs/qa-automation-onboarding/index.html'), 'utf8');
-  assert.equal((html.match(/aria-current="page"/g) ?? []).length, 1);
-  const quiz = fs.readFileSync(path.join(out, '01-onboarding-programs/qa-automation-onboarding/quiz.html'), 'utf8');
-  assert.match(quiz, /<a href="quiz\.html" aria-current="page">Quiz<\/a>/);
-});
-
 test('a callout inside a quote, and a quote after a callout, keep their tags balanced', () => {
   const { html } = renderMarkdown('> A quote.\n>\n> > [!NOTE]\n> > Inner note.\n\n> [!TIP]\n> Tip text.\n\n> Another quote.\n');
   assert.equal((html.match(/<blockquote>/g) ?? []).length, (html.match(/<\/blockquote>/g) ?? []).length);
@@ -729,62 +720,6 @@ test('convertHandouts does nothing when no course lists a Word handout', async (
   assert.deepEqual(await convertHandouts(repoRoot, { cards: [{ path: 'a/README.md' }, { path: 'b/README.md', inline: [{ title: 'T', md: 't.md' }] }] }), {});
 });
 
-test('the QA course page has its lesson plan, quiz, scoring guide, feedback form and four handouts written out on the page, and nothing in that section is a link to a file', (t) => {
-  const out = scratch(t);
-  buildSite({ root: repoRoot, out, config: stage });
-  const course = config.cards.find((c) => c.title === 'QA Automation Onboarding');
-  assert.equal(course.inline.length, 8);
-  const home = read(out, 'index.html');
-  for (const item of course.inline) assert.ok(home.includes(`<h4 class="material-title">${escapeHtml(item.title)}</h4>`), `${item.title} is on the page`);
-  const section = home.split('<section class="project" id="qa-automation-onboarding">')[1].split('</section>\n<p class="to-top">')[0];
-  assert.doesNotMatch(section, /href="[^"]*\.docx"/, 'no link to a Word file');
-  const before = section.split('id="qa-automation-onboarding-materials"')[1].split('<section class="material"')[0];
-  assert.doesNotMatch(before, /<a /, 'the Materials heading is followed by the items, not by a list of links');
-});
-
-test('the quiz on the page lists the ten questions and gives no answers', (t) => {
-  const out = scratch(t);
-  buildSite({ root: repoRoot, out, config: stage });
-  const quizMd = fs.readFileSync(path.join(repoRoot, '01-onboarding-programs/qa-automation-onboarding/quiz.md'), 'utf8');
-  const questions = quizMd.split('## Questions')[1].split('## Where to Review')[0].split(String.fromCharCode(10)).filter((l) => /^\d+\. /.test(l));
-  assert.equal(questions.length, 10);
-  const html = read(out, 'index.html');
-  const quiz = html.split('id="qa-automation-onboarding-m-quiz"')[1].split('</section>')[0];
-  assert.equal((quiz.match(/<ol>/g) ?? []).length >= 1, true);
-  const quizText = quiz.replace(/<[^>]+>/g, '').replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, '&');
-  for (const q of questions) assert.ok(quizText.includes(q.replace(/^\d+\. /, '').replace(/`/g, '').slice(0, 25)), `question: ${q.slice(0, 30)}`);
-  assert.doesNotMatch(quiz, /Answer:|Correct answer|Answer key/i);
-});
-
-test('each of the four Word handouts is on the page: its converted text is there (the break: leave a handout out of the list)', (t) => {
-  const out = scratch(t);
-  buildSite({ root: repoRoot, out, config: stage });
-  const home = read(out, 'index.html');
-  const course = config.cards.find((c) => c.title === 'QA Automation Onboarding');
-  const docx = course.inline.filter((i) => i.docx);
-  assert.equal(docx.length, 4);
-  for (const item of docx) {
-    const converted = stage.handoutHtml[`01-onboarding-programs/qa-automation-onboarding/${item.docx}`];
-    assert.ok(converted && converted.length > 1000, `${item.docx} was converted`);
-    const firstText = converted.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 40);
-    assert.ok(home.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').includes(firstText.replace(/&amp;/g, '&')), `${item.title} text is on the page`);
-  }
-});
-
-test('the left list on the QA course page has an entry for each item, after Materials', (t) => {
-  const out = scratch(t);
-  buildSite({ root: repoRoot, out, config: stage });
-  const nav = read(out, '01-onboarding-programs/qa-automation-onboarding/index.html').split('<nav class="side-nav"')[1].split('</nav>')[0];
-  const course = config.cards.find((c) => c.title === 'QA Automation Onboarding');
-  let last = nav.indexOf('>Materials<');
-  assert.ok(last > -1);
-  for (const item of course.inline) {
-    const at = nav.indexOf(`>${escapeHtml(item.title)}<`);
-    assert.ok(at > last, `${item.title} follows the one before it`);
-    last = at;
-  }
-});
-
 test('every Word handout in a course\'s materials folder is linked from that course page, so each one can be downloaded on its own', () => {
   const folders = config.cards.filter((c) => c.status !== 'planned' && /README\.md$/.test(c.path)).map((c) => c.path.replace(/README\.md$/, ''));
   assert.ok(folders.length > 0);
@@ -834,4 +769,132 @@ test('stageshow home: How It Works follows About Me on the page and in the left 
 test('code boxes inside the page text keep the title bar clear of the first line', () => {
   const css = fs.readFileSync(new URL('./stage.css', import.meta.url), 'utf8');
   assert.match(css, /\.stage \.prose pre\.code:not\(\.mermaid\)\s*\{\s*padding-top:\s*52px/);
+});
+
+test('a project with a full version folds it under the short one: closed, with ids of its own, out of the left list, and with no stray comment', (t) => {
+  const out = scratch(t);
+  buildSite({ root: repoRoot, out, config: stage });
+  const withFull = ready.filter((c) => c.full);
+  assert.ok(withFull.length, 'at least one finished project has a full version');
+  const home = read(out, 'index.html');
+  assert.equal((home.match(/<details class="fold">/g) ?? []).length, withFull.length, 'one closed fold per project on the home page');
+  for (const c of withFull) {
+    const page = read(out, c.path.replace(/README\.md$/i, 'index.html').replace(/\.md$/, '.html'));
+    assert.match(page, /<details class="fold"><summary>Read the Full Version<\/summary>/, `${c.title}: its own page has the fold`);
+    assert.doesNotMatch(page + home, /<!-- \/?site:fold/, 'no site comment is left on a page');
+    const short = fs.readFileSync(path.join(repoRoot, c.path), 'utf8');
+    const only = [...fs.readFileSync(path.join(repoRoot, c.full), 'utf8').matchAll(/^## (.+)$/gm)].map((m) => m[1].trim()).filter((h) => !short.includes(`## ${h}`));
+    assert.ok(only.length, `${c.title}: the full version has a part the short one leaves out`);
+    for (const nav of [home, page].map((h) => h.split('<nav class="side-nav"')[1].split('</nav>')[0])) {
+      for (const h of only) assert.ok(!nav.includes(`>${escapeHtml(h)}</a>`), `${c.title}: "${h}" stays out of the left list`);
+    }
+  }
+});
+
+test('a site:fold block with no full version fails the build', (t) => {
+  const first = ready.find((c) => c.full);
+  const without = { ...stage, cards: stage.cards.map((c) => (c === first ? { ...c, full: undefined } : c)) };
+  assert.throws(() => buildSite({ root: repoRoot, out: scratch(t), config: without }), /has a site:fold block, but its card has no "full" file/);
+});
+
+const courseCard = () => config.cards.find((c) => c.title === 'QA Automation Onboarding');
+const courseMd = () => fs.readFileSync(path.join(repoRoot, courseCard().path), 'utf8').replace(/\r\n/g, '\n');
+const withoutFold = (html) => html.replace(/<details class="fold">[\s\S]*?<\/details>/, '');
+
+test('the QA course page writes out its materials: schedule, quiz, feedback form, cheat sheets, template and folder explorer, with every handout a download button', (t) => {
+  const out = scratch(t);
+  buildSite({ root: repoRoot, out, config: stage });
+  const home = read(out, 'index.html');
+  const section = withoutFold(home.split('<section class="project" id="qa-automation-onboarding">')[1].split('</section>\n<p class="to-top">')[0]);
+  for (const piece of ['data-site="schedule"', 'data-site="quiz"', 'data-site="tree"', 'class="fbt"', 'class="sheets"', 'class="run"']) assert.ok(section.includes(piece), `${piece} is on the page`);
+  assert.equal((section.match(/class="dl"/g) ?? []).length, 4, 'the schedule, two cheat sheets and the template are each a download button');
+  assert.doesNotMatch(section, /<a href="[^"]*\.docx"/, 'no plain link to a Word file');
+  assert.match(section, />Objective<\/th>[\s\S]*>Goals<\/th>/, 'the lesson plan columns are Objective and Goals');
+  assert.doesNotMatch(section, /What the trainer does|What the learners do|Where to Review|up to 8 learners/i);
+});
+
+test('the quiz: ten questions, every answer is one of its options, and the README shows the same answer and reason for each', () => {
+  const quiz = courseCard().components.quiz;
+  assert.equal(quiz.questions.length, 10);
+  const lines = courseMd().split('<!-- site:quiz -->')[1].split('<!-- /site:quiz -->')[0].split('\n').filter((l) => /^\d+\. /.test(l));
+  assert.equal(lines.length, 10);
+  quiz.questions.forEach((q, i) => {
+    assert.ok(lines[i].startsWith(`${i + 1}. ${q.q}`), `question ${i + 1} is the same in the README`);
+    assert.ok(lines[i].includes(`**Answer:** ${q.options[q.answer]}`), `question ${i + 1}: the README names the same answer`);
+    assert.ok(lines[i].includes(q.why), `question ${i + 1}: the README gives the same reason`);
+  });
+});
+
+test('the schedule table in the README links the same videos and courses as the schedule on the site', () => {
+  const md = courseMd().split('<!-- site:schedule -->')[1].split('<!-- /site:schedule -->')[0];
+  const days = courseCard().components.schedule.days;
+  assert.equal(days.length, 10);
+  for (const d of days) {
+    if (d.video) assert.ok(md.includes(`watch?v=${d.video})`), `day ${d.n}: the README links video ${d.video}`);
+    if (d.link) assert.ok(md.includes(`(${d.link})`), `day ${d.n}: the README links ${d.link}`);
+  }
+  assert.ok(md.includes('(materials/qa-automation-2-week-schedule.docx)'), 'the printable schedule is linked');
+});
+
+test('the left list on the QA course page shows its sections in order, ending with the materials', (t) => {
+  const out = scratch(t);
+  buildSite({ root: repoRoot, out, config: stage });
+  const nav = read(out, '01-onboarding-programs/qa-automation-onboarding/index.html').split('<nav class="side-nav"')[1].split('</nav>')[0];
+  let last = -1;
+  for (const h of ['Getting Started', 'The Problem', 'What I Did', 'The Result', 'What I Would Change', 'Units', 'Two-Week Schedule', 'Grading', 'Course Materials']) {
+    const at = nav.indexOf(`>${h}<`);
+    assert.ok(at > last, `${h} follows the one before it`);
+    last = at;
+  }
+});
+
+test('no page of the built site uses an id twice, so every anchor goes to one place (the break: fold the full version without ids of its own)', (t) => {
+  const out = scratch(t);
+  buildSite({ root: repoRoot, out, config: stage });
+  const pages = [];
+  (function walkDir(dir) {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (e.isDirectory()) walkDir(path.join(dir, e.name));
+      else if (e.name.endsWith('.html')) pages.push(path.join(dir, e.name));
+    }
+  })(out);
+  assert.ok(pages.length > 3);
+  for (const page of pages) {
+    const ids = [...fs.readFileSync(page, 'utf8').matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]);
+    assert.deepEqual(ids.filter((id, i) => ids.indexOf(id) !== i), [], `${path.relative(out, page)}: an id is used twice`);
+  }
+});
+
+test('diagrams: the old layout draws them on load; the stage layout draws only the visible ones, and the rest when their fold opens', (t) => {
+  const pages = [];
+  for (const [theme, cfg] of [['default', config], ['stage', stage]]) {
+    const out = scratch(t);
+    buildSite({ root: repoRoot, out, config: cfg });
+    (function walkDir(dir) {
+      for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+        if (e.isDirectory()) walkDir(path.join(dir, e.name));
+        else if (e.name.endsWith('.html')) {
+          const html = fs.readFileSync(path.join(dir, e.name), 'utf8');
+          if (html.includes('mermaid.initialize')) pages.push({ theme, html });
+        }
+      }
+    })(out);
+  }
+  for (const { theme, html } of pages) {
+    if (theme === 'default') assert.match(html, /startOnLoad:true/, 'the old layout draws on load');
+    else {
+      assert.match(html, /startOnLoad:false/);
+      assert.match(html, /mermaid\.run\(/);
+      assert.match(html, /addEventListener\('toggle'/, 'a fold draws its diagrams when it opens');
+    }
+  }
+});
+
+test('every stage page can open a fold that a link points into, and the theme switch keeps folds open across its reload', (t) => {
+  const out = scratch(t);
+  buildSite({ root: repoRoot, out, config: stage });
+  const html = read(out, 'index.html');
+  assert.match(html, /closest\('details'\)[\s\S]*hashchange/, 'a link into a closed fold opens it');
+  const toggle = html.match(/<script>\(function\(\)\{var b=document\.getElementById\('theme-toggle'\)[\s\S]*?<\/script>/)[0];
+  assert.match(toggle, /foldsOpen[\s\S]*location\.reload\(\)/, 'open folds are saved before the reload');
 });

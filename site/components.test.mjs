@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { applyComponents, plainMarkdown, COMPONENT_BLOCK, COMPONENT_SCRIPT, MAX_RUN_LINES } from './components.mjs';
+import { applyComponents, codeSegs, plainMarkdown, COMPONENT_BLOCK, COMPONENT_SCRIPT, MAX_RUN_LINES } from './components.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const config = JSON.parse(fs.readFileSync(new URL('./site.json', import.meta.url), 'utf8'));
@@ -27,6 +27,13 @@ test('a run is a window with the prompt first, escaped text, and numeric bar wid
   assert.doesNotMatch(html, /plain version/, 'the plain version is replaced');
 });
 
+test('a line of source code is coloured by its words, with its spaces and indentation kept', () => {
+  assert.deepEqual(codeSegs("  await page.goto('/x');"), [['', '  '], ['kw', 'await'], ['', ' '], ['', 'page'], ['', '.'], ['fn', 'goto'], ['', '('], ['st', "'/x'"], ['', ');']]);
+  const html = applyComponents(block('run', 'r'), { runs: { r: runData({ lines: [{ code: "  await go('a & b');" }] }) } });
+  assert.ok(html.includes('<div class="l code">  <span class="kw">await</span> <span class="fn">go</span>('), 'indentation and spacing are kept');
+  assert.ok(html.includes("<span class=\"st\">'a &amp; b'</span>"), 'strings are escaped');
+});
+
 test('a run with more lines than the animation has timing for is refused', () => {
   const lines = Array.from({ length: MAX_RUN_LINES }, () => ({ segs: [['', 'x']] }));
   assert.throws(() => applyComponents(block('run', 'r'), { runs: { r: runData({ lines }) } }), /at most/);
@@ -39,6 +46,11 @@ test('blocks are swapped, the rest of the page is kept, and a page without block
   assert.match(out, /^<h2>A<\/h2>\n<a class="dl" href="f\.docx" download>/);
   assert.ok(out.endsWith('<p>after</p>'));
   assert.equal(applyComponents('<p>nothing</p>', {}), '<p>nothing</p>');
+});
+
+test('a fold block passes through untouched, because build.mjs folds it in', () => {
+  const html = '<!-- site:fold -->\n<p>link</p>\n<!-- /site:fold -->';
+  assert.equal(applyComponents(html, {}), html);
 });
 
 test('an unknown piece, missing data, or an unmatched closing comment fails instead of leaving a gap', () => {
@@ -80,7 +92,7 @@ test('the quiz shows its answer as an option number and escapes its text', () =>
 test('missing fields fail with a clear message, not a raw error or the word undefined', () => {
   const quizOf = (q) => applyComponents(block('quiz'), { quiz: { passMessage: 'a', failMessage: 'b', questions: [q] } });
   assert.throws(() => quizOf({ q: 'Q', why: 'w', answer: 0 }), /at least two options/);
-  assert.throws(() => applyComponents(block('run', 'r'), { runs: { r: runData({ lines: [{}] }) } }), /every line of a run needs segs/);
+  assert.throws(() => applyComponents(block('run', 'r'), { runs: { r: runData({ lines: [{}] }) } }), /every line of a run needs segs or code/);
   assert.throws(() => applyComponents(block('run', 'r'), { runs: { r: runData({ lines: [{ segs: [['', 'x']], bar: { w: 'wide' } }] }) } }), /a bar width must be a number from 0 to 100/);
   assert.throws(() => applyComponents(block('schedule'), { schedule: { ...schedule, days: [{ ...days[0], time: '' }, days[1], days[2]] } }), /day 1: time must be some text/);
   assert.throws(() => applyComponents(block('tree'), { tree: { nodes: [{ depth: 0, kind: 'o', name: 'root', title: 'T', text: 'x' }] } }), /node's like must be some text/);

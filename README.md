@@ -18,9 +18,9 @@ After ten one-hour days, a tester who has never written code can open a project 
 
 ## What Is in Each Course
 
-- **A course page:** who it is for, the goal, the outline, the design decisions, how learning was checked, and what I would improve
-- **A one-page lesson plan:** timings in minutes, what the trainer does, what the learners do, and how each step is checked
-- **A quiz:** ten questions, with the answers kept by the trainer
+- **A course page:** who it is for, the units and schedule with the videos, the grading grid, and what I would improve, with the design decisions and how learning was checked in the full version
+- **A one-page lesson plan:** timings in minutes, the objective and goals of each step, and how each step is checked
+- **A quiz:** ten questions, one at a time, with the right answer and a reason after each pick
 - **A scoring guide:** five criteria scored from 1 to 4, with a next step for every total
 - **A feedback form:** what learners thought, and how the answers change the next run
 - **Handouts:** Word files you can download one at a time
@@ -34,7 +34,7 @@ After ten one-hour days, a tester who has never written code can open a project 
 
 ## Design Decisions
 
-Every course is a set of choices, and each course page says what I chose, why, and what it cost. For the first course: one hour a day for two weeks, two hands-on days with no video, free videos plus two paid courses, and no prior coding needed. [Read them all](https://rizvihiqrar.github.io/training-portfolio/01-onboarding-programs/qa-automation-onboarding/#design-decisions).
+Every course is a set of choices, and each course page says what I chose, why, and what it cost. For the first course: one hour a day for two weeks, two hands-on days with no video, free videos plus two paid courses, and no prior coding needed. [Read them all](01-onboarding-programs/qa-automation-onboarding/full/qa-automation-onboarding-full.md#design-decisions).
 
 ## Coming Next
 
