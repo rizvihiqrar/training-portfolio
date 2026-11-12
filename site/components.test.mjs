@@ -154,3 +154,89 @@ test('every site block in this repository\'s pages is closed and has data in sit
     assert.equal([...md.matchAll(COMPONENT_BLOCK)].length, opens.length, `${c.path}: blocks pair up in order`);
   }
 });
+
+const timebarData = (extra = {}) => ({
+  title: 'An 8-hour release', alt: 'Eight hours split three ways', total: 8, unit: 'hours',
+  segments: [
+    { name: 'Critical', share: 60, amount: 4.8, line: 'First <always>' },
+    { name: 'Medium', share: 30, amount: 2.4, line: 'Next' },
+    { name: 'Low', share: 10, amount: 0.8, line: 'Last' },
+  ],
+  summary: { title: 'Then four lines', lines: [['Tested', 'All & more']], note: 'Example wording' },
+  ...extra,
+});
+const scopeData = (extra = {}) => ({
+  alt: 'What runs', events: [{ id: 'pr', text: 'Pull request' }, { id: 'main', text: 'Push to main' }],
+  check: { text: 'Touches the tests?' },
+  outcomes: [{ id: 'smoke', text: 'Smoke', detail: '16 of 65' }, { id: 'full', text: 'Full', detail: 'Everything' }],
+  scenarios: [
+    { label: 'A pull request', event: 'pr', check: 'no', outcome: 'smoke', why: 'Only smoke.' },
+    { label: 'A push', event: 'main', outcome: 'full', why: 'Everything.' },
+  ],
+  ...extra,
+});
+const funnelData = (extra = {}) => ({
+  title: 'The list', alt: 'A funnel', asOf: 'As of today',
+  stages: [{ value: 100, label: 'all' }, { value: 60, label: 'kept', step: 'minus 40', delta: -40 }, { value: 5, label: 'built', step: 'then built' }],
+  ...extra,
+});
+
+test('a time bar shows each share as a width, escapes its text, and holds the finished picture (the page only rewinds it when it plays)', () => {
+  const html = applyComponents(block('timebar'), { timebar: timebarData() });
+  assert.match(html, /^<div class="pc tb" data-site="timebar" role="group" aria-label="Eight hours split three ways">/);
+  for (const w of [60, 30, 10]) assert.ok(html.includes(`style="--w:${w}%;`), `a segment is ${w}% wide`);
+  assert.ok(html.includes('4.8 hours') && html.includes('First &lt;always&gt;') && html.includes('All &amp; more'), 'amounts shown, text escaped');
+  assert.doesNotMatch(html, /rewind|plain version/, 'no starting state in the markup, and the plain version is replaced');
+  assert.ok(COMPONENT_SCRIPT.includes('IntersectionObserver') && COMPONENT_SCRIPT.includes('prefers-reduced-motion'), 'it plays on scroll and not with reduced motion');
+});
+
+test('a time bar whose shares do not add up to 100, or whose hours do not match its shares, is refused', () => {
+  const segs = (a, b, c) => timebarData().segments.map((s, i) => ({ ...s, share: [a, b, c][i] }));
+  assert.throws(() => applyComponents(block('timebar'), { timebar: timebarData({ segments: segs(60, 30, 20) }) }), /add up to 110/);
+  assert.throws(() => applyComponents(block('timebar'), { timebar: timebarData({ segments: timebarData().segments.map((s, i) => ({ ...s, amount: [4, 3.2, 0.8][i] })) }) }), /is not 60% of 8/);
+  assert.throws(() => applyComponents(block('timebar'), { timebar: timebarData({ summary: { title: 'x', lines: [] } }) }), /summary with lines/);
+});
+
+test('the picker starts on its first case with that path lit, and every case names real nodes', () => {
+  const html = applyComponents(block('scope'), { scope: scopeData() });
+  assert.match(html, /<div class="nd lit" data-e="pr">/);
+  assert.match(html, /<div class="nd out lit" data-o="smoke">/);
+  assert.match(html, /<span class="ans lit" data-a="no">/);
+  assert.doesNotMatch(html, /class="nd lit" data-e="main"/, 'only the first case is lit');
+  assert.match(html, /<p class="sc-why">Only smoke\.<\/p>/);
+  assert.match(html, /<button type="button" aria-pressed="true" class="on">A pull request<\/button>/);
+  assert.throws(() => applyComponents(block('scope'), { scope: scopeData({ scenarios: [{ label: 'x', event: 'nope', outcome: 'full', why: 'y' }] }) }), /event nope/);
+  assert.throws(() => applyComponents(block('scope'), { scope: scopeData({ scenarios: [{ label: 'x', event: 'pr', outcome: 'gone', why: 'y' }] }) }), /outcome gone/);
+  assert.throws(() => applyComponents(block('scope'), { scope: scopeData({ scenarios: [{ label: 'x', event: 'pr', check: 'maybe', outcome: 'full', why: 'y' }] }) }), /yes or no/);
+});
+
+test('a funnel draws each bar in proportion to the first, never thinner than 3%, and the arithmetic between stages must hold', () => {
+  const html = applyComponents(block('funnel'), { funnel: funnelData() });
+  assert.ok(html.includes('--w:100.0%') && html.includes('--w:60.0%') && html.includes('--w:5.0%'));
+  assert.ok(html.includes('data-from="100"') && html.includes('data-to="60"'), 'the count ticks from the first value to each value');
+  assert.ok(applyComponents(block('funnel'), { funnel: funnelData({ stages: [{ value: 1000, label: 'all' }, { value: 2, label: 'tiny', step: 's' }] }) }).includes('--w:3.0%'));
+  assert.throws(() => applyComponents(block('funnel'), { funnel: funnelData({ stages: [{ value: 100, label: 'all' }, { value: 70, label: 'kept', step: 'minus 40', delta: -40 }] }) }), /100 - 40 is not 70/);
+  assert.throws(() => applyComponents(block('funnel'), { funnel: funnelData({ stages: [{ value: 100, label: 'all' }, { value: 60, label: 'kept' }] }) }), /step must be some text/);
+});
+
+test('the three pieces need their data: a block with none fails the build', () => {
+  for (const kind of ['timebar', 'scope', 'funnel']) assert.throws(() => applyComponents(block(kind), {}), new RegExp(`no data for ${kind}`));
+});
+
+test('a time bar whose amounts do not add up to its total is refused', () => {
+  const amounts = (a, b, c) => timebarData().segments.map((s, i) => ({ ...s, amount: [a, b, c][i] }));
+  assert.doesNotThrow(() => applyComponents(block('timebar'), { timebar: timebarData({ segments: amounts(4.8, 2.4, 0.8) }) }));
+  assert.throws(() => applyComponents(block('timebar'), { timebar: timebarData({ segments: amounts(4.8, 2.4, 1.5) }) }), /amounts add up to/);
+});
+
+test('the script cancels a running count on replay, plays pieces taller than the screen, and never leaves a piece hidden if it fails', () => {
+  assert.ok(COMPONENT_SCRIPT.includes('gen++') && COMPONENT_SCRIPT.includes('mine===gen') && COMPONENT_SCRIPT.includes('if(mine!==gen)return'), 'a replay stops the count still running');
+  assert.doesNotMatch(COMPONENT_SCRIPT, /threshold:\s*0\.\d/, 'no visibility threshold that a tall piece can never reach');
+  assert.match(COMPONENT_SCRIPT, /catch\(e\)\{root\.classList\.remove\('rewind'\)/, 'a failing observer shows the finished picture');
+});
+
+test('the picker columns do not reuse the site\'s own stage class', () => {
+  const html = applyComponents(block('scope'), { scope: scopeData() });
+  assert.equal((html.match(/class="sc-col"/g) ?? []).length, 3);
+  assert.doesNotMatch(html, /class="stage"/);
+});

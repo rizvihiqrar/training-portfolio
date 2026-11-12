@@ -299,10 +299,19 @@ test('table names are decoded once, a second table under one heading is numbered
   assert.doesNotMatch(html, /&amp;amp;/);
 });
 
-test('the About page uses the same email and LinkedIn address as the footer and contact buttons', () => {
+test('the About page does not repeat the contact details: the header buttons and the footer carry them', (t) => {
   const about = fs.readFileSync(path.join(repoRoot, 'docs/about.md'), 'utf8');
-  assert.ok(about.includes(`mailto:${config.contact.email}`), 'the email matches site.json');
-  assert.ok(about.includes(config.contact.linkedin), 'the LinkedIn address matches site.json');
+  assert.doesNotMatch(about, /mailto:|linkedin.com|Get in Touch/i, 'the About text has no contact block');
+  const out = scratch(t);
+  buildSite({ root: repoRoot, out, config: stage });
+  const html = read(out, 'docs/about.html');
+  const bar = html.split('<header class="topbar">')[1].split('</header>')[0];
+  assert.ok(bar.includes(`href="mailto:${config.contact.email}"`), 'the header email button matches site.json');
+  assert.ok(bar.includes(`href="${config.contact.linkedin}"`), 'the header LinkedIn button matches site.json');
+  const plain = scratch(t);
+  buildSite({ root: repoRoot, out: plain, config });
+  const foot = read(plain, 'docs/about.html').split('<footer')[1];
+  assert.ok(foot.includes(`mailto:${config.contact.email}`) && foot.includes(config.contact.linkedin), 'the footer of the default look matches site.json');
 });
 
 test('two sections that happen to share a heading each get their own table name, not a number', () => {
@@ -914,4 +923,14 @@ test('the Word handouts link exactly the videos and courses on the course page\'
     media.lastIndex = 0;
     if (hrefs.length) assert.deepEqual(inOrder(hrefs), wanted, f + ': its clickable links');
   }
+});
+
+test('the mermaid script is only added to a page that still holds a diagram for it to draw', () => {
+  const page = (body, hasMermaid) => pageHtml({ config, title: 'T', body, depth: 0, hasMermaid });
+  assert.doesNotMatch(page('<p>a piece replaced the diagram</p>', true), /cdn\.jsdelivr\.net\/npm\/mermaid/);
+  assert.match(page('<pre class="mermaid">flowchart LR\n A --> B</pre>', true), /cdn\.jsdelivr\.net\/npm\/mermaid/);
+  assert.doesNotMatch(page('<pre class="mermaid">flowchart LR\n A --> B</pre>', false), /cdn\.jsdelivr\.net\/npm\/mermaid/);
+  const stagePage = (html, hasMermaid) => stageReadingPage({ config: stage, rel: 'docs/x.md', html, title: 'x', hasMermaid, description: '', depth: 1 });
+  assert.doesNotMatch(stagePage('<p>a piece replaced the diagram</p>', true), /cdn\.jsdelivr\.net\/npm\/mermaid/, 'the stage look too');
+  assert.match(stagePage('<pre class="mermaid">flowchart LR\n A --> B</pre>', true), /cdn\.jsdelivr\.net\/npm\/mermaid/);
 });

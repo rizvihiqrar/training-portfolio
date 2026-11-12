@@ -34,7 +34,3 @@ That is what I like building most: a lesson plan, a clear page, a test that tell
 ## How I Work
 
 I work in small pieces and show my reasoning, including what I chose not to do. Each case study uses real numbers from my own projects, labels a rule of thumb as one, and ends with what I would change.
-
-## Get in Touch
-
-Hiring, or curious how I work? [Send an email](mailto:iqrar.h.rizvi@gmail.com) or find me on [LinkedIn](https://www.linkedin.com/in/iqrar-rizvi).

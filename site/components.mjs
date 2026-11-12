@@ -1,4 +1,4 @@
-// Interactive pieces of the site (a two-week schedule, a quiz, a folder explorer, an animated result), made from data in site.json.
+// Interactive pieces of the site (a two-week schedule, a quiz, a folder explorer, an animated result, a time bar, a "what happens when" picker, a funnel), made from data in site.json.
 //
 // In a Markdown file a piece sits between two comments, with a plain version inside them:
 //
@@ -108,7 +108,7 @@ function feedback(d) {
   need(Array.isArray(d.statements) && Array.isArray(d.questions) && d.questions.length === 2, 'feedback needs statements and two questions');
   const group = `fb${++instances}`;
   const head = [1, 2, 3, 4, 5].map((n) => `<th>${n}</th>`).join('');
-  const rows = d.statements.map((t, i) => `<tr><td>${esc(t)}</td>${[1, 2, 3, 4, 5].map((n) => `<td><input type="radio" name="${group}-${i}" aria-label="${n}"></td>`).join('')}</tr>`).join('');
+  const rows = d.statements.map((t, i) => `<tr><td>${esc(t)}</td>${[1, 2, 3, 4, 5].map((n) => `<td><label class="rd"><input type="radio" name="${group}-${i}" aria-label="${n}"></label></td>`).join('')}</tr>`).join('');
   const qs = d.questions.map((q) => `<label>${esc(q)}<textarea></textarea></label>`).join('');
   return `<table class="fbt"><tr><th>${esc(d.scale ?? '1 = disagree, 5 = agree')}</th>${head}</tr>${rows}</table><div class="fbq">${qs}</div><p class="fbnote">${esc(d.note ?? 'A form to look at: it sends nothing. Print it or copy the questions into your own survey tool.')}</p>`;
 }
@@ -149,6 +149,81 @@ function downloads(d) {
   return `<div class="sheets">${d.map((c) => `<div class="sheet"><b>${esc(c.title)}</b><p>${esc(c.line)}</p>${downloadButton('Download', c.href)}</div>`).join('')}</div>`;
 }
 
+/** The title line of a piece that can be replayed; the button is shown by the script, only when the piece animates. */
+const pieceHead = (title) => `<div class="pc-head"><span>${esc(title)}</span><button type="button" class="rp" hidden>Replay</button></div>`;
+
+/** A time split as one bar that fills segment by segment, a plain line for each, then the summary that closes the rule. */
+function timebar(d) {
+  need(d.alt && d.title && Array.isArray(d.segments) && d.segments.length, 'a timebar needs alt, title and segments');
+  need(Number.isFinite(d.total) && d.total > 0 && d.unit, 'a timebar needs a total and a unit');
+  need(d.summary && Array.isArray(d.summary.lines) && d.summary.lines.length, 'a timebar needs a summary with lines');
+  const sum = d.segments.reduce((t, s) => t + percent(s.share, 'a segment share'), 0);
+  need(Math.abs(sum - 100) < 0.01, `the shares add up to ${sum}, not 100`);
+  const amounts = d.segments.reduce((t, s) => t + Number(s.amount), 0);
+  need(Math.abs(amounts - d.total) < 0.1, `the amounts add up to ${amounts} ${d.unit}, not ${d.total}`);
+  const parts = d.segments.map((s, i) => {
+    text(s.name, 'a segment name'); text(s.line, `segment ${s.name}: line`);
+    need(Math.abs(Number(s.amount) - (d.total * s.share) / 100) < 0.05, `segment ${s.name}: ${s.amount} ${d.unit} is not ${s.share}% of ${d.total}`);
+    return { bar: `<i class="s${i + 1}" style="--w:${s.share}%;--i:${i}">${s.share}%</i>`, row: `<li style="--i:${i}"><b>${esc(s.name)}</b><span>${s.share}% &middot; ${s.amount} ${esc(d.unit)}</span><p>${esc(s.line)}</p></li>` };
+  });
+  const lines = d.summary.lines.map(([k, v]) => `<dt>${esc(text(k, 'a summary label'))}</dt><dd>${esc(text(v, 'a summary line'))}</dd>`).join('');
+  return `<div class="pc tb" data-site="timebar" role="group" aria-label="${esc(d.alt)}">
+${pieceHead(d.title)}
+<div class="tb-bar" aria-hidden="true">${parts.map((p) => p.bar).join('')}</div>
+<ol class="tb-rows">${parts.map((p) => p.row).join('')}</ol>
+<div class="tb-sum" style="--i:${d.segments.length}"><b>${esc(d.summary.title)}</b><dl>${lines}</dl>${d.summary.note ? `<small>${esc(d.summary.note)}</small>` : ''}</div>
+</div>`;
+}
+
+/** The test-scope decision as three stages (what happened, the check, what runs); picking a case lights its path in orange. */
+function scope(d) {
+  need(d.alt && Array.isArray(d.events) && d.events.length && d.check && Array.isArray(d.outcomes) && d.outcomes.length && Array.isArray(d.scenarios) && d.scenarios.length, 'a scope needs alt, events, check, outcomes and scenarios');
+  const ids = (list) => new Set(list.map((x) => text(x.id, 'a node id')));
+  const events = ids(d.events), outcomes = ids(d.outcomes);
+  for (const s of d.scenarios) {
+    text(s.label, 'a scenario label'); text(s.why, `scenario ${s.label}: why`);
+    need(events.has(s.event), `scenario ${s.label}: event ${s.event} is not one of the events`);
+    need(outcomes.has(s.outcome), `scenario ${s.label}: outcome ${s.outcome} is not one of the outcomes`);
+    need(s.check === undefined || s.check === 'yes' || s.check === 'no', `scenario ${s.label}: check must be yes or no`);
+  }
+  const first = d.scenarios[0];
+  const lit = (on) => (on ? ' lit' : '');
+  const buttons = d.scenarios.map((s, i) => `<button type="button" aria-pressed="${i === 0}"${i === 0 ? ' class="on"' : ''}>${esc(s.label)}</button>`).join('');
+  const evNodes = d.events.map((e) => `<div class="nd${lit(e.id === first.event)}" data-e="${esc(e.id)}">${esc(text(e.text, 'an event'))}</div>`).join('');
+  const answers = ['yes', 'no'].map((a) => `<span class="ans${lit(first.check === a)}" data-a="${a}">${a}</span>`).join('');
+  const check = `<div class="nd chk${lit(first.check !== undefined)}" data-c><span>${esc(text(d.check.text, 'the check'))}</span><span class="answers">${answers}</span><em class="skip">${esc(d.check.skipped ?? 'Not asked for this one')}</em></div>`;
+  const outNodes = d.outcomes.map((o) => `<div class="nd out${lit(o.id === first.outcome)}" data-o="${esc(o.id)}"><b>${esc(text(o.text, 'an outcome'))}</b><span>${esc(text(o.detail, 'an outcome detail'))}</span></div>`).join('');
+  const data = esc(JSON.stringify(d.scenarios.map((s) => [s.event, s.check ?? '', s.outcome, s.why])));
+  return `<div class="pc sc" data-site="scope" data-scenarios="${data}" role="group" aria-label="${esc(d.alt)}">
+<div class="sc-pick">${buttons}</div>
+<div class="sc-map"><div class="sc-col"><h5>What happens</h5>${evNodes}</div><div class="sc-col"><h5>The check</h5>${check}</div><div class="sc-col"><h5>What runs</h5>${outNodes}</div></div>
+<p class="sc-why">${esc(first.why)}</p>${d.asOf ? `<small class="pc-note">${esc(d.asOf)}</small>` : ''}
+</div>`;
+}
+
+/** A funnel: a bar for each stage, narrowing in proportion, with the change that led to it and a count that ticks down. */
+function funnel(d) {
+  need(d.alt && d.title && Array.isArray(d.stages) && d.stages.length > 1, 'a funnel needs alt, title and stages');
+  const top = Number(d.stages[0].value);
+  need(top > 0, 'the first stage needs a value above 0');
+  let previous = top;
+  const rows = d.stages.map((s, i) => {
+    text(s.label, 'a stage label');
+    need(Number.isInteger(s.value) && s.value >= 0, `stage ${s.label}: value must be a whole number`);
+    if (s.delta !== undefined) need(previous + s.delta === s.value, `stage ${s.label}: ${previous} ${s.delta >= 0 ? '+' : '-'} ${Math.abs(s.delta)} is not ${s.value}`);
+    previous = s.value;
+    const width = Math.max((s.value / top) * 100, 3).toFixed(1);
+    const step = i === 0 ? '' : `<div class="fn-step" style="--i:${i}">${esc(text(s.step, `stage ${s.label}: step`))}</div>`;
+    const note = s.note ? `<small>${esc(s.note)}</small>` : '';
+    return `${step}<div class="fn-row${s.mark ? ' mark' : ''}" style="--w:${width}%;--i:${i}"><div class="fn-bar"><i></i></div><div class="fn-txt"><b class="n" data-to="${s.value}">${s.value}</b> <span>${esc(s.label)}</span>${note}</div></div>`;
+  }).join('\n');
+  return `<div class="pc fn" data-site="funnel" data-from="${top}" role="group" aria-label="${esc(d.alt)}">
+${pieceHead(d.title)}
+${rows}
+${d.asOf ? `<small class="pc-note">${esc(d.asOf)}</small>` : ''}
+</div>`;
+}
+
 const RENDERERS = {
   run: (d) => run(d),
   schedule: (d) => schedule(d),
@@ -156,6 +231,9 @@ const RENDERERS = {
   feedback: (d) => feedback(d),
   tree: (d) => tree(d),
   downloads: (d) => downloads(d),
+  timebar: (d) => timebar(d),
+  scope: (d) => scope(d),
+  funnel: (d) => funnel(d),
   download: (d) => downloadButton(d.label, d.href),
 };
 
@@ -220,5 +298,37 @@ each('[data-site="tree"]',function(root){
   root.addEventListener('click',function(e){var r=e.target.closest('.tr');if(r){stop();sel(+r.getAttribute('data-i'));return}if(e.target.closest('[data-next]')){stop();sel((cur+1)%nodes.length)}});
   if(auto){timer=setInterval(function(){sel((cur+1)%nodes.length)},4500)}
   sel(0);
+});
+function motion(){return !(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)&&'IntersectionObserver' in window}
+function replayable(root,start){
+  var b=root.querySelector('.rp');
+  function play(){start(true);root.classList.add('rewind');void root.offsetWidth;root.classList.remove('rewind');start(false)}
+  if(!motion())return;
+  b.hidden=false;b.addEventListener('click',play);
+  try{
+    var io=new IntersectionObserver(function(es){if(es[0].isIntersecting){io.disconnect();root.classList.remove('rewind');start(false)}},{rootMargin:'0px 0px -20% 0px'});
+    root.classList.add('rewind');start(true);io.observe(root);
+  }catch(e){root.classList.remove('rewind');start(false)}
+}
+each('[data-site="timebar"]',function(root){replayable(root,function(){})});
+each('[data-site="funnel"]',function(root){
+  var ns=[].slice.call(root.querySelectorAll('.n')),from=+root.getAttribute('data-from'),timers=[],gen=0;
+  replayable(root,function(reset){
+    timers.forEach(clearTimeout);timers=[];gen++;
+    if(reset){ns.forEach(function(n){n.textContent=from});return}
+    ns.forEach(function(n,i){var to=+n.getAttribute('data-to'),t0=null,mine=gen;
+      timers.push(setTimeout(function(){requestAnimationFrame(function step(t){if(t0===null)t0=t;if(mine!==gen)return;var k=Math.min((t-t0)/900,1);n.textContent=Math.round(from+(to-from)*(1-Math.pow(1-k,3)));if(k<1&&mine===gen)requestAnimationFrame(step)})},i*450))});
+  });
+});
+each('[data-site="scope"]',function(root){
+  var sc=JSON.parse(root.getAttribute('data-scenarios')),btns=root.querySelectorAll('.sc-pick button'),why=root.querySelector('.sc-why');
+  function pick(i){var s=sc[i];
+    btns.forEach(function(b,k){b.classList.toggle('on',k===i);b.setAttribute('aria-pressed',k===i)});
+    root.querySelectorAll('[data-e]').forEach(function(n){n.classList.toggle('lit',n.getAttribute('data-e')===s[0])});
+    root.querySelector('[data-c]').classList.toggle('lit',s[1]!=='');
+    root.querySelectorAll('[data-a]').forEach(function(n){n.classList.toggle('lit',n.getAttribute('data-a')===s[1])});
+    root.querySelectorAll('[data-o]').forEach(function(n){n.classList.toggle('lit',n.getAttribute('data-o')===s[2])});
+    why.textContent=s[3];}
+  btns.forEach(function(b,i){b.addEventListener('click',function(){pick(i)})});
 });
 })();`;
