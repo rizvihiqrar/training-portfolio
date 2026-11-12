@@ -11,10 +11,6 @@
     {
       "label": "About Me",
       "href": "docs/about.html"
-    },
-    {
-      "label": "How It Works",
-      "href": "docs/overview.html"
     }
   ],
   "sectionId": "courses",

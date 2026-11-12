@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
-    "test": "node --test build.test.mjs",
+    "test": "node --test build.test.mjs components.test.mjs engine-sync.test.mjs",
     "previews": "node previews.mjs"
   },
   "dependencies": {

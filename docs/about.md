@@ -8,20 +8,13 @@ That is what I like building most: a lesson plan, a clear page, a test that tell
 
 ## What I Do
 
-### Product Ownership and Management
+### Product and Design
 
-- Sort a long list of ideas into what to build first, and write down why
-- Weigh trade-offs and say plainly what I chose not to do
-- Measure whether a decision worked, and report the numbers honestly
-- Next: requirements with acceptance criteria, and a metrics case study
+- Sort a long list of ideas into what to build first, and say why
+- Weigh trade-offs and say what I chose not to do
+- Measure whether a decision worked, honestly
+- Next: a public app teardown, clickable prototypes, requirements and metrics
 - See the [product portfolio](https://rizvihiqrar.github.io/product-portfolio/)
-
-### Product Makeover and Design
-
-- Take a public app apart: what works, what does not, what to improve
-- Build prototypes you can click, in HTML and CSS
-- Plan how to test a design with real people
-- These pieces are planned and come next
 
 ### Quality and Risk Assurance
 
