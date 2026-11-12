@@ -71,7 +71,7 @@ export function renderMarkdown(markdown) {
 }
 
 const THEME_SCRIPT = `try{var s=localStorage.getItem('theme');s=(s==='dark'||s==='light')?s:null;var t=s||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','light')}`;
-const TOGGLE_SCRIPT = `(function(){var b=document.getElementById('theme-toggle');if(!b)return;function label(){var d=document.documentElement.getAttribute('data-theme')==='dark';b.setAttribute('aria-label',d?'Switch to Light Mode':'Switch to Dark Mode');b.title=d?'Switch to Light Mode':'Switch to Dark Mode'}label();b.addEventListener('click',function(){var n=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);try{localStorage.setItem('theme',n)}catch(e){}label();if(document.querySelector('pre.mermaid'))location.reload()})})();`;
+const TOGGLE_SCRIPT = `(function(){var b=document.getElementById('theme-toggle');if(!b)return;function label(){var d=document.documentElement.getAttribute('data-theme')==='dark';b.setAttribute('aria-label',d?'Switch to Light Mode':'Switch to Dark Mode');b.title=d?'Switch to Light Mode':'Switch to Dark Mode'}label();b.addEventListener('click',function(){var n=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);try{localStorage.setItem('theme',n)}catch(e){}label();if(document.querySelector('pre.mermaid')){try{sessionStorage.setItem('foldsOpen',JSON.stringify([].map.call(document.querySelectorAll('details'),function(d){return d.open})))}catch(e){}location.reload()}})})();`;
 const MERMAID_SCRIPT = `import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.4.0/dist/mermaid.esm.min.mjs';mermaid.initialize({startOnLoad:true,theme:document.documentElement.getAttribute('data-theme')==='dark'?'dark':'default'});`;
 
 /** The whole HTML page around a body. */
@@ -155,6 +155,7 @@ function subnavFor(config, mdPath) {
 }
 
 /** Highlights the project and section in view in the left list, as the page scrolls. */
+const FOLD_SCRIPT = `(function(){function go(){var h=decodeURIComponent(location.hash.slice(1));if(!h)return;var e=document.getElementById(h);var d=e&&e.closest('details');if(d&&!d.open){d.open=true;e.scrollIntoView()}}go();addEventListener('hashchange',go)})();`;
 const SPY_SCRIPT = `(function(){var items={};document.querySelectorAll('.side-list > li[data-id]').forEach(function(li){items[li.getAttribute('data-id')]=li});var secs=[].slice.call(document.querySelectorAll('section.project,section.about'));var subs=[].slice.call(document.querySelectorAll('.sub a[href^="#"]'));var heads=subs.map(function(a){return document.getElementById(a.getAttribute('href').slice(1))});function run(){if(secs.length){var cur=null;secs.forEach(function(s){if(s.getBoundingClientRect().top<=window.innerHeight*0.4)cur=s});Object.keys(items).forEach(function(k){if(cur&&k===cur.id)items[k].setAttribute('data-active','');else items[k].removeAttribute('data-active')})}var hit=-1;heads.forEach(function(h,i){if(h&&h.getBoundingClientRect().top<=120)hit=i});subs.forEach(function(a,i){if(i===hit)a.setAttribute('aria-current','true');else a.removeAttribute('aria-current')})}var busy=false;window.addEventListener('scroll',function(){if(busy)return;busy=true;requestAnimationFrame(function(){busy=false;run()})},{passive:true});window.addEventListener('resize',run);run()})();`;
 
 /** A small copy button on every code block. */
@@ -204,15 +205,21 @@ export function projectOf(config, rel) {
 const dropFirstH1 = (html) => html.replace(/<h1[^>]*>[\s\S]*?<\/h1>\s*/, '');
 const shiftHeadings = (html) => html.replace(/<(\/?)h([1-5])(?=[\s>])/g, (m, slash, n) => `<${slash}h${Number(n) + 1}`);
 const namespaced = (html, id) => html.replace(/\sid="([^"]+)"/g, (m, x) => ` id="${id}-${x}"`).replace(/href="#([^"]+)"/g, (m, x) => `href="#${id}-${x}"`);
-export function relocate(html, dir) {
-  if (!dir || dir === '.') return html;
+/** Links written in one folder, rewritten to read from another (both relative to the site root). */
+export function rebase(html, fromDir, toDir = '') {
   return html.replace(/(href|src)="([^"]*)"/g, (m, attr, val) => {
     const v = val.replace(/&amp;/g, '&');
     if (!v || /^([a-z][a-z0-9+.-]*:|#|\/\/)/i.test(v)) return m;
     const [file, ...rest] = v.split('#');
-    const joined = path.posix.normalize(path.posix.join(dir, file || '.'));
-    return `${attr}="${((joined === '.' ? './' : joined) + (rest.length ? `#${rest.join('#')}` : '')).replace(/&/g, '&amp;')}"`;
+    const joined = path.posix.normalize(path.posix.join(fromDir || '.', file || '.'));
+    const there = path.posix.relative(toDir || '.', joined) || './';
+    const slash = file.endsWith('/') && !there.endsWith('/') ? '/' : ''; // a folder link keeps its slash
+    return `${attr}="${(there + slash + (rest.length ? `#${rest.join('#')}` : '')).replace(/&/g, '&amp;')}"`;
   });
+}
+export function relocate(html, dir) {
+  if (!dir || dir === '.') return html;
+  return rebase(html, dir, '');
 }
 
 const KEYWORDS = new Set(['const', 'let', 'var', 'function', 'return', 'await', 'async', 'import', 'from', 'export', 'if', 'else', 'for', 'new', 'class', 'throw', 'try', 'catch', 'test', 'expect']);
@@ -265,7 +272,7 @@ export function enhanceCodeBlocks(html) {
   return html.replace(/<pre><code(?: class="language-([\w-]+)")?>([\s\S]*?)<\/code><\/pre>/g, (m, lang, code) => codeBox(decodeEntities(code), lang ?? 'text'));
 }
 
-const STAGE_MERMAID = `import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.4.0/dist/mermaid.esm.min.mjs';var s=getComputedStyle(document.documentElement);var v=function(n){return s.getPropertyValue(n).trim()};var dark=document.documentElement.getAttribute('data-theme')==='dark';mermaid.initialize({startOnLoad:true,theme:'base',flowchart:{curve:'basis',padding:18},themeVariables:{fontFamily:'Poppins, system-ui, sans-serif',fontSize:'16px',background:v('--bg'),primaryColor:dark?'#23304a':'#eaf1ff',primaryBorderColor:v('--accent'),primaryTextColor:v('--text'),secondaryColor:v('--surface-3'),tertiaryColor:v('--surface-2'),lineColor:v('--text-3'),textColor:v('--text'),edgeLabelBackground:v('--surface-2'),clusterBkg:v('--surface-2'),clusterBorder:v('--border-strong')}});`;
+const STAGE_MERMAID = `import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.4.0/dist/mermaid.esm.min.mjs';var s=getComputedStyle(document.documentElement);var v=function(n){return s.getPropertyValue(n).trim()};var dark=document.documentElement.getAttribute('data-theme')==='dark';mermaid.initialize({startOnLoad:false,theme:'base',flowchart:{curve:'basis',padding:18},themeVariables:{fontFamily:'Poppins, system-ui, sans-serif',fontSize:'16px',background:v('--bg'),primaryColor:dark?'#23304a':'#eaf1ff',primaryBorderColor:v('--accent'),primaryTextColor:v('--text'),secondaryColor:v('--surface-3'),tertiaryColor:v('--surface-2'),lineColor:v('--text-3'),textColor:v('--text'),edgeLabelBackground:v('--surface-2'),clusterBkg:v('--surface-2'),clusterBorder:v('--border-strong')}});try{var o=JSON.parse(sessionStorage.getItem('foldsOpen')||'null');sessionStorage.removeItem('foldsOpen');if(o)[].forEach.call(document.querySelectorAll('details'),function(d,i){d.open=!!o[i]})}catch(e){}var shown=function(n){var d=n.closest('details');return !d||d.open};mermaid.run({nodes:[].filter.call(document.querySelectorAll('pre.mermaid'),shown)});[].forEach.call(document.querySelectorAll('details'),function(d){d.addEventListener('toggle',function(){if(d.open)mermaid.run({nodes:d.querySelectorAll('pre.mermaid:not([data-processed])')})})});`;
 
 /** The Word handouts a course names, turned into page content. Run once before the build: the conversion is asynchronous and the build is not. */
 export async function convertHandouts(root, config) {
@@ -293,6 +300,25 @@ function swapSection(html, headingId) {
   const close = html.indexOf('</h2>', open) + 5;
   const next = html.indexOf('<h2', close);
   return `${html.slice(0, close)}\n${INLINE_TOKEN}\n${next === -1 ? '' : html.slice(next)}`;
+}
+
+const FOLD_BLOCK = /<!-- site:fold -->[\s\S]*?<!-- \/site:fold -->/;
+
+/**
+ * The long version of a project, folded under the short one. The page holds a site:fold block with a plain link (what GitHub shows);
+ * the site swaps it for the card's `full` Markdown in a closed <details>. Its headings sit `levels` below the page's and its ids carry `ns`,
+ * so they stay out of the left list and never repeat the page's. `toDir` is the folder the page's links read from ('' on the home page).
+ */
+function withFold(html, c, root, { levels, ns, toDir }) {
+  const has = FOLD_BLOCK.test(html);
+  if (!c.full) {
+    if (has) throw new Error(`${c.path} has a site:fold block, but its card has no "full" file`);
+    return { html, hasMermaid: false };
+  }
+  if (!has) throw new Error(`${c.path}: its card names ${c.full} as the full version, so the page needs a site:fold block`);
+  const { html: rendered, hasMermaid } = renderMarkdown(fs.readFileSync(path.join(root, c.full), 'utf8'));
+  const body = rebase(namespaced(shiftBy(dropFirstH1(applyComponents(enhanceCodeBlocks(rendered), c.components)), levels), ns), path.posix.dirname(c.full), toDir);
+  return { hasMermaid, html: html.replace(FOLD_BLOCK, () => `<details class="fold"><summary>Read the Full Version</summary><div class="fold-body">\n${body}</div></details>`) };
 }
 
 /** The pages and handouts a course names, written out one after another instead of listed as links. */
@@ -399,6 +425,7 @@ ${main}
 <script>${TOGGLE_SCRIPT}</script>
 <script>${SPY_SCRIPT}</script>
 <script>${COPY_SCRIPT}</script>
+<script>${FOLD_SCRIPT}</script>
 ${main.includes('data-site="') ? `<script>${COMPONENT_SCRIPT}</script>` : ''}
 ${hasMermaid ? `<script type="module">${STAGE_MERMAID}</script>` : ''}
 </body>
@@ -416,10 +443,11 @@ export function stageReadingPage({ config, rel, html, title, hasMermaid, descrip
   let heads = headingsOf(html, 2).map((h) => ({ text: h.text, href: `#${h.id}` }));
   if (inline) heads = withItemHeads(heads, inline.heads, c.inlineIn ?? 'materials');
   const text = (x) => (inline ? x.replace(INLINE_TOKEN, inline.html) : x);
+  const article = own ? withFold(applyComponents(text(enhanceCodeBlocks(dropFirstH1(source))), c.components), c, root, { levels: 1, ns: `${cardId(c)}-full`, toDir: path.posix.dirname(c.path) }) : { html: '', hasMermaid: false };
   const main = own
-    ? `${projectHead(c, 1, prefix)}\n${inline ? '' : subnav}<article class="prose">\n${applyComponents(text(enhanceCodeBlocks(dropFirstH1(source))), c.components)}</article>`
+    ? `${projectHead(c, 1, prefix)}\n${inline ? '' : subnav}<article class="prose">\n${article.html}</article>`
     : `${subnav}<article class="prose">\n${enhanceCodeBlocks(html)}</article>`;
-  return stageShell({ config, title, description, depth, main, hasMermaid, nav: sideNav(config, { prefix, home: false, current: c ? cardId(c) : '', subs: c ? { [cardId(c)]: heads } : {}, about: hasAbout(root), overview: hasOverview(root) }) });
+  return stageShell({ config, title, description, depth, main, hasMermaid: hasMermaid || article.hasMermaid, nav: sideNav(config, { prefix, home: false, current: c ? cardId(c) : '', subs: c ? { [cardId(c)]: heads } : {}, about: hasAbout(root), overview: hasOverview(root) }) });
 }
 
 /** The home page: the chips, then every project in full on the same page, one after the other. */
@@ -436,9 +464,11 @@ export function stageHomePage({ config, root }) {
       body = body.replace(INLINE_TOKEN, inline.html);
       heads = withItemHeads(heads, inline.heads, c.inlineIn ?? 'materials');
     }
+    const fold = withFold(body, c, root, { levels: 2, ns: `${id}-full`, toDir: '' });
+    body = fold.html;
     return {
       id,
-      hasMermaid,
+      hasMermaid: hasMermaid || fold.hasMermaid,
       heads,
       section: `<section class="project" id="${id}">\n${projectHead(c, 2, '')}\n<div class="prose embedded">\n${body}</div>\n<p class="to-top"><a href="#projects">&#8593; Back to ${escapeHtml(config.sectionTitle)}</a></p>\n</section>`,
     };

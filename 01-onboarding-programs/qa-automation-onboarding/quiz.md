@@ -1,6 +1,6 @@
 # Quiz
 
-Ten questions, given after Day 9. One point each. Eight or more means you are ready for the practical round. Fewer than eight means going back over the days in the table below before Day 10. The trainer keeps the answers and gives feedback on every one, right or wrong, in the session.
+Ten questions, given after Day 9. One point each. Eight or more means you are ready for the practical round. Fewer than eight means going back over the days in the table below before Day 10. The course page has the same quiz one question at a time, with the right answer and a reason after each pick.
 
 ## Questions
 
@@ -17,14 +17,3 @@ Ten questions, given after Day 9. One point each. Eight or more means you are re
 9. In an automated test, what is the difference between a selector and an assertion?
 10. Which tool records your clicks in a browser and turns them into a starting test?
 
-## Where to Review
-
-| Questions | Review |
-|---|---|
-| 1 and 2 | Day 1: VS Code for beginners |
-| 3 and 4 | Day 2: The command line |
-| 5 and 6 | Day 3 notes in the cheat sheet, then the Day 5 practice |
-| 7 | Day 7: Your first Playwright test |
-| 8 | Day 9: Writing tests with AI help |
-| 9 | Day 8: Selectors and assertions |
-| 10 | Days 7 and 10: Recording a test |

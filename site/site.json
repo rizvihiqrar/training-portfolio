@@ -37,45 +37,396 @@
       ],
       "visual": "docs/assets/visuals/qa-onboarding.svg",
       "visualAlt": "Looping illustration: a plain-words prompt in VS Code becomes a Playwright test that runs and passes.",
-      "code": "Write a function that checks a password has at least 8 characters, a number and a capital letter.",
+      "code": "On the login page, enter a valid email and password, click Sign in, and check that the dashboard heading appears. Write this as a Playwright test.",
       "codeLang": "text",
       "oneLiner": "Ten one-hour days take a tester who has never written code to a running Playwright test.",
-      "inlineIn": "materials",
-      "inline": [
-        {
-          "title": "Day 5 Lesson Plan",
-          "md": "lesson-plan-day-5-practice.md"
+      "codeLabel": "Prompt",
+      "full": "01-onboarding-programs/qa-automation-onboarding/full/qa-automation-onboarding-full.md",
+      "components": {
+        "runs": {
+          "login": {
+            "tab": "login.spec.ts",
+            "chat": "On the login page, enter a valid email and password, click Sign in, and check that the dashboard heading appears. Write this as a Playwright test.",
+            "alt": "Animated example: a prompt in Copilot Chat produces a Playwright test in login.spec.ts, and the test passes.",
+            "lines": [
+              {
+                "code": "import { test, expect } from '@playwright/test';"
+              },
+              {
+                "code": "test('user sees the dashboard after signing in', async ({ page }) => {"
+              },
+              {
+                "code": "  await page.goto('/login');"
+              },
+              {
+                "code": "  await page.getByLabel('Email').fill('learner@example.com');"
+              },
+              {
+                "code": "  await page.getByRole('button', { name: 'Sign in' }).click();"
+              },
+              {
+                "code": "  await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();"
+              },
+              {
+                "code": "});"
+              },
+              {
+                "cls": "ok",
+                "segs": [
+                  [
+                    "p",
+                    "$"
+                  ],
+                  [
+                    "",
+                    "npx playwright test"
+                  ],
+                  [
+                    "n",
+                    "1 passed"
+                  ]
+                ],
+                "bar": {
+                  "w": 100
+                }
+              }
+            ]
+          }
         },
-        {
-          "title": "Quiz",
-          "md": "quiz.md"
+        "schedule": {
+          "weeks": [
+            {
+              "title": "Week 1: Foundations, VS Code and AI Tools",
+              "days": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            {
+              "title": "Week 2: Playwright and AI Help",
+              "days": [
+                6,
+                7,
+                8,
+                9,
+                10
+              ]
+            }
+          ],
+          "days": [
+            {
+              "n": 1,
+              "title": "VS Code for Beginners",
+              "goal": "Find your way around VS Code and its terminal.",
+              "time": "60 min (watch the first hour)",
+              "source": "freeCodeCamp",
+              "video": "UTQp6mvhb0Y"
+            },
+            {
+              "n": 2,
+              "title": "Command Line Crash Course",
+              "goal": "Use the few terminal commands testers need.",
+              "time": "45 min",
+              "source": "Traversy Media",
+              "video": "uwAqEzhyjtw"
+            },
+            {
+              "n": 3,
+              "title": "GitHub Foundations: GitHub Copilot",
+              "goal": "See how AI suggests code as you type.",
+              "time": "30 min",
+              "source": "Pluralsight",
+              "link": "https://www.pluralsight.com/courses/github-foundations-github-copilot"
+            },
+            {
+              "n": 4,
+              "title": "Get to Know GitHub Copilot in VS Code",
+              "goal": "Watch a short demo, then try it yourself.",
+              "time": "5 min plus practice",
+              "source": "Visual Studio Code",
+              "video": "jXp5D5ZnxGM"
+            },
+            {
+              "n": 5,
+              "title": "Practice Day",
+              "goal": "Ask Copilot for three things in everyday words.",
+              "time": "60 min",
+              "source": "Hands-on"
+            },
+            {
+              "n": 6,
+              "title": "What Is Automated Testing?",
+              "goal": "Understand what automation does and where AI fits.",
+              "time": "16 min plus discussion",
+              "source": "Testopic",
+              "video": "pQPUs9uaKUM"
+            },
+            {
+              "n": 7,
+              "title": "Get Started With Playwright and VS Code",
+              "goal": "Set up and run your first test in VS Code.",
+              "time": "20 min plus practice",
+              "source": "Playwright",
+              "video": "WvsLGZnHmzw"
+            },
+            {
+              "n": 8,
+              "title": "Playwright Foundations With TypeScript",
+              "goal": "Choose selectors and write checks that can fail.",
+              "time": "60 min (selectors and assertions only)",
+              "source": "Pluralsight",
+              "link": "https://www.pluralsight.com/courses/playwright-for-typescript"
+            },
+            {
+              "n": 9,
+              "title": "Test Like a Pro With Playwright and Copilot",
+              "goal": "Describe a test in everyday words and let Copilot write it.",
+              "time": "15 min plus practice",
+              "source": "Visual Studio Code",
+              "video": "rjbaIVOGfyo"
+            },
+            {
+              "n": 10,
+              "title": "Practical Round",
+              "goal": "Test one real flow with the recorder and Copilot.",
+              "time": "60 min",
+              "source": "Hands-on"
+            }
+          ],
+          "download": {
+            "label": "Download the Printable Schedule",
+            "href": "materials/qa-automation-2-week-schedule.docx"
+          }
         },
-        {
-          "title": "Day 10 Scoring Guide",
-          "md": "rubric-day-10-practical-round.md"
+        "quiz": {
+          "pass": 8,
+          "passMessage": "Ready for the practical round.",
+          "failMessage": "Review the course days before Day 10.",
+          "questions": [
+            {
+              "q": "Which keyboard shortcut opens the integrated terminal in VS Code?",
+              "options": [
+                "Ctrl+`",
+                "Ctrl+Shift+T",
+                "Alt+F4"
+              ],
+              "answer": 0,
+              "why": "It opens the terminal inside VS Code."
+            },
+            {
+              "q": "What does the Command Palette (Ctrl+Shift+P) do?",
+              "options": [
+                "Runs any VS Code action when you type its name",
+                "Shows your open files",
+                "Saves the project"
+              ],
+              "answer": 0,
+              "why": "Type what you want and VS Code finds the action."
+            },
+            {
+              "q": "In a terminal, what does pwd show you?",
+              "options": [
+                "The folder you are in",
+                "Your password",
+                "A list of files"
+              ],
+              "answer": 0,
+              "why": "pwd prints the working directory."
+            },
+            {
+              "q": "What does npm install do?",
+              "options": [
+                "Installs the packages a project lists in package.json",
+                "Runs your tests",
+                "Starts VS Code"
+              ],
+              "answer": 0,
+              "why": "It reads package.json and installs what the project needs."
+            },
+            {
+              "q": "Copilot shows grey suggestion text. How do you accept and dismiss it?",
+              "options": [
+                "Tab to accept, Esc to dismiss",
+                "Enter to accept, Delete to dismiss",
+                "Ctrl+S to accept, Ctrl+Z to dismiss"
+              ],
+              "answer": 0,
+              "why": "Tab accepts ghost text and Esc dismisses it."
+            },
+            {
+              "q": "Why read Copilot's code before relying on it?",
+              "options": [
+                "It can be wrong or incomplete",
+                "It is always correct",
+                "It runs faster that way"
+              ],
+              "answer": 0,
+              "why": "AI suggests, you review: it can miss cases or be wrong."
+            },
+            {
+              "q": "Which command runs a Playwright test suite?",
+              "options": [
+                "npx playwright test",
+                "npm start",
+                "node install"
+              ],
+              "answer": 0,
+              "why": "It runs every test in the project."
+            },
+            {
+              "q": "Which prompt is better for Copilot, A: Write a test. or B: On /checkout, write a test that checks the total changes when the quantity changes.",
+              "options": [
+                "A: Write a test.",
+                "B: On /checkout, write a test that checks the total changes when the quantity changes."
+              ],
+              "answer": 1,
+              "why": "B names the page, the action and the expected result."
+            },
+            {
+              "q": "In an automated test, what is the difference between a selector and an assertion?",
+              "options": [
+                "A selector finds an element, an assertion checks the result",
+                "They are the same thing",
+                "An assertion finds an element, a selector checks the result"
+              ],
+              "answer": 0,
+              "why": "Find the thing, then check what it shows."
+            },
+            {
+              "q": "Which tool records your clicks and turns them into a starting test?",
+              "options": [
+                "Playwright codegen (the recorder)",
+                "The Command Palette",
+                "npm install"
+              ],
+              "answer": 0,
+              "why": "Codegen records a flow and writes a first test you then improve."
+            }
+          ]
         },
-        {
-          "title": "Feedback Form",
-          "md": "survey.md"
+        "feedback": {
+          "statements": [
+            "The plan was the right amount for one hour a day.",
+            "The order of the days made sense.",
+            "The practice days helped me more than the videos.",
+            "I can use VS Code and the terminal without help.",
+            "I can write and run a basic automated test with AI help.",
+            "I can tell when an AI suggestion needs checking."
+          ],
+          "questions": [
+            "Which day was hardest, and what would have made it easier?",
+            "What would you cut, and what would you add?"
+          ]
         },
-        {
-          "title": "Two-Week Schedule",
-          "docx": "materials/qa-automation-2-week-schedule.docx"
+        "downloads": [
+          {
+            "title": "Ten-Day Cheat Sheet",
+            "line": "One page of keys and commands for each day.",
+            "href": "materials/qa-automation-10-day-cheat-sheet.docx"
+          },
+          {
+            "title": "Testing Types Cheat Sheet",
+            "line": "Smoke, regression, integration and the rest in one line each.",
+            "href": "materials/testing-types-cheat-sheet.docx"
+          }
+        ],
+        "download": {
+          "label": "Download the Word Template",
+          "href": "materials/test-strategy-and-automation-test-plan-template.docx"
         },
-        {
-          "title": "Ten-Day Cheat Sheet",
-          "docx": "materials/qa-automation-10-day-cheat-sheet.docx"
-        },
-        {
-          "title": "Testing Types Cheat Sheet",
-          "docx": "materials/testing-types-cheat-sheet.docx"
-        },
-        {
-          "title": "Test Strategy and Automation Test Plan Template",
-          "docx": "materials/test-strategy-and-automation-test-plan-template.docx"
+        "tree": {
+          "nodes": [
+            {
+              "depth": 0,
+              "kind": "o",
+              "name": "automation-plan",
+              "title": "The project folder",
+              "text": "Everything for the tests lives here.",
+              "like": "Like the binder that holds every page.",
+              "inside": "Inside: the workflow instructions, the tests, the page cheat sheets and the settings."
+            },
+            {
+              "depth": 1,
+              "kind": "o",
+              "name": ".github/workflows",
+              "title": "Instructions for GitHub",
+              "text": "It tells GitHub what to run, and when.",
+              "like": "Like a standing order: do this every time.",
+              "inside": "Inside: playwright.yml."
+            },
+            {
+              "depth": 2,
+              "kind": "yml",
+              "name": "playwright.yml",
+              "title": "The robot's to-do list",
+              "text": "It runs the tests for you whenever someone changes the code, so nobody has to remember.",
+              "like": "Like an alarm that rings the moment something changes."
+            },
+            {
+              "depth": 1,
+              "kind": "o",
+              "name": "tests",
+              "title": "All the checks, in one place",
+              "text": "Each file here is one check of the website.",
+              "like": "Like the items on an inspection sheet.",
+              "inside": "Inside: smoke and regression."
+            },
+            {
+              "depth": 2,
+              "kind": "o",
+              "name": "smoke",
+              "title": "The quick checks",
+              "text": "A few fast checks of the most important things. If one fails, stop and fix it first.",
+              "like": "Like glancing at the dashboard before driving off.",
+              "inside": "Inside: login.smoke.spec.ts."
+            },
+            {
+              "depth": 3,
+              "kind": "ts",
+              "name": "login.smoke.spec.ts",
+              "title": "One check: can a person sign in?",
+              "text": "Open the page, enter details, press Sign in, and see that it worked.",
+              "like": "Like trying the front door key."
+            },
+            {
+              "depth": 2,
+              "kind": "c",
+              "name": "regression",
+              "title": "The bigger checks",
+              "text": "A larger set that makes sure old features still work after a change. Closed here to keep the picture short.",
+              "like": "Like a full service, not just a glance."
+            },
+            {
+              "depth": 1,
+              "kind": "o",
+              "name": "page-objects",
+              "title": "Cheat sheets for each page",
+              "text": "They name each button and box once. When the page changes, you fix one place, not every check.",
+              "like": "Like a labelled floor plan.",
+              "inside": "Inside: LoginPage.ts."
+            },
+            {
+              "depth": 2,
+              "kind": "ts",
+              "name": "LoginPage.ts",
+              "title": "The sign-in page's cheat sheet",
+              "text": "It says where the email box, the password box and the Sign in button are.",
+              "like": "Like the labels on a fuse box."
+            },
+            {
+              "depth": 1,
+              "kind": "ts",
+              "name": "playwright.config.ts",
+              "title": "The settings",
+              "text": "Which browser to use, how long to wait, and where the website lives.",
+              "like": "Like the settings screen on a phone."
+            }
+          ]
         }
-      ],
-      "codeLabel": "Prompt"
+      }
     },
     {
       "label": "Course",
@@ -126,38 +477,7 @@
       "summary": "An onboarding kit and a go-live training plan for a made-up customer."
     }
   ],
-  "courseNav": [
-    {
-      "folder": "01-onboarding-programs/qa-automation-onboarding",
-      "items": [
-        {
-          "file": "README.md",
-          "label": "Overview"
-        },
-        {
-          "file": "lesson-plan-day-5-practice.md",
-          "label": "Lesson Plan"
-        },
-        {
-          "file": "quiz.md",
-          "label": "Quiz"
-        },
-        {
-          "file": "rubric-day-10-practical-round.md",
-          "label": "Scoring Guide"
-        },
-        {
-          "file": "survey.md",
-          "label": "Feedback Form"
-        },
-        {
-          "file": "README.md",
-          "label": "Downloads",
-          "anchor": "materials"
-        }
-      ]
-    }
-  ],
+  "courseNav": [],
   "siteUrl": "https://rizvihiqrar.github.io/training-portfolio/",
   "footerNote": "Every company, system and person here is made up.",
   "contact": {

@@ -8,6 +8,7 @@
 //
 // GitHub hides the comments and shows the plain version. The site swaps the whole block for the piece, filled from the
 // card's `components` in site.json (`runs.<id>` for an animated result). A piece with no data, or an unknown kind, fails the build.
+// A `fold` block is not a piece: build.mjs swaps it for the card's long version.
 // This file, build.mjs and stage.css are the same in the product and training portfolios: engine.sha256 pins them.
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -17,6 +18,20 @@ export const MAX_RUN_LINES = 14; // the animation's CSS has timing for this many
 const VIDEO_ID = /^[\w-]{11}$/;
 
 const DOWNLOAD_ICON = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/></svg>';
+
+const CODE_WORDS = new Set(['import', 'from', 'await', 'async', 'const', 'let', 'return']);
+
+/** One line of source as coloured pieces: words that are code keywords, strings, and names that are called. Spaces are kept. */
+export function codeSegs(line) {
+  const out = [];
+  for (const m of line.matchAll(/('(?:[^'\\]|\\.)*')|([A-Za-z_]\w*)(?=\()|([A-Za-z_]\w*)|(\s+|[^\sA-Za-z_']+)/g)) {
+    if (m[1]) out.push(['st', m[1]]);
+    else if (m[2]) out.push(['fn', m[2]]);
+    else if (m[3]) out.push([CODE_WORDS.has(m[3]) ? 'kw' : '', m[3]]);
+    else out.push(['', m[4]]);
+  }
+  return out;
+}
 
 function need(cond, message) {
   if (!cond) throw new Error(`site component: ${message}`);
@@ -33,10 +48,12 @@ function run(d) {
   need(d.tab && d.chat && Array.isArray(d.lines) && d.alt, 'a run needs tab, chat, alt and lines');
   need(d.lines.length + 1 <= MAX_RUN_LINES, `a run has at most ${MAX_RUN_LINES - 1} lines besides the prompt`);
   const lines = d.lines.map((line) => {
-    need(Array.isArray(line.segs) && line.segs.length, 'every line of a run needs segs');
-    const segs = line.segs.map(([cls, text]) => (cls ? `<span class="${esc(cls)}">${esc(text)}</span>` : esc(text))).join('');
+    need(typeof line.code === 'string' || (Array.isArray(line.segs) && line.segs.length), 'every line of a run needs segs or code');
+    const pieces = typeof line.code === 'string' ? codeSegs(line.code) : line.segs;
+    const segs = pieces.map(([cls, text]) => (cls ? `<span class="${esc(cls)}">${esc(text)}</span>` : esc(text))).join('');
     const bar = line.bar ? ` <span class="b ${esc(line.bar.c ?? '')}"><i style="--w:${percent(line.bar.w, 'a bar width')}%"></i></span>` : '';
-    return `<div class="l${line.cls ? ` ${esc(line.cls)}` : ''}">${segs}${bar}</div>`;
+    const cls = [typeof line.code === 'string' ? 'code' : '', line.cls ?? ''].filter(Boolean).join(' ');
+    return `<div class="l${cls ? ` ${esc(cls)}` : ''}">${segs}${bar}</div>`;
   }).join('\n');
   return `<div class="run" role="img" aria-label="${esc(d.alt)}"><div class="bar"><span class="tab">${esc(d.tab)}</span><span>Copilot Chat</span></div><div class="body">\n<div class="l chat"><b>COPILOT CHAT</b>${esc(d.chat)}</div>\n${lines}\n</div></div>`;
 }
@@ -145,6 +162,7 @@ const RENDERERS = {
 /** Swaps every site block in rendered HTML for its piece. `data` is the card's `components`. */
 export function applyComponents(html, data = {}) {
   return html.replace(COMPONENT_BLOCK, (whole, kind, id) => {
+    if (kind === 'fold') return whole; // the long version is folded in by build.mjs, which reads the card's full file
     const render = RENDERERS[kind];
     need(render, `unknown piece "${kind}"`);
     const part = kind === 'run' ? data.runs?.[id] : data[kind];
