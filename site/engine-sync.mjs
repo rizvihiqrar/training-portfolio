@@ -20,7 +20,7 @@ export function manifest(dir = here('.')) {
 
 /** Names of the files whose hash differs between two manifests. */
 export function differing(a, b) {
-  const parse = (m) => new Map(m.trim().split('\n').map((l) => l.split(/\s+/).reverse()));
+  const parse = (m) => new Map(m.trim().split(/\r?\n/).map((l) => l.trim().replace(/\s\*/, ' ').split(/\s+/).reverse())); // CRLF line endings (a Windows checkout) and sha256sum's * marker
   const x = parse(a), y = parse(b);
   return ENGINE_FILES.filter((f) => x.get(f) === undefined || x.get(f) !== y.get(f)); // a file missing from a list is a difference too
 }
