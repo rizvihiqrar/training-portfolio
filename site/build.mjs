@@ -106,7 +106,7 @@ ${subnav}${body}
 </main>
 <footer class="site-footer"><div class="wrap"><p>${escapeHtml(config.name)}. ${escapeHtml(config.footerNote)} <a href="mailto:${escapeHtml(config.contact.email)}">Send an Email</a> · <a href="${escapeHtml(config.contact.linkedin)}">LinkedIn</a> · <a href="${escapeHtml(config.repo)}">Source on GitHub</a></p></div></footer>
 <script>${TOGGLE_SCRIPT}</script>
-${hasMermaid ? `<script type="module">${MERMAID_SCRIPT}</script>` : ''}
+${hasMermaid && `${subnav}${body}`.includes('<pre class="mermaid"') ? `<script type="module">${MERMAID_SCRIPT}</script>` : ''}
 </body>
 </html>
 `;
@@ -316,9 +316,9 @@ function withFold(html, c, root, { levels, ns, toDir }) {
     return { html, hasMermaid: false };
   }
   if (!has) throw new Error(`${c.path}: its card names ${c.full} as the full version, so the page needs a site:fold block`);
-  const { html: rendered, hasMermaid } = renderMarkdown(fs.readFileSync(path.join(root, c.full), 'utf8'));
+  const { html: rendered } = renderMarkdown(fs.readFileSync(path.join(root, c.full), 'utf8'));
   const body = rebase(namespaced(shiftBy(dropFirstH1(applyComponents(enhanceCodeBlocks(rendered), c.components)), levels), ns), path.posix.dirname(c.full), toDir);
-  return { hasMermaid, html: html.replace(FOLD_BLOCK, () => `<details class="fold"><summary>Read the Full Version</summary><div class="fold-body">\n${body}</div></details>`) };
+  return { hasMermaid: body.includes('<pre class="mermaid"'), html: html.replace(FOLD_BLOCK, () => `<details class="fold"><summary>Read the Full Version</summary><div class="fold-body">\n${body}</div></details>`) };
 }
 
 /** The pages and handouts a course names, written out one after another instead of listed as links. */
@@ -427,7 +427,7 @@ ${main}
 <script>${COPY_SCRIPT}</script>
 <script>${FOLD_SCRIPT}</script>
 ${main.includes('data-site="') ? `<script>${COMPONENT_SCRIPT}</script>` : ''}
-${hasMermaid ? `<script type="module">${STAGE_MERMAID}</script>` : ''}
+${hasMermaid && main.includes('<pre class="mermaid"') ? `<script type="module">${STAGE_MERMAID}</script>` : ''}
 </body>
 </html>
 `;
