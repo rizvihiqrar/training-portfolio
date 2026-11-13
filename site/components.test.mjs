@@ -263,3 +263,26 @@ test('the picker sends a token down the path, lights the stages one after anothe
   assert.match(scope, /clearTimeout/, 'picking another case stops the one still running');
   assert.match(scope, /IntersectionObserver/, 'the first case plays when the picker scrolls into view');
 });
+
+test('the picker\'s own note does not borrow the site\'s skip-link class, which parks an element off-screen (the break: call it skip again)', () => {
+  const html = applyComponents(block('scope'), { scope: scopeData() });
+  assert.doesNotMatch(html, /class="skip"/, 'the skip-link class is not used');
+  assert.match(html, /<em class="sc-skip">/);
+  const css = fs.readFileSync(new URL('./stage.css', import.meta.url), 'utf8');
+  assert.doesNotMatch(css, /\.nd\.chk(\.lit)? \.skip\b/, 'the stylesheet does not target the skip-link class either');
+});
+
+test('the picker plays by itself: it loops through the cases while on screen, a click pauses it for a while, and reduced motion never starts it (the break: start it with reduced motion)', () => {
+  const js = COMPONENT_SCRIPT.slice(COMPONENT_SCRIPT.indexOf("each('[data-site=\"scope\"]'"));
+  assert.match(js, /function startAuto\(\)\{if\(calm\|\|auto\|\|!visible\)return;auto=setInterval\(function\(\)\{pick\(\(cur\+1\)%sc\.length\)\}/, 'it moves on to the next case, wrapping round, only when calm is off and the picker is visible');
+  assert.match(js, /pick\(i\);stopAuto\(\);clearTimeout\(idle\);idle=setTimeout\(startAuto,\d{4,}\)/, 'a click shows that case and pauses the loop for several seconds');
+  assert.match(js, /else stopAuto\(\)/, 'it stops when the picker scrolls out of view');
+  assert.match(js, /function pick\(i\)\{cur=i;/, 'the loop carries on from the case that was picked');
+});
+
+test('the picker buttons share one row on a wide screen and wrap again on a phone', () => {
+  const css = fs.readFileSync(new URL('./stage.css', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
+  assert.match(css, /\.sc-pick \{ display: flex; flex-wrap: nowrap;/);
+  assert.match(css, /\.sc-pick button \{ flex: 1 1 0; min-width: 0;/);
+  assert.match(css, /@media \(max-width: 760px\) \{[\s\S]*?\.sc-pick \{ flex-wrap: wrap; \}/, 'a phone wraps them');
+});
