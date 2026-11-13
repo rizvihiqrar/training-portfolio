@@ -456,7 +456,7 @@
         "Length: 4 sessions, 2 hours"
       ],
       "visual": "docs/assets/visuals/git-workflow.svg",
-      "visualAlt": "Looping illustration: a branch leaves the main line, gets two commits, and returns through a pull request while main stays safe.",
+      "visualAlt": "Looping illustration: four Git commands are typed in a terminal while a branch graph grows beside them. A branch leaves main, gets a commit, is pushed to GitHub, goes to review as a pull request and merges while main stays safe.",
       "code": "I changed tests/login.spec.ts and want a teammate to review it. Give me the Git commands in order, and say what each one does in everyday words.",
       "codeLang": "text",
       "oneLiner": "Four 30-minute sessions and eight commands take a tester from no version control to a pull request.",
