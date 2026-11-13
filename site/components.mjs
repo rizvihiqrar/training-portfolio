@@ -193,7 +193,7 @@ function scope(d) {
   const buttons = d.scenarios.map((s, i) => `<button type="button" aria-pressed="${i === 0}"${i === 0 ? ' class="on"' : ''}>${esc(s.label)}</button>`).join('');
   const evNodes = d.events.map((e) => `<div class="nd ev${lit(e.id === first.event)}" data-e="${esc(e.id)}">${esc(text(e.text, 'an event'))}</div>`).join('');
   const answers = ['yes', 'no'].map((a) => `<span class="ans${lit(first.check === a)}" data-a="${a}">${a}</span>`).join('');
-  const check = `<div class="nd chk${lit(first.check !== undefined)}" data-c><span>${esc(text(d.check.text, 'the check'))}</span><span class="answers">${answers}</span><em class="skip">${esc(d.check.skipped ?? 'Not asked for this one')}</em></div>`;
+  const check = `<div class="nd chk${lit(first.check !== undefined)}" data-c><span>${esc(text(d.check.text, 'the check'))}</span><span class="answers">${answers}</span><em class="sc-skip">${esc(d.check.skipped ?? 'Not asked for this one')}</em></div>`;
   for (const o of d.outcomes) need(o.tone === undefined || TONES.includes(o.tone), `outcome ${o.id}: tone must be one of ${TONES.join(', ')}`);
   const toneOf = (o) => o.tone ?? 'purple';
   const outNodes = d.outcomes.map((o) => `<div class="nd out t-${toneOf(o)}${lit(o.id === first.outcome)}" data-o="${esc(o.id)}"><b>${esc(text(o.text, 'an outcome'))}</b><span>${esc(text(o.detail, 'an outcome detail'))}</span></div>`).join('');
@@ -326,7 +326,7 @@ each('[data-site="funnel"]',function(root){
   });
 });
 each('[data-site="scope"]',function(root){
-  var sc=JSON.parse(root.getAttribute('data-scenarios')),btns=root.querySelectorAll('.sc-pick button'),why=root.querySelector('.sc-why'),map=root.querySelector('.sc-map'),tk=root.querySelector('.sc-token'),chk=root.querySelector('[data-c]'),timers=[],calm=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var sc=JSON.parse(root.getAttribute('data-scenarios')),btns=root.querySelectorAll('.sc-pick button'),why=root.querySelector('.sc-why'),map=root.querySelector('.sc-map'),tk=root.querySelector('.sc-token'),chk=root.querySelector('[data-c]'),timers=[],cur=0,auto=null,idle=null,visible=false,calm=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
   function node(attr,v){return root.querySelector('['+attr+'="'+v+'"]')}
   function tone(n){return getComputedStyle(n).getPropertyValue('--tone').trim()}
   function put(n,color,instant){var m=map.getBoundingClientRect(),r=n.getBoundingClientRect();
@@ -335,7 +335,7 @@ each('[data-site="scope"]',function(root){
     if(instant){void tk.offsetWidth;tk.style.transition=''}}
   function clear(){timers.forEach(clearTimeout);timers=[];root.classList.remove('st2','st3');root.querySelectorAll('.lit').forEach(function(n){n.classList.remove('lit')});tk.classList.remove('on')}
   function at(ms,f){timers.push(setTimeout(f,ms))}
-  function pick(i){var s=sc[i],ev=node('data-e',s[0]),out=node('data-o',s[2]),ans=s[1]!==''?node('data-a',s[1]):null;
+  function pick(i){cur=i;var s=sc[i],ev=node('data-e',s[0]),out=node('data-o',s[2]),ans=s[1]!==''?node('data-a',s[1]):null;
     btns.forEach(function(b,k){b.classList.toggle('on',k===i);b.setAttribute('aria-pressed',k===i)});
     clear();
     function showCheck(){root.classList.add('st2');if(ans){chk.classList.add('lit');ans.classList.add('lit')}}
@@ -345,7 +345,9 @@ each('[data-site="scope"]',function(root){
     if(ans){at(450,function(){put(chk,tone(chk))});at(850,showCheck);at(1350,function(){put(out,tone(out))});at(1750,showOut)}
     else{at(450,function(){put(out,tone(out))});at(850,function(){showCheck();showOut()})}
     at(2300,function(){tk.classList.remove('on')});}
-  btns.forEach(function(b,i){b.addEventListener('click',function(){pick(i)})});
-  if(!calm&&'IntersectionObserver' in window){try{var io=new IntersectionObserver(function(es){if(es[0].isIntersecting){io.disconnect();pick(0)}},{rootMargin:'0px 0px -20% 0px'});io.observe(root)}catch(e){}}
+  function stopAuto(){clearInterval(auto);auto=null}
+  function startAuto(){if(calm||auto||!visible)return;auto=setInterval(function(){pick((cur+1)%sc.length)},4800)}
+  btns.forEach(function(b,i){b.addEventListener('click',function(){pick(i);stopAuto();clearTimeout(idle);idle=setTimeout(startAuto,12000)})});
+  if(!calm&&'IntersectionObserver' in window){try{var seen=false,io=new IntersectionObserver(function(es){visible=es[0].isIntersecting;if(visible){if(!seen){seen=true;pick(0)}startAuto()}else stopAuto()},{rootMargin:'0px 0px -20% 0px'});io.observe(root)}catch(e){}}
 });
 })();`;
