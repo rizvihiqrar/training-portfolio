@@ -662,6 +662,201 @@
       }
     },
     {
+      "label": "Guide",
+      "title": "Jira for New Testers",
+      "path": "04-technical-enablement/jira-workflow-guide/README.md",
+      "image": "docs/assets/previews/04-jira-guide.png",
+      "imageAlt": "Title card: Jira for New Testers",
+      "tags": [
+        "Technical Enablement",
+        "Onboarding"
+      ],
+      "summary": "A tester who has never used Jira learns to write a bug ticket another person can reproduce, and to know whose turn each of six statuses is. Three sessions of 30 minutes.",
+      "button": "Open Guide",
+      "facts": [
+        "Audience: testers new to Jira",
+        "Tools: Jira (free account)",
+        "Length: 3 sessions, 90 minutes"
+      ],
+      "visual": "docs/assets/visuals/jira-workflow.svg",
+      "visualAlt": "Looping illustration of a Jira board with six columns: one ticket card moves from Raised through Triaged, In Progress and In Test, is sent to Reopened once when a retest fails, and ends in Done.",
+      "code": "Here are my notes from testing the Harbourline login page. Write one Jira bug ticket: a summary under twelve words, numbered steps, the expected result, the actual result and a severity with one reason.",
+      "codeLang": "text",
+      "oneLiner": "Three 30-minute sessions teach a tester to write a ticket others can reproduce and to know whose turn each status is.",
+      "codeLabel": "Prompt",
+      "full": "04-technical-enablement/jira-workflow-guide/full/jira-workflow-guide-full.md",
+      "components": {
+        "runs": {
+          "ticket": {
+            "tab": "Harbourline",
+            "chat": "Here are my notes from testing the Harbourline login page. Write one Jira bug ticket.",
+            "alt": "Animated result: a bug ticket appears with a short summary, three numbered steps, the expected and actual results, a severity and the evidence.",
+            "lines": [
+              {
+                "segs": [
+                  [
+                    "k",
+                    "HBL-11"
+                  ],
+                  [
+                    "",
+                    "Login stays on the page after a correct password"
+                  ]
+                ]
+              },
+              {
+                "segs": [
+                  [
+                    "n",
+                    "Steps"
+                  ]
+                ]
+              },
+              {
+                "segs": [
+                  [
+                    "",
+                    "1. Open the Harbourline login page"
+                  ]
+                ]
+              },
+              {
+                "segs": [
+                  [
+                    "",
+                    "2. Enter a valid email and password"
+                  ]
+                ]
+              },
+              {
+                "segs": [
+                  [
+                    "",
+                    "3. Select Sign in"
+                  ]
+                ]
+              },
+              {
+                "segs": [
+                  [
+                    "g",
+                    "Expected:"
+                  ],
+                  [
+                    "",
+                    "the booking page opens"
+                  ]
+                ]
+              },
+              {
+                "segs": [
+                  [
+                    "n",
+                    "Actual:"
+                  ],
+                  [
+                    "",
+                    "the login page reloads with no message"
+                  ]
+                ]
+              },
+              {
+                "segs": [
+                  [
+                    "n",
+                    "Severity:"
+                  ],
+                  [
+                    "",
+                    "High, no customer can book"
+                  ]
+                ]
+              },
+              {
+                "segs": [
+                  [
+                    "n",
+                    "Evidence:"
+                  ],
+                  [
+                    "",
+                    "screen recording attached"
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        "quiz": {
+          "pass": 5,
+          "passMessage": "Ready to work on a real project.",
+          "failMessage": "Go back over the three sessions, then try again.",
+          "questions": [
+            {
+              "q": "A fix is ready and the ticket is In Test. Whose turn is it?",
+              "options": [
+                "The developer’s",
+                "The tester’s",
+                "The triager’s"
+              ],
+              "answer": 1,
+              "why": "The developer has handed it over."
+            },
+            {
+              "q": "Which part of a bug ticket do testers most often leave out?",
+              "options": [
+                "The ticket number",
+                "The summary",
+                "The expected result"
+              ],
+              "answer": 2,
+              "why": "Without it, nobody knows what counts as a bug."
+            },
+            {
+              "q": "A retest still fails. What do you do?",
+              "options": [
+                "Move it to Reopened and add what still fails",
+                "Open a second ticket for the same bug",
+                "Move it to Done and mention it in chat"
+              ],
+              "answer": 0,
+              "why": "Do not open a second ticket for the same bug."
+            },
+            {
+              "q": "Why attach evidence?",
+              "options": [
+                "It makes the ticket look longer",
+                "So the developer can see the bug without asking",
+                "Jira requires it"
+              ],
+              "answer": 1,
+              "why": "A screenshot or recording saves a round trip."
+            },
+            {
+              "q": "What does this query find? project = HBL AND status = \"In Test\"",
+              "options": [
+                "Every ticket in the Harbourline project",
+                "Tickets a tester has finished",
+                "Tickets in the Harbourline project that are waiting for a tester"
+              ],
+              "answer": 2,
+              "why": "The query reads like a sentence: this project, in this status."
+            },
+            {
+              "q": "You moved a ticket to Done, then found a new bug nearby. What now?",
+              "options": [
+                "Raise a new ticket and link it",
+                "Reopen the old ticket and add the new bug",
+                "Add the new bug to the Done ticket’s comments"
+              ],
+              "answer": 0,
+              "why": "A closed ticket should describe one fix."
+            }
+          ]
+        }
+      }
+    },
+    {
       "label": "Sessions",
       "title": "Drop-In Session Decks",
       "status": "planned",
