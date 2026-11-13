@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
-    "test": "node --test build.test.mjs components.test.mjs budget.test.mjs engine-sync.test.mjs phone.test.mjs",
+    "test": "node --test git-guide.test.mjs build.test.mjs components.test.mjs budget.test.mjs engine-sync.test.mjs phone.test.mjs",
     "previews": "node previews.mjs",
     "phone": "node phone-check.mjs"
   },
