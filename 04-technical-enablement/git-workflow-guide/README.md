@@ -1,4 +1,4 @@
-# Git for People New to Version Control
+# Git for New Testers
 
 | At a Glance | |
 |---|---|
