@@ -101,3 +101,19 @@ test('the built guide page has the quiz, the animated result and the folded full
   assert.match(html, /Read the Full Version/);
   assert.match(html, /git switch -c add-login-check/);
 });
+
+test('the card picture types the same commands as the animated result, in the same order (the break: change a command in the picture)', () => {
+  const svg = fs.readFileSync(path.join(root, card.visual), 'utf8').replace(/&quot;/g, '"');
+  const commands = card.components.runs.branch.lines
+    .map((l) => l.segs.map((s) => s[1]).join(' '))
+    .filter((t) => t.startsWith('$ git ') && !t.startsWith('$ git config'))
+    .map((t) => t.replace('$ git ', ''));
+  assert.equal(commands.length, 4, 'four commands are typed');
+  let from = 0;
+  for (const c of commands) {
+    const at = svg.indexOf(c, from);
+    assert.ok(at >= 0, `the picture types: git ${c}`);
+    from = at;
+  }
+  for (const stage of ['Branch', 'Commit', 'Push', 'Review', 'Merged']) assert.ok(svg.includes(`>${stage}<`), `the picture has the stage ${stage}`);
+});
