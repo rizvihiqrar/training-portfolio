@@ -99,7 +99,7 @@ One question at a time. Five or more means you are ready to work on a real proje
 
 ## See Also
 
-Before a ticket is fixed, someone decides whose job the fix is. The product portfolio's [Rejected-Ticket Triage](https://rizvihiqrar.github.io/product-portfolio/case-studies/03-rejected-ticket-triage.html) shows how I decide, and its [Release Notes to a Change Brief](https://rizvihiqrar.github.io/product-portfolio/case-studies/08-release-notes-to-a-change-brief.html) shows what happens to a fixed ticket afterwards.
+Before a ticket is fixed, someone decides whose job the fix is. The product portfolio's [Ticket Triage](https://rizvihiqrar.github.io/product-portfolio/case-studies/03-rejected-ticket-triage.html) shows how I decide, and its [Release Notes to a Change Brief](https://rizvihiqrar.github.io/product-portfolio/case-studies/08-release-notes-to-a-change-brief.html) shows what happens to a fixed ticket afterwards.
 
 <!-- site:fold -->
 

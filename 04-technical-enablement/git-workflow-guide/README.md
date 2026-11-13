@@ -113,7 +113,7 @@ One question at a time. Six or more means you are ready to work on a real projec
 
 ## See Also
 
-A pull request that is sent back is a decision like any other: does the fix belong in the requirement or in the code? The product portfolio's [Rejected-Ticket Triage](https://rizvihiqrar.github.io/product-portfolio/case-studies/03-rejected-ticket-triage.html) shows how I decide.
+A pull request that is sent back is a decision like any other: does the fix belong in the requirement or in the code? The product portfolio's [Ticket Triage](https://rizvihiqrar.github.io/product-portfolio/case-studies/03-rejected-ticket-triage.html) shows how I decide.
 
 <!-- site:fold -->
 
