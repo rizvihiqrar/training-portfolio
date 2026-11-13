@@ -11,7 +11,7 @@
 
 ## Getting Started
 
-Before session 1, the trainer sets up a practice project in Jira called Harbourline (key HBL) and invites each learner. It is made up: a login page, a booking page and ten sample tickets. Learners need a browser and a free Atlassian account to accept the invitation.
+First, make a [free Atlassian account](https://www.atlassian.com/software/jira/free): Jira needs one to accept the invitation. Before session 1, the trainer sets up a practice project in Jira called Harbourline (key HBL) and invites each learner. It is made up: a login page, a booking page and ten sample tickets. Learners need only a browser.
 
 ## The Problem
 
@@ -99,7 +99,7 @@ One question at a time. Five or more means you are ready to work on a real proje
 
 ## See Also
 
-Before a ticket is fixed, someone decides whose job the fix is. The product portfolio's [Ticket Triage](https://rizvihiqrar.github.io/product-portfolio/case-studies/03-rejected-ticket-triage.html) shows how I decide, and its [Release Notes to a Change Brief](https://rizvihiqrar.github.io/product-portfolio/case-studies/08-release-notes-to-a-change-brief.html) shows what happens to a fixed ticket afterwards.
+Before a ticket is fixed, someone decides whose job the fix is. The product portfolio's [Triaging Tickets](https://rizvihiqrar.github.io/product-portfolio/case-studies/03-rejected-ticket-triage.html) shows how I decide, and its [Changes to Release Notes](https://rizvihiqrar.github.io/product-portfolio/case-studies/08-release-notes-to-a-change-brief.html) shows what happens to a fixed ticket afterwards.
 
 <!-- site:fold -->
 
