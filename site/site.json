@@ -440,10 +440,10 @@
     },
     {
       "label": "Guide",
-      "title": "Git for People New to Version Control",
+      "title": "Git for New Testers",
       "path": "04-technical-enablement/git-workflow-guide/README.md",
       "image": "docs/assets/previews/04-git-guide.png",
-      "imageAlt": "Title card: Git for People New to Version Control",
+      "imageAlt": "Title card: Git for New Testers",
       "tags": [
         "Technical Enablement",
         "Onboarding"

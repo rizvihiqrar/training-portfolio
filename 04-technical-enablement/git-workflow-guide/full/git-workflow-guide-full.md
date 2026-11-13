@@ -1,4 +1,4 @@
-# Git for People New to Version Control: Full Version
+# Git for New Testers: Full Version
 
 The longer version of the course page: who it is for, the choices behind it, the four sessions and how learning was checked. All names, files and numbers in the practice project are made up.
 

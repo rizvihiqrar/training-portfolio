@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="t d">
-<title id="t">Git for People New to Version Control</title>
+<title id="t">Git for New Testers</title>
 <desc id="d">An illustration of the guide: a branch leaves the main line, gets two commits, and returns through a pull request while main stays safe.</desc>
 <defs>
 <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d3f5e5"/><stop offset="1" stop-color="#dde8ff"/></linearGradient>
