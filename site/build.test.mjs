@@ -934,3 +934,13 @@ test('the mermaid script is only added to a page that still holds a diagram for 
   assert.doesNotMatch(stagePage('<p>a piece replaced the diagram</p>', true), /cdn\.jsdelivr\.net\/npm\/mermaid/, 'the stage look too');
   assert.match(stagePage('<pre class="mermaid">flowchart LR\n A --> B</pre>', true), /cdn\.jsdelivr\.net\/npm\/mermaid/);
 });
+
+test('the explorer note takes its colour from the file type: the top bar, the kind label and the like line share one variable (red for YAML, blue for TypeScript)', () => {
+  const css = fs.readFileSync(new URL('./stage.css', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
+  const rule = (sel) => css.split('\n').find((l) => l.includes(sel)) ?? '';
+  assert.match(rule('.tw .info {'), /border-top: 3px solid var\(--kc\)/);
+  assert.match(rule('.tw .info .kind'), /color: var\(--kc\)/);
+  assert.match(rule('.tw .info .like'), /color: var\(--kc, #e8946f\)/, 'the like line follows the top bar, not a fixed orange');
+  assert.match(rule('.tw .info.k-yml'), /\.k-yml \{ --kc: #ff8a8a/);
+  assert.match(rule('.tw .info.k-ts'), /\.k-ts \{ --kc: #7db7f5/);
+});
