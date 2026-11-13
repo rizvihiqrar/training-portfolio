@@ -175,7 +175,9 @@ ${pieceHead(d.title)}
 </div>`;
 }
 
-/** The test-scope decision as three stages (what happened, the check, what runs); picking a case lights its path in orange. */
+const TONES = ['blue', 'amber', 'green', 'red', 'purple', 'grey']; // one palette, used the same way everywhere: blue starts, amber checks, green is done, red is blocked, purple hands over, grey is left out
+
+/** The test-scope decision as three stages (what happened, the check, what runs); picking a case sends a token down its path and lights each stage in turn, in the colour of what the stage is. */
 function scope(d) {
   need(d.alt && Array.isArray(d.events) && d.events.length && d.check && Array.isArray(d.outcomes) && d.outcomes.length && Array.isArray(d.scenarios) && d.scenarios.length, 'a scope needs alt, events, check, outcomes and scenarios');
   const ids = (list) => new Set(list.map((x) => text(x.id, 'a node id')));
@@ -189,14 +191,17 @@ function scope(d) {
   const first = d.scenarios[0];
   const lit = (on) => (on ? ' lit' : '');
   const buttons = d.scenarios.map((s, i) => `<button type="button" aria-pressed="${i === 0}"${i === 0 ? ' class="on"' : ''}>${esc(s.label)}</button>`).join('');
-  const evNodes = d.events.map((e) => `<div class="nd${lit(e.id === first.event)}" data-e="${esc(e.id)}">${esc(text(e.text, 'an event'))}</div>`).join('');
+  const evNodes = d.events.map((e) => `<div class="nd ev${lit(e.id === first.event)}" data-e="${esc(e.id)}">${esc(text(e.text, 'an event'))}</div>`).join('');
   const answers = ['yes', 'no'].map((a) => `<span class="ans${lit(first.check === a)}" data-a="${a}">${a}</span>`).join('');
   const check = `<div class="nd chk${lit(first.check !== undefined)}" data-c><span>${esc(text(d.check.text, 'the check'))}</span><span class="answers">${answers}</span><em class="skip">${esc(d.check.skipped ?? 'Not asked for this one')}</em></div>`;
-  const outNodes = d.outcomes.map((o) => `<div class="nd out${lit(o.id === first.outcome)}" data-o="${esc(o.id)}"><b>${esc(text(o.text, 'an outcome'))}</b><span>${esc(text(o.detail, 'an outcome detail'))}</span></div>`).join('');
+  for (const o of d.outcomes) need(o.tone === undefined || TONES.includes(o.tone), `outcome ${o.id}: tone must be one of ${TONES.join(', ')}`);
+  const toneOf = (o) => o.tone ?? 'purple';
+  const outNodes = d.outcomes.map((o) => `<div class="nd out t-${toneOf(o)}${lit(o.id === first.outcome)}" data-o="${esc(o.id)}"><b>${esc(text(o.text, 'an outcome'))}</b><span>${esc(text(o.detail, 'an outcome detail'))}</span></div>`).join('');
   const data = esc(JSON.stringify(d.scenarios.map((s) => [s.event, s.check ?? '', s.outcome, s.why])));
-  return `<div class="pc sc" data-site="scope" data-scenarios="${data}" role="group" aria-label="${esc(d.alt)}">
+  const firstTone = toneOf(d.outcomes.find((o) => o.id === first.outcome));
+  return `<div class="pc sc st3" style="--l2:var(--${firstTone})" data-site="scope" data-scenarios="${data}" role="group" aria-label="${esc(d.alt)}">
 <div class="sc-pick">${buttons}</div>
-<div class="sc-map"><div class="sc-col"><h5>What happens</h5>${evNodes}</div><div class="sc-col"><h5>The check</h5>${check}</div><div class="sc-col"><h5>What runs</h5>${outNodes}</div></div>
+<div class="sc-map"><div class="sc-col"><h5>What happens</h5>${evNodes}</div><div class="sc-col"><h5>The check</h5>${check}</div><div class="sc-col"><h5>What runs</h5>${outNodes}</div><i class="sc-token" aria-hidden="true"></i></div>
 <p class="sc-why">${esc(first.why)}</p>${d.asOf ? `<small class="pc-note">${esc(d.asOf)}</small>` : ''}
 </div>`;
 }
@@ -321,14 +326,26 @@ each('[data-site="funnel"]',function(root){
   });
 });
 each('[data-site="scope"]',function(root){
-  var sc=JSON.parse(root.getAttribute('data-scenarios')),btns=root.querySelectorAll('.sc-pick button'),why=root.querySelector('.sc-why');
-  function pick(i){var s=sc[i];
+  var sc=JSON.parse(root.getAttribute('data-scenarios')),btns=root.querySelectorAll('.sc-pick button'),why=root.querySelector('.sc-why'),map=root.querySelector('.sc-map'),tk=root.querySelector('.sc-token'),chk=root.querySelector('[data-c]'),timers=[],calm=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+  function node(attr,v){return root.querySelector('['+attr+'="'+v+'"]')}
+  function tone(n){return getComputedStyle(n).getPropertyValue('--tone').trim()}
+  function put(n,color,instant){var m=map.getBoundingClientRect(),r=n.getBoundingClientRect();
+    if(instant)tk.style.transition='none';
+    tk.style.left=(r.left-m.left+r.width/2)+'px';tk.style.top=(r.top-m.top+r.height/2)+'px';tk.style.setProperty('--tk',color);tk.classList.add('on');
+    if(instant){void tk.offsetWidth;tk.style.transition=''}}
+  function clear(){timers.forEach(clearTimeout);timers=[];root.classList.remove('st2','st3');root.querySelectorAll('.lit').forEach(function(n){n.classList.remove('lit')});tk.classList.remove('on')}
+  function at(ms,f){timers.push(setTimeout(f,ms))}
+  function pick(i){var s=sc[i],ev=node('data-e',s[0]),out=node('data-o',s[2]),ans=s[1]!==''?node('data-a',s[1]):null;
     btns.forEach(function(b,k){b.classList.toggle('on',k===i);b.setAttribute('aria-pressed',k===i)});
-    root.querySelectorAll('[data-e]').forEach(function(n){n.classList.toggle('lit',n.getAttribute('data-e')===s[0])});
-    root.querySelector('[data-c]').classList.toggle('lit',s[1]!=='');
-    root.querySelectorAll('[data-a]').forEach(function(n){n.classList.toggle('lit',n.getAttribute('data-a')===s[1])});
-    root.querySelectorAll('[data-o]').forEach(function(n){n.classList.toggle('lit',n.getAttribute('data-o')===s[2])});
-    why.textContent=s[3];}
+    clear();
+    function showCheck(){root.classList.add('st2');if(ans){chk.classList.add('lit');ans.classList.add('lit')}}
+    function showOut(){root.style.setProperty('--l2',tone(out));root.classList.add('st3');out.classList.add('lit');why.textContent=s[3]}
+    if(calm){ev.classList.add('lit');showCheck();showOut();return}
+    why.textContent='';ev.classList.add('lit');put(ev,tone(ev),true);
+    if(ans){at(450,function(){put(chk,tone(chk))});at(850,showCheck);at(1350,function(){put(out,tone(out))});at(1750,showOut)}
+    else{at(450,function(){put(out,tone(out))});at(850,function(){showCheck();showOut()})}
+    at(2300,function(){tk.classList.remove('on')});}
   btns.forEach(function(b,i){b.addEventListener('click',function(){pick(i)})});
+  if(!calm&&'IntersectionObserver' in window){try{var io=new IntersectionObserver(function(es){if(es[0].isIntersecting){io.disconnect();pick(0)}},{rootMargin:'0px 0px -20% 0px'});io.observe(root)}catch(e){}}
 });
 })();`;
