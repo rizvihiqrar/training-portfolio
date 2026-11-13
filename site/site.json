@@ -441,11 +441,225 @@
     {
       "label": "Guide",
       "title": "Git for People New to Version Control",
-      "status": "planned",
+      "path": "04-technical-enablement/git-workflow-guide/README.md",
+      "image": "docs/assets/previews/04-git-guide.png",
+      "imageAlt": "Title card: Git for People New to Version Control",
       "tags": [
-        "Technical Enablement"
+        "Technical Enablement",
+        "Onboarding"
       ],
-      "summary": "Clone, branch, push and raise a pull request, with a short quiz."
+      "summary": "A tester who has never used version control learns to save, branch, share and fix a conflict with eight commands. Four sessions of 30 minutes.",
+      "button": "Open Guide",
+      "facts": [
+        "Audience: testers new to Git",
+        "Tools: Git, GitHub, VS Code",
+        "Length: 4 sessions, 2 hours"
+      ],
+      "visual": "docs/assets/visuals/git-workflow.svg",
+      "visualAlt": "Looping illustration: a branch leaves the main line, gets two commits, and returns through a pull request while main stays safe.",
+      "code": "I changed tests/login.spec.ts and want a teammate to review it. Give me the Git commands in order, and say what each one does in everyday words.",
+      "codeLang": "text",
+      "oneLiner": "Four 30-minute sessions and eight commands take a tester from no version control to a pull request.",
+      "codeLabel": "Prompt",
+      "full": "04-technical-enablement/git-workflow-guide/full/git-workflow-guide-full.md",
+      "components": {
+        "runs": {
+          "branch": {
+            "tab": "harbourline-tests",
+            "chat": "I changed tests/login.spec.ts and want a teammate to review it. Give me the Git commands in order.",
+            "alt": "Animated result: a branch is created, a file is added and committed, and the branch is pushed, ready for a pull request.",
+            "lines": [
+              {
+                "segs": [
+                  [
+                    "p",
+                    "$"
+                  ],
+                  [
+                    "k",
+                    "git"
+                  ],
+                  [
+                    "",
+                    "switch -c add-login-check"
+                  ]
+                ]
+              },
+              {
+                "segs": [
+                  [
+                    "g",
+                    "Switched to a new branch 'add-login-check'"
+                  ]
+                ]
+              },
+              {
+                "segs": [
+                  [
+                    "p",
+                    "$"
+                  ],
+                  [
+                    "k",
+                    "git"
+                  ],
+                  [
+                    "",
+                    "add tests/login.spec.ts"
+                  ]
+                ]
+              },
+              {
+                "segs": [
+                  [
+                    "p",
+                    "$"
+                  ],
+                  [
+                    "k",
+                    "git"
+                  ],
+                  [
+                    "",
+                    "commit -m \"Add login check\""
+                  ]
+                ]
+              },
+              {
+                "segs": [
+                  [
+                    "g",
+                    "[add-login-check 4f2a9c1] Add login check"
+                  ]
+                ]
+              },
+              {
+                "segs": [
+                  [
+                    "p",
+                    "$"
+                  ],
+                  [
+                    "k",
+                    "git"
+                  ],
+                  [
+                    "",
+                    "push -u origin add-login-check"
+                  ]
+                ]
+              },
+              {
+                "segs": [
+                  [
+                    "g",
+                    "Branch 'add-login-check' set up to track 'origin/add-login-check'."
+                  ]
+                ]
+              },
+              {
+                "segs": [
+                  [
+                    "n",
+                    "Next:"
+                  ],
+                  [
+                    "",
+                    "open a pull request on GitHub"
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        "quiz": {
+          "pass": 6,
+          "passMessage": "Ready to work on a real project.",
+          "failMessage": "Go back over the four sessions, then try again.",
+          "questions": [
+            {
+              "q": "What does a commit do?",
+              "options": [
+                "Sends your files to a teammate",
+                "Saves a snapshot of your changes with a message",
+                "Deletes the old version"
+              ],
+              "answer": 1,
+              "why": "A commit is a save point you can return to."
+            },
+            {
+              "q": "Why work on a branch instead of main?",
+              "options": [
+                "Branches run faster",
+                "Git does not allow commits on main",
+                "Main stays working while you try your change"
+              ],
+              "answer": 2,
+              "why": "Nothing reaches main until someone has reviewed it."
+            },
+            {
+              "q": "Which command starts a new branch and moves you onto it?",
+              "options": [
+                "git commit -b add-login-check",
+                "git switch -c add-login-check",
+                "git branch main"
+              ],
+              "answer": 1,
+              "why": "The -c means create."
+            },
+            {
+              "q": "What does git add do?",
+              "options": [
+                "Chooses which changes go into the next commit",
+                "Sends changes to GitHub",
+                "Creates a new branch"
+              ],
+              "answer": 0,
+              "why": "You can add some files and leave others for later."
+            },
+            {
+              "q": "What does git push do?",
+              "options": [
+                "Brings your teammates’ changes to your computer",
+                "Deletes your branch",
+                "Copies your branch’s commits to GitHub"
+              ],
+              "answer": 2,
+              "why": "Until you push, nobody else can see your work."
+            },
+            {
+              "q": "What is a pull request?",
+              "options": [
+                "A request to download the project",
+                "A request for a teammate to review your branch and merge it",
+                "A command that undoes a commit"
+              ],
+              "answer": 1,
+              "why": "It is where the discussion happens."
+            },
+            {
+              "q": "Git says CONFLICT in a file. What happened?",
+              "options": [
+                "Git lost the file",
+                "Your password is wrong",
+                "You and a teammate changed the same lines, and you choose what stays"
+              ],
+              "answer": 2,
+              "why": "Git will not guess which change is right."
+            },
+            {
+              "q": "Which file should never be committed?",
+              "options": [
+                "A README",
+                "A file with a password or key in it",
+                "A test file"
+              ],
+              "answer": 1,
+              "why": "Once pushed, a secret stays in the history."
+            }
+          ]
+        }
+      }
     },
     {
       "label": "Sessions",

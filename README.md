@@ -13,6 +13,7 @@ Click a course to open its page on the site.
 | Course | Goals | Length | Open |
 |---|---|---|---|
 | [**QA Automation Onboarding**](https://rizvihiqrar.github.io/training-portfolio/01-onboarding-programs/qa-automation-onboarding/) | Open a project, ask an AI helper for code, and write and run a first automated test | 10 days | [Lesson plan](https://rizvihiqrar.github.io/training-portfolio/01-onboarding-programs/qa-automation-onboarding/lesson-plan-day-5-practice.html), [Quiz](https://rizvihiqrar.github.io/training-portfolio/01-onboarding-programs/qa-automation-onboarding/quiz.html), [Scoring guide](https://rizvihiqrar.github.io/training-portfolio/01-onboarding-programs/qa-automation-onboarding/rubric-day-10-practical-round.html), [Source files](01-onboarding-programs/qa-automation-onboarding/) |
+| [**Git for People New to Version Control**](https://rizvihiqrar.github.io/training-portfolio/04-technical-enablement/git-workflow-guide/) | Save, branch, share and fix a conflict with eight commands, then send a pull request | 2 hours | [Quiz](https://rizvihiqrar.github.io/training-portfolio/04-technical-enablement/git-workflow-guide/quiz.html), [Source files](04-technical-enablement/git-workflow-guide/) |
 
 After ten one-hour days, a tester who has never written code can open a project in VS Code, ask an AI helper for help, and write and run a simple automated test of a website. Two of the days are hands-on, with no video, because the goal is to do, not only watch.
 
@@ -39,7 +40,6 @@ Every course is a set of choices, and each course page says what I chose, why, a
 ## Coming Next
 
 - Assignments and a bank reconciliation course on a made-up accounting system
-- A Git guide for people new to version control
 - Two short drop-in session decks, and QA with AI tools
 - An assessment kit: evaluation form, quiz bank, certificate
 - A customer onboarding kit and a go-live training plan
