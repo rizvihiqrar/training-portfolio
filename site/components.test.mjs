@@ -199,10 +199,10 @@ test('a time bar whose shares do not add up to 100, or whose hours do not match 
 
 test('the picker starts on its first case with that path lit, and every case names real nodes', () => {
   const html = applyComponents(block('scope'), { scope: scopeData() });
-  assert.match(html, /<div class="nd lit" data-e="pr">/);
-  assert.match(html, /<div class="nd out lit" data-o="smoke">/);
+  assert.match(html, /<div class="nd ev lit" data-e="pr">/);
+  assert.match(html, /<div class="nd out t-purple lit" data-o="smoke">/);
   assert.match(html, /<span class="ans lit" data-a="no">/);
-  assert.doesNotMatch(html, /class="nd lit" data-e="main"/, 'only the first case is lit');
+  assert.doesNotMatch(html, /class="nd ev lit" data-e="main"/, 'only the first case is lit');
   assert.match(html, /<p class="sc-why">Only smoke\.<\/p>/);
   assert.match(html, /<button type="button" aria-pressed="true" class="on">A pull request<\/button>/);
   assert.throws(() => applyComponents(block('scope'), { scope: scopeData({ scenarios: [{ label: 'x', event: 'nope', outcome: 'full', why: 'y' }] }) }), /event nope/);
@@ -239,4 +239,27 @@ test('the picker columns do not reuse the site\'s own stage class', () => {
   const html = applyComponents(block('scope'), { scope: scopeData() });
   assert.equal((html.match(/class="sc-col"/g) ?? []).length, 3);
   assert.doesNotMatch(html, /class="stage"/);
+});
+
+test('the picker colours each stage by what it is: an outcome picks one of six tones (purple when it says nothing), and the first path starts fully drawn', () => {
+  const tones = scopeData({ outcomes: [{ id: 'smoke', text: 'Smoke', detail: 'a', tone: 'green' }, { id: 'full', text: 'Full', detail: 'b', tone: 'grey' }] });
+  const html = applyComponents(block('scope'), { scope: tones });
+  assert.match(html, /<div class="nd out t-green lit" data-o="smoke">/);
+  assert.match(html, /<div class="nd out t-grey" data-o="full">/);
+  assert.match(html, /class="pc sc st3" style="--l2:var\(--green\)"/, 'the link into the last stage is green too');
+  assert.match(applyComponents(block('scope'), { scope: scopeData() }), /style="--l2:var\(--purple\)"/, 'no tone means purple');
+  assert.throws(() => applyComponents(block('scope'), { scope: scopeData({ outcomes: [{ id: 'smoke', text: 'S', detail: 'd', tone: 'pink' }, { id: 'full', text: 'F', detail: 'd' }] }) }), /tone must be one of blue, amber, green, red, purple, grey/);
+});
+
+test('the picker sends a token down the path, lights the stages one after another, and skips the animation with reduced motion (the break: light everything at once)', () => {
+  const html = applyComponents(block('scope'), { scope: scopeData() });
+  assert.equal((html.match(/class="sc-token"/g) ?? []).length, 1, 'one token, inside the map');
+  assert.ok(html.indexOf('class="sc-token"') > html.indexOf('What runs'), 'the token is the last child of the map, so the stage links keep their place');
+  const js = COMPONENT_SCRIPT;
+  const scope = js.slice(js.indexOf("each('[data-site=\"scope\"]'"));
+  assert.match(scope, /prefers-reduced-motion/, 'reduced motion is read');
+  assert.match(scope, /if\(calm\)\{[^}]*showCheck\(\);showOut\(\)/, 'with reduced motion every stage is lit at once');
+  assert.ok((scope.match(/at\(\d+,/g) ?? []).length >= 5, 'the stages are timed one after another');
+  assert.match(scope, /clearTimeout/, 'picking another case stops the one still running');
+  assert.match(scope, /IntersectionObserver/, 'the first case plays when the picker scrolls into view');
 });
