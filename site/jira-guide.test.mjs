@@ -174,3 +174,11 @@ test('the built guide page has the quiz, the animated ticket and the folded full
   assert.match(html, /Read the Full Version/);
   assert.match(html, /Login stays on the page after a correct password/);
 });
+
+test('Getting Started links the free Jira sign-up before anything else, and the card line stays short (the break: remove the link or pad the line)', () => {
+  const start = must(page.split('## Getting Started')[1], 'the Getting Started section').split(String.fromCharCode(10) + '## ')[0];
+  assert.match(start, /\]\(https:\/\/www\.atlassian\.com\/software\/jira\/free\)/, 'the sign-up link is there');
+  assert.ok(start.trim().startsWith('First, make a [free Atlassian account]('), 'the account is the first thing asked');
+  assert.ok(start.indexOf('atlassian.com') < start.indexOf('invit'), 'the account comes before the invitation');
+  assert.ok(card.oneLiner.split(/\s+/).length <= 14, `the card line is ${card.oneLiner.split(/\s+/).length} words, over 14`);
+});

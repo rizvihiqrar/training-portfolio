@@ -682,7 +682,7 @@
       "visualAlt": "Looping illustration of a Jira board with six columns: one ticket card moves from Raised through Triaged, In Progress and In Test, is sent to Reopened once when a retest fails, and ends in Done.",
       "code": "Here are my notes from testing the Harbourline login page. Write one Jira bug ticket: a summary under twelve words, numbered steps, the expected result, the actual result and a severity with one reason.",
       "codeLang": "text",
-      "oneLiner": "Three 30-minute sessions teach a tester to write a ticket others can reproduce and to know whose turn each status is.",
+      "oneLiner": "Write tickets others can reproduce, and know whose turn each status is.",
       "codeLabel": "Prompt",
       "full": "04-technical-enablement/jira-workflow-guide/full/jira-workflow-guide-full.md",
       "components": {
